@@ -817,3 +817,17 @@ border:1px solid rgba(34,197,94,0.15);
   border-color:#22c55e;
   box-shadow:0 0 18px rgba(34,197,94,0.4);
   }
+
+.player {
+  position: relative;
+  z-index: 2;
+}
+
+.admin-buttons {
+  position: relative;
+  z-index: 3;
+}
+
+button {
+  cursor: pointer;
+}
