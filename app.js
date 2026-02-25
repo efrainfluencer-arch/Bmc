@@ -20,7 +20,7 @@ import {
 
 // ================= CONFIG =================
 const firebaseConfig = {
-  apiKey: "AIzaSyDhsV1GJeEvBGBAQmcUXQ8FDcAOXus4DP0",
+  apiKey: "SUA_KEY",
   authDomain: "bmc-ranking.firebaseapp.com",
   projectId: "bmc-ranking",
   storageBucket: "bmc-ranking.firebasestorage.app",
@@ -90,16 +90,16 @@ window.addPlayer = async function () {
     const categoria = document.getElementById("categoria")?.value;
     const tier = document.getElementById("tier")?.value;
 
-    if (!nome || !modo) {
+    if (nome === "" || modo === "") {
       alert("Preencha tudo!");
       return;
     }
 
     await addDoc(collection(db, "players"), {
-      nome,
-      modo,
-      categoria,
-      tier
+      nome: nome.toLowerCase(),
+      modo: modo.toLowerCase(),
+      categoria: categoria.toLowerCase(),
+      tier: tier.toLowerCase()
     });
 
     document.getElementById("nome").value = "";
@@ -139,28 +139,34 @@ window.editarPlayer = async function (id, nomeAtual, modoAtual, tierAtual, categ
       return;
     }
 
-    if (!id) return;
+    if (!id) {
+      alert("ID inválido!");
+      return;
+    }
 
-    const nome = prompt("Novo nome:", nomeAtual);
-    if (!nome) return;
+    const nome = prompt("Novo nome:", nomeAtual || "");
+    if (nome === null) return;
 
-    const modo = prompt("Novo modo:", modoAtual);
-    if (!modo) return;
+    const modo = prompt("Novo modo:", modoAtual || "");
+    if (modo === null) return;
 
-    const tier = prompt("Nova tier:", tierAtual);
-    if (!tier) return;
+    const tier = prompt("Nova tier (splus, a, bminus...):", tierAtual || "");
+    if (tier === null) return;
 
-    const categoria = prompt("Categoria:", categoriaAtual);
-    if (!categoria) return;
+    const categoria = prompt("Categoria (combate, projeteis...):", categoriaAtual || "");
+    if (categoria === null) return;
 
     await updateDoc(doc(db, "players", id), {
-      nome,
-      modo,
-      tier,
-      categoria
+      nome: nome.trim().toLowerCase(),
+      modo: modo.trim().toLowerCase(),
+      tier: tier.trim().toLowerCase(),
+      categoria: categoria.trim().toLowerCase()
     });
 
+    alert("Atualizado 🔥");
+
   } catch (e) {
+    console.error(e);
     alert("Erro ao editar: " + e.message);
   }
 };
@@ -168,7 +174,6 @@ window.editarPlayer = async function (id, nomeAtual, modoAtual, tierAtual, categ
 // ================= FORMATAR =================
 function formatTier(t) {
   if (!t) return "";
-
   return t.replace("plus", "+").replace("minus", "-").toUpperCase();
 }
 
@@ -208,17 +213,12 @@ function renderGlobal(players){
 
     const player = map[p.nome];
 
-    // base
-    const pontosBase = getPoints(p.tier);
-
-    // evitar duplicar mesmo modo + categoria
     const key = p.categoria + "-" + p.modo;
     if(player[key]) return;
     player[key] = true;
 
-    player.pontos += pontosBase;
+    player.pontos += getPoints(p.tier);
 
-    // salvar info pra bônus
     player.categorias.add(p.categoria);
     player.modos.add(p.modo);
     player.tiers.push(p.tier);
@@ -227,19 +227,13 @@ function renderGlobal(players){
   const ranking = Object.values(map);
 
   ranking.forEach(p=>{
-    // 🔥 BONUS POR VARIEDADE
     const bonusCategoria = p.categorias.size * 10;
-
-    // 🔥 BONUS POR MODOS DIFERENTES
     const bonusModo = p.modos.size * 5;
-
-    // 🔥 BONUS POR TIER ALTA
     const highTierBonus = p.tiers.filter(t => t.includes("s")).length * 5;
 
     p.scoreFinal = p.pontos + bonusCategoria + bonusModo + highTierBonus;
   });
 
-  // ordenar pelo score final
   ranking.sort((a,b)=>b.scoreFinal - a.scoreFinal);
 
   ranking.slice(0,10).forEach((p,i)=>{
@@ -255,7 +249,6 @@ function renderGlobal(players){
       <span>${Math.floor(p.scoreFinal)} pts</span>
     `;
 
-    // glow clean verde
     if(i===0) li.style.boxShadow="0 0 20px rgba(34,197,94,0.4)";
     if(i===1) li.style.boxShadow="0 0 15px rgba(132,204,22,0.35)";
     if(i===2) li.style.boxShadow="0 0 10px rgba(74,222,128,0.3)";
@@ -318,7 +311,7 @@ function render(data) {
             el.innerHTML += `
               <div class="admin-buttons">
                 <button onclick="removerPlayer('${p.id}')">❌</button>
-                <button onclick="editarPlayer('${p.id}','${p.nome}','${p.modo}','${p.tier}','${p.categoria}')">✏️</button>
+                <button onclick="editarPlayer('${p.id}','${p.nome || ""}','${p.modo || ""}','${p.tier || ""}','${p.categoria || ""}')">✏️</button>
               </div>
             `;
           }
@@ -345,15 +338,17 @@ onSnapshot(collection(db, "players"), snapshot => {
     }));
 
     render(players);
-    renderGlobal(players); // 🔥 ADICIONADO
+    renderGlobal(players);
 
   } catch (e) {
     console.error("Erro render:", e);
   }
 });
 
+// ================= LOADING =================
 window.addEventListener("load", ()=>{
   setTimeout(()=>{
-    document.getElementById("loading").style.display = "none";
-  },2000);
+    const loading = document.getElementById("loading");
+    if(loading) loading.style.display = "none";
+  },1500);
 });
