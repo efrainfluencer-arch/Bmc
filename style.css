@@ -1,0 +1,506 @@
+@font-face {
+font-family: 'Minecraft';
+src: url('Minefactory.woff2') format('woff2');
+}
+
+/* ===== RESET ===== */
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+/* ===== BODY ===== */
+body {
+  background: linear-gradient(180deg, #050505 0%, #08110a 40%, #050505 100%);
+  color: #d9d9d9;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ===== SCROLL ===== */
+::-webkit-scrollbar{
+width:8px;
+}
+::-webkit-scrollbar-thumb{
+background:#22c55e;
+border-radius:10px;
+}
+::-webkit-scrollbar-track{
+background:#020617;
+}
+
+/* ===== CONTAINER ===== */
+.container{
+max-width:950px;
+margin:auto;
+padding:20px;
+animation:fadeUp 0.6s ease;
+}
+
+/* ===== HERO ===== */
+.hero, .hero1{
+text-align:center;
+padding:50px 20px;
+}
+
+.hero h1, .hero1 h1{
+color:#4cff4c;
+text-shadow:0 0 10px #22c55e;
+}
+
+.hero p{
+color:#9ca3af;
+}
+
+.hero img {
+max-width: 100%;
+border-radius: 8px;
+}
+/* ===== SEÇÕES ===== */
+
+::selection {
+  background: rgba(120, 255, 160, 0.25);
+}
+
+section{
+margin-top:30px;
+padding:20px;
+background:rgba(15,23,42,0.8);
+border-radius:12px;
+border:1px solid rgba(255,255,255,0.05);
+backdrop-filter:blur(10px);
+box-shadow:0 0 20px rgba(0,0,0,0.3);
+}
+
+/* ===== LISTAS ===== */
+.lista li{
+list-style:none;
+padding:12px;
+margin-bottom:10px;
+background:#020617;
+border-radius:10px;
+transition:0.25s;
+border:1px solid rgba(255,255,255,0.03);
+}
+
+.lista li:hover{
+transform:translateX(8px);
+background:#020617cc;
+box-shadow:0 0 10px rgba(34,197,94,0.3);
+}
+
+/* ===== BOTÕES ===== */
+.voltar{
+display:inline-block;
+margin-top:15px;
+padding:10px 18px;
+background:#22c55e;
+color:white;
+text-decoration:none;
+border-radius:10px;
+transition:0.25s;
+box-shadow:0 0 10px rgba(34,197,94,0.5);
+}
+
+.voltar:hover{
+background:#16a34a;
+transform:translateY(-3px) scale(1.03);
+box-shadow:0 0 20px rgba(34,197,94,0.8);
+}
+
+/* ================= RANKING ================= */
+.card {
+  background: rgba(12, 12, 12, 0.85);
+  border: 1px solid rgba(120, 120, 120, 0.12);
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  transition: 0.25s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  border: 1px solid rgba(120, 255, 160, 0.25);
+}
+
+.categoria{
+margin-bottom:50px;
+animation:fadeUp 0.6s ease forwards;
+opacity:0;
+transform:translateY(20px);
+}
+
+.categoria h2{
+text-align:center;
+margin-bottom:15px;
+color:#22c55e;
+text-shadow:0 0 8px #22c55e;
+}
+
+/* ===== TIER ===== */
+.tier{
+display:flex;
+margin:10px 0;
+border-radius:12px;
+overflow:hidden;
+background:#020617;
+border:1px solid rgba(255,255,255,0.05);
+transition:0.25s;
+opacity:0;
+animation:fadeTier 0.5s ease forwards;
+}
+
+.tier {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  border: 1px solid rgba(120, 255, 160, 0.15);
+  color: #bfffcf;
+
+  box-shadow: 0 0 6px rgba(120, 255, 160, 0.2);
+}
+
+/* efeito ao passar o mouse */
+.tier:hover {
+  box-shadow: 0 0 12px rgba(120, 255, 160, 0.45);
+  border-color: rgba(120, 255, 160, 0.35);
+}
+
+.tier:hover{
+transform:scale(1.02);
+box-shadow:0 0 20px rgba(0,0,0,0.4);
+}
+
+/* ===== LABEL ===== */
+.tier-title{
+width:80px;
+min-height:80px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:bold;
+font-size:18px;
+letter-spacing:1px;
+}
+
+/* ===== PLAYERS ===== */
+.players{
+flex:1;
+min-height:80px;
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+padding:12px;
+}
+
+/* ===== PLAYER ===== */
+.player{
+position:relative;
+background:#0b0f1a;
+padding:10px;
+border-radius:10px;
+border:1px solid rgba(255,255,255,0.05);
+transition:0.25s;
+animation:popIn 0.3s ease;
+cursor:pointer;
+}
+
+.player:hover{
+transform:translateY(-4px) scale(1.03);
+box-shadow:0 0 15px rgba(34,197,94,0.4);
+}
+
+/* nome */
+.player strong{
+display:block;
+font-size:14px;
+}
+
+/* modo */
+.player span{
+font-size:12px;
+opacity:0.6;
+}
+
+/* ===== BASE TIER (SEM COR FORTE) ===== */
+
+.tier{
+background:#020617;
+border:1px solid rgba(255,255,255,0.05);
+}
+
+/* label neutro */
+.tier-title{
+background:#030712;
+color:white;
+}
+
+/* ===== S (ROXO NEON) ===== */
+
+.tier-splus,
+.tier-s,
+.tier-sminus{
+box-shadow:0 0 8px rgba(155,89,182,0.4);
+}
+
+.tier-splus:hover,
+.tier-s:hover,
+.tier-sminus:hover{
+box-shadow:0 0 15px rgba(155,89,182,0.7);
+}
+
+/* ===== A (VERDE NEON) ===== */
+
+.tier-aplus,
+.tier-a,
+.tier-aminus{
+box-shadow:0 0 8px rgba(46,204,113,0.4);
+}
+
+.tier-aplus:hover,
+.tier-a:hover,
+.tier-aminus:hover{
+box-shadow:0 0 15px rgba(46,204,113,0.7);
+}
+
+/* ===== B (AMARELO NEON) ===== */
+
+.tier-bplus,
+.tier-b,
+.tier-bminus{
+box-shadow:0 0 8px rgba(241,196,15,0.4);
+}
+
+.tier-bplus:hover,
+.tier-b:hover,
+.tier-bminus:hover{
+box-shadow:0 0 15px rgba(241,196,15,0.7);
+}
+
+/* ===== C (AZUL NEON) ===== */
+
+.tier-cplus,
+.tier-c,
+.tier-cminus{
+box-shadow:0 0 8px rgba(32,102,148,0.4);
+}
+
+.tier-cplus:hover,
+.tier-c:hover,
+.tier-cminus:hover{
+box-shadow:0 0 15px rgba(32,102,148,0.7);
+}
+
+/* ===== D (VERMELHO NEON) ===== */
+
+.tier-dplus,
+.tier-d,
+.tier-dminus{
+box-shadow:0 0 8px rgba(153,45,34,0.4);
+}
+
+.tier-dplus:hover,
+.tier-d:hover,
+.tier-dminus:hover{
+box-shadow:0 0 15px rgba(153,45,34,0.7);
+}
+
+.tier::before{
+content:"";
+position:absolute;
+inset:0;
+border-radius:12px;
+opacity:0;
+transition:0.3s;
+}
+
+.tier:hover::before{
+opacity:1;
+background:linear-gradient(120deg, transparent, rgba(255,255,255,0.05), transparent);
+}
+
+.tier{
+  position:relative;
+overflow:hidden;
+}
+/* ================= STAFF ================= */
+
+.staff-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.staff-card img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(120, 255, 160, 0.25);
+}
+
+.staff-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.staff-info span {
+  font-size: 13px;
+  color: #9f9f9f;
+}
+
+.painel{
+background:#020617;
+padding:20px;
+border-radius:12px;
+border:1px solid rgba(255,255,255,0.05);
+margin-bottom:20px;
+box-shadow:0 0 15px rgba(0,0,0,0.3);
+}
+
+/* inputs */
+.painel input,
+.painel select{
+padding:10px;
+border-radius:8px;
+border:none;
+background:#0b0f1a;
+color:white;
+margin:5px;
+outline:none;
+}
+
+.painel input:focus,
+.painel select:focus{
+box-shadow:0 0 10px rgba(34,197,94,0.5);
+}
+
+/* botões */
+.painel button{
+padding:10px 14px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+transition:0.25s;
+font-family:'Minecraft';
+}
+
+/* adicionar */
+.painel button:nth-child(1){
+background:#22c55e;
+box-shadow:0 0 10px rgba(34,197,94,0.6);
+}
+
+/* sair */
+.painel button:nth-child(2){
+background:#334155;
+}
+
+/* ================= BOTÕES ADMIN ================= */
+
+.admin-buttons{
+position:absolute;
+top:5px;
+right:5px;
+display:flex;
+gap:5px;
+opacity:0;
+transition:0.3s;
+}
+
+.player:hover .admin-buttons{
+opacity:1;
+}
+
+.admin-buttons button{
+border:none;
+cursor:pointer;
+font-size:12px;
+padding:4px 7px;
+border-radius:6px;
+color:white;
+transition:0.2s;
+}
+
+/* remover */
+.admin-buttons button:nth-child(1){
+background:#ef4444;
+}
+
+.admin-buttons button:nth-child(2){
+background:#8b5cf6;
+}
+
+.admin-buttons button:hover{
+transform:scale(1.1);
+}
+
+/* ================= ANIMAÇÕES ================= */
+
+@keyframes fadeUp{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+@keyframes fadeTier{
+from{
+opacity:0;
+transform:translateX(-20px);
+}
+to{
+opacity:1;
+transform:translateX(0);
+}
+}
+
+@keyframes popIn{
+from{
+opacity:0;
+transform:scale(0.8);
+}
+to{
+opacity:1;
+transform:scale(1);
+}
+}
+
+/* ================= RESPONSIVO ================= */
+
+@media(max-width:768px){
+.tier{
+flex-direction:column;
+}
+
+.tier-title{
+width:100%;
+min-height:50px;
+}
+
+.players{
+justify-content:center;
+}
+}
+
+/* ================= EFEITO EXTRA PRO ================= */
+
+/* brilho leve no fundo */
+body::before{
+content:"";
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:radial-gradient(circle at 20% 20%, rgba(34,197,94,0.08), transparent);
+pointer-events:none;
+}
+
+/* hover glow nos tiers */
+.tier:hover .tier-title{
+filter:brightness(1.2);
+}

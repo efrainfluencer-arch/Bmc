@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Staff</title>
+
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="stylee.css">
+
+</head>
+<body>
+  <div id="painel" style="display:none;">
+  <!-- TODO SEU STAFF AQUI -->
+
+<div id="login-screen" class="login-screen">
+
+  <div class="login-box">
+    <h2>🔐 Acesso Staff</h2>
+
+    <input type="password" id="senha" placeholder="Digite a senha">
+
+    <button onclick="login()">Entrar</button>
+
+    <p id="erro" class="erro"></p>
+  </div>
+
+</div>
+<div class="staff-page">
+<main class="staff-container">
+
+<h1 class="staff-title">Painel Staff</h1>
+
+<button onclick="logout()">Sair</button>
+
+<div class="staff-form">
+
+<input id="nome" placeholder="Nome do Player">
+<input id="modo" placeholder="Modo (Ex: Boxing, SkyWars)">
+
+<select id="categoria">
+  <option value="projeteis">Projéteis</option>
+  <option value="combate">Combate</option>
+  <option value="estrategia">Estratégia</option>
+  <option value="skills">Skills</option>
+</select>
+
+<select id="tier">
+  <option value="splus">S+</option>
+  <option value="s">S</option>
+  <option value="sminus">S-</option>
+
+  <option value="aplus">A+</option>
+  <option value="a">A</option>
+  <option value="aminus">A-</option>
+
+  <option value="bplus">B+</option>
+  <option value="b">B</option>
+  <option value="bminus">B-</option>
+
+  <option value="cplus">C+</option>
+  <option value="c">C</option>
+  <option value="cminus">C-</option>
+
+  <option value="dplus">D+</option>
+  <option value="d">D</option>
+  <option value="dminus">D-</option>
+</select>
+
+<button onclick="adicionarDoPainel()">Adicionar Player</button>
+
+</div>
+
+<h2>Players adicionados</h2>
+<div id="lista"></div>
+
+</main>
+</div>
+</div>
+<script src="app.js"></script>
+
+</body>
+</html>
