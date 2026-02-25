@@ -20,7 +20,7 @@ import {
 
 // ================= CONFIG =================
 const firebaseConfig = {
-  apiKey: "SUA_KEY",
+  apiKey: "AIzaSyDhsV1GJeEvBGBAQmcUXQ8FDcAOXus4DP0",
   authDomain: "bmc-ranking.firebaseapp.com",
   projectId: "bmc-ranking",
   storageBucket: "bmc-ranking.firebasestorage.app",
@@ -48,6 +48,7 @@ window.login = async function () {
 
     await signInWithEmailAndPassword(auth, email, senha);
     alert("Logado 😈");
+    location.reload(); // 🔥 importante
 
   } catch (e) {
     alert("Erro: " + e.message);
@@ -56,6 +57,7 @@ window.login = async function () {
 
 window.logout = function () {
   signOut(auth);
+  location.reload();
 };
 
 // ================= VERIFICAR LOGIN =================
@@ -90,16 +92,16 @@ window.addPlayer = async function () {
     const categoria = document.getElementById("categoria")?.value;
     const tier = document.getElementById("tier")?.value;
 
-    if (nome === "" || modo === "") {
+    if (!nome || !modo) {
       alert("Preencha tudo!");
       return;
     }
 
     await addDoc(collection(db, "players"), {
-      nome: nome.toLowerCase(),
-      modo: modo.toLowerCase(),
-      categoria: categoria.toLowerCase(),
-      tier: tier.toLowerCase()
+      nome,
+      modo,
+      categoria,
+      tier
     });
 
     document.getElementById("nome").value = "";
@@ -114,17 +116,24 @@ window.addPlayer = async function () {
 
 // ================= REMOVER =================
 window.removerPlayer = async function (id) {
+  console.log("REMOVER:", id);
+
   try {
     if (!isAdmin) {
       alert("Sem permissão!");
       return;
     }
 
-    if (!id) return;
+    if (!id) {
+      alert("ID inválido");
+      return;
+    }
 
     if (!confirm("Remover player?")) return;
 
     await deleteDoc(doc(db, "players", id));
+
+    alert("Removido!");
 
   } catch (e) {
     alert("Erro ao remover: " + e.message);
@@ -133,6 +142,8 @@ window.removerPlayer = async function (id) {
 
 // ================= EDITAR =================
 window.editarPlayer = async function (id, nomeAtual, modoAtual, tierAtual, categoriaAtual) {
+  console.log("EDITAR:", id);
+
   try {
     if (!isAdmin) {
       alert("Sem permissão!");
@@ -140,33 +151,32 @@ window.editarPlayer = async function (id, nomeAtual, modoAtual, tierAtual, categ
     }
 
     if (!id) {
-      alert("ID inválido!");
+      alert("ID inválido");
       return;
     }
 
-    const nome = prompt("Novo nome:", nomeAtual || "");
+    const nome = prompt("Novo nome:", nomeAtual);
     if (nome === null) return;
 
-    const modo = prompt("Novo modo:", modoAtual || "");
+    const modo = prompt("Novo modo:", modoAtual);
     if (modo === null) return;
 
-    const tier = prompt("Nova tier (splus, a, bminus...):", tierAtual || "");
+    const tier = prompt("Nova tier:", tierAtual);
     if (tier === null) return;
 
-    const categoria = prompt("Categoria (combate, projeteis...):", categoriaAtual || "");
+    const categoria = prompt("Categoria:", categoriaAtual);
     if (categoria === null) return;
 
     await updateDoc(doc(db, "players", id), {
-      nome: nome.trim().toLowerCase(),
-      modo: modo.trim().toLowerCase(),
-      tier: tier.trim().toLowerCase(),
-      categoria: categoria.trim().toLowerCase()
+      nome,
+      modo,
+      tier,
+      categoria
     });
 
-    alert("Atualizado 🔥");
+    alert("Editado!");
 
   } catch (e) {
-    console.error(e);
     alert("Erro ao editar: " + e.message);
   }
 };
@@ -213,11 +223,13 @@ function renderGlobal(players){
 
     const player = map[p.nome];
 
+    const pontosBase = getPoints(p.tier);
+
     const key = p.categoria + "-" + p.modo;
     if(player[key]) return;
     player[key] = true;
 
-    player.pontos += getPoints(p.tier);
+    player.pontos += pontosBase;
 
     player.categorias.add(p.categoria);
     player.modos.add(p.modo);
@@ -249,15 +261,11 @@ function renderGlobal(players){
       <span>${Math.floor(p.scoreFinal)} pts</span>
     `;
 
-    if(i===0) li.style.boxShadow="0 0 20px rgba(34,197,94,0.4)";
-    if(i===1) li.style.boxShadow="0 0 15px rgba(132,204,22,0.35)";
-    if(i===2) li.style.boxShadow="0 0 10px rgba(74,222,128,0.3)";
-
     global.appendChild(li);
   });
 }
 
-// ================= RENDER NORMAL =================
+// ================= RENDER =================
 function render(data) {
   const container = document.getElementById("ranking");
   if (!container) return;
@@ -299,19 +307,29 @@ function render(data) {
         .filter(p => p.categoria === cat && p.tier === t)
         .forEach(p => {
 
+          const safeNome = (p.nome || "").replace(/"/g, "");
+          const safeModo = (p.modo || "").replace(/"/g, "");
+
           const el = document.createElement("div");
           el.className = "player";
 
           el.innerHTML = `
-            <strong>${p.nome || "Sem nome"}</strong>
-            <span>${p.modo || ""}</span>
+            <strong>${safeNome}</strong>
+            <span>${safeModo}</span>
           `;
 
+          // 🔥 BOTÕES STAFF (FIXADOS)
           if (isAdmin) {
             el.innerHTML += `
               <div class="admin-buttons">
-                <button onclick="removerPlayer('${p.id}')">❌</button>
-                <button onclick="editarPlayer('${p.id}','${p.nome || ""}','${p.modo || ""}','${p.tier || ""}','${p.categoria || ""}')">✏️</button>
+                <button onclick='removerPlayer("${p.id}")'>❌</button>
+                <button onclick='editarPlayer(
+                  "${p.id}",
+                  "${safeNome}",
+                  "${safeModo}",
+                  "${p.tier}",
+                  "${p.categoria}"
+                )'>✏️</button>
               </div>
             `;
           }
@@ -348,7 +366,7 @@ onSnapshot(collection(db, "players"), snapshot => {
 // ================= LOADING =================
 window.addEventListener("load", ()=>{
   setTimeout(()=>{
-    const loading = document.getElementById("loading");
-    if(loading) loading.style.display = "none";
-  },1500);
+    const load = document.getElementById("loading");
+    if(load) load.style.display = "none";
+  },2000);
 });
