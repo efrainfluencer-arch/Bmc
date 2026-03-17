@@ -7,18 +7,6 @@
 </head>
 <body>
 
-<script>
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-  const auth = getAuth();
-
-  onAuthStateChanged(auth, user => {
-    if (!user) {
-      window.location.href = "ranking.html";
-    }
-  });
-</script>
-
 <!-- LOGIN -->
 <div id="login-screen">
   <h2>Login Staff</h2>
@@ -33,12 +21,13 @@
 
   <input id="nome" placeholder="Nome">
   <input id="modo" placeholder="Modo">
-<select id="dispositivo">
-  <option value="mobile">📱 Mobile</option>
-  <option value="pc">🖥️ PC</option>
-  <option value="controle">🎮 Controle</option>
-</select>
-  
+
+  <select id="dispositivo">
+    <option value="mobile">📱 Mobile</option>
+    <option value="pc">🖥️ PC</option>
+    <option value="controle">🎮 Controle</option>
+  </select>
+
   <select id="categoria">
     <option value="combate">Combate</option>
     <option value="projeteis">Projéteis</option>
@@ -70,7 +59,6 @@
 
   <button onclick="addPlayer()">Adicionar</button>
   <button onclick="logout()">Sair</button>
- <button onclick="removerPlayer('${p.id}')">❌</button>
 </div>
 
 <script type="module" src="app.js"></script>
