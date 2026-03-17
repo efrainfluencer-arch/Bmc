@@ -103,18 +103,6 @@ window.addPlayer = async function () {
       return;
     }
 
-    const duplicado = playersCache.find(p =>
-      p.nome.toLowerCase() === nome.toLowerCase() &&
-      p.modo.toLowerCase() === modo.toLowerCase() &&
-      p.categoria === categoria &&
-      p.dispositivo === dispositivo
-    );
-
-    if (duplicado) {
-      alert("Player já existe ⚠️");
-      return;
-    }
-
     await addDoc(collection(db, "players"), {
       nome,
       modo,
@@ -132,13 +120,13 @@ window.addPlayer = async function () {
 };
 
 // ================= REMOVE =================
-window.removerPlayer = async function (id) {
+window.removerPlayer = async function(id){
   if (!isAdmin) return;
   await deleteDoc(doc(db, "players", id));
 };
 
 // ================= EDIT =================
-window.editarPlayer = async function (id, nomeAtual, modoAtual, tierAtual, categoriaAtual) {
+window.editarPlayer = async function(id, nomeAtual, modoAtual, tierAtual, categoriaAtual){
 
   const nome = prompt("Nome:", nomeAtual);
   if (nome === null) return;
@@ -160,11 +148,12 @@ window.editarPlayer = async function (id, nomeAtual, modoAtual, tierAtual, categ
   });
 };
 
-// ================= TIER =================
+// ================= FORMAT =================
 function formatTier(t){
   return t.replace("plus","+").replace("minus","-").toUpperCase();
 }
 
+// ================= POINTS =================
 function getPoints(tier){
   const map = {
     splus:100,s:95,sminus:90,
@@ -178,24 +167,25 @@ function getPoints(tier){
 
 // ================= TOP =================
 function renderGlobal(players){
+
   const global = document.getElementById("global");
   const mobile = document.getElementById("global-mobile");
   const pc = document.getElementById("global-pc");
   const controle = document.getElementById("global-controle");
 
-  if(!global) return;
-
-  global.innerHTML = "";
+  if(global) global.innerHTML = "";
   if(mobile) mobile.innerHTML = "";
   if(pc) pc.innerHTML = "";
   if(controle) controle.innerHTML = "";
 
-  function gerarRanking(lista, elemento, limite = 10){
+  function gerarRanking(lista, elemento, limite=10){
+
     if(!elemento) return;
 
     const mapa = {};
 
     lista.forEach(p=>{
+
       if(!mapa[p.nome]){
         mapa[p.nome] = {
           nome:p.nome,
@@ -238,6 +228,7 @@ function renderGlobal(players){
 
 // ================= RENDER =================
 function render(data){
+
   const container = document.getElementById("ranking");
   if(!container) return;
 
@@ -254,19 +245,30 @@ function render(data){
     section.className = "categoria";
     section.innerHTML = `<h2>${cat.toUpperCase()}</h2>`;
 
+    let categoriaTemPlayer = false;
+
     tiers.forEach(t=>{
 
-      const playersDiv = document.createElement("div");
-      playersDiv.className = "players";
+      const filtrados = data.filter(p =>
+        p.categoria===cat &&
+        p.tier===t &&
+        (abaAtual==="todos" || p.dispositivo===abaAtual) &&
+        p.nome.toLowerCase().includes(busca)
+      );
 
-      data
-        .filter(p =>
-          p.categoria===cat &&
-          p.tier===t &&
-          (abaAtual==="todos" || p.dispositivo===abaAtual) &&
-          p.nome.toLowerCase().includes(busca)
-        )
-        .forEach(p=>{
+      if(filtrados.length > 0){
+
+        categoriaTemPlayer = true;
+
+        const tierDiv = document.createElement("div");
+        tierDiv.className = `tier tier-${t}`;
+
+        tierDiv.innerHTML = `<div class="tier-title">${formatTier(t)}</div>`;
+
+        const playersDiv = document.createElement("div");
+        playersDiv.className = "players";
+
+        filtrados.forEach(p=>{
 
           const icon =
             p.dispositivo==="mobile" ? "📱" :
@@ -293,14 +295,15 @@ function render(data){
           playersDiv.appendChild(el);
         });
 
-      if(playersDiv.innerHTML){
-        const tierDiv = document.createElement("div");
-        tierDiv.className = `tier tier-${t}`;
-        tierDiv.innerHTML = `<div class="tier-title">${formatTier(t)}</div>`;
         tierDiv.appendChild(playersDiv);
         section.appendChild(tierDiv);
       }
+
     });
+
+    if(!categoriaTemPlayer){
+      section.innerHTML += `<p style="opacity:0.5;">Sem players ainda</p>`;
+    }
 
     container.appendChild(section);
   });
