@@ -10,10 +10,7 @@ import {
   getFirestore,
   collection,
   addDoc,
-  onSnapshot,
-  deleteDoc,
-  doc,
-  updateDoc
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -33,45 +30,97 @@ let isAdmin = false;
 let abaAtual = "todos";
 let playersCache = [];
 
-window.login = async function () {
+/* LOGIN */
+
+window.login = async function (event) {
+  if (event) event.preventDefault();
+
   const email = document.getElementById("email")?.value;
   const senha = document.getElementById("senha")?.value;
 
   if (!email || !senha) return;
 
-  await signInWithEmailAndPassword(auth, email, senha);
-  location.reload();
+  try {
+    await signInWithEmailAndPassword(auth, email, senha);
+
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("painel").style.display = "block";
+
+  } catch (error) {
+    alert("Login inválido");
+    console.error(error);
+  }
 };
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    login(e);
+  }
+});
+
+/* LOGOUT */
 
 window.logout = function () {
   signOut(auth);
   location.reload();
 };
 
+/* AUTH CHECK */
+
 onAuthStateChanged(auth, user => {
-  isAdmin = !!user;
+  const loginScreen = document.getElementById("login-screen");
+  const painel = document.getElementById("painel");
+
+  if (user) {
+    isAdmin = true;
+
+    if (loginScreen) loginScreen.style.display = "none";
+    if (painel) painel.style.display = "block";
+
+  } else {
+    isAdmin = false;
+
+    if (loginScreen) loginScreen.style.display = "block";
+    if (painel) painel.style.display = "none";
+  }
 });
+
+/* ABA */
 
 window.trocarAba = function(dispositivo){
   abaAtual = dispositivo;
   render(playersCache);
 };
 
+/* ADD PLAYER */
+
 window.addPlayer = async function () {
+  if (!isAdmin) return;
+
   const nome = document.getElementById("nome")?.value.trim();
   const modo = document.getElementById("modo")?.value.trim();
   const categoria = document.getElementById("categoria")?.value;
   const tier = document.getElementById("tier")?.value;
   const dispositivo = document.getElementById("dispositivo")?.value;
 
+  if (!nome || !modo) return;
+
   await addDoc(collection(db, "players"), {
-    nome, modo, categoria, tier, dispositivo
+    nome,
+    modo,
+    categoria,
+    tier,
+    dispositivo
   });
 };
+
+/* FORMAT */
 
 function formatTier(t){
   return t.replace("plus","+").replace("minus","-").toUpperCase();
 }
+
+/* RENDER */
 
 function render(data){
   const container = document.getElementById("ranking");
@@ -111,10 +160,12 @@ function render(data){
 
           const el = document.createElement("div");
           el.className = "player";
+
           el.innerHTML = `
             <strong>${p.nome}</strong>
             <span>${p.modo} ${icon}</span>
           `;
+
           playersDiv.appendChild(el);
         });
       } else {
@@ -129,6 +180,8 @@ function render(data){
   });
 }
 
+/* FIREBASE */
+
 onSnapshot(collection(db,"players"), snapshot => {
   playersCache = snapshot.docs.map(doc => ({
     id: doc.id,
@@ -137,6 +190,8 @@ onSnapshot(collection(db,"players"), snapshot => {
 
   render(playersCache);
 });
+
+/* LOADING */
 
 window.addEventListener("load", () => {
   const loading = document.getElementById("loading");
