@@ -35,56 +35,56 @@ let playersCache = [];
 
 /* LOGIN */
 
-window.login = async function (event) {
-  if (event) event.preventDefault();
+window.login = async function(event){
+  if(event) event.preventDefault();
 
   const email = document.getElementById("email")?.value;
   const senha = document.getElementById("senha")?.value;
 
-  if (!email || !senha) return;
+  if(!email || !senha) return;
 
-  try {
-    await signInWithEmailAndPassword(auth, email, senha);
+  try{
+    await signInWithEmailAndPassword(auth,email,senha);
 
     document.getElementById("login-screen").style.display = "none";
     document.getElementById("painel").style.display = "block";
 
-  } catch (error) {
+  }catch(error){
     alert("Login inválido");
     console.error(error);
   }
 };
 
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    login(e);
-  }
+/* ENTER LOGIN */
+
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="Enter") login(e);
 });
 
 /* LOGOUT */
 
-window.logout = function () {
+window.logout = function(){
   signOut(auth);
   location.reload();
 };
 
 /* AUTH */
 
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth,user=>{
   const loginScreen = document.getElementById("login-screen");
   const painel = document.getElementById("painel");
 
-  if (user) {
+  if(user){
     isAdmin = true;
 
-    if (loginScreen) loginScreen.style.display = "none";
-    if (painel) painel.style.display = "block";
+    if(loginScreen) loginScreen.style.display = "none";
+    if(painel) painel.style.display = "block";
 
-  } else {
+  }else{
     isAdmin = false;
 
-    if (loginScreen) loginScreen.style.display = "block";
-    if (painel) painel.style.display = "none";
+    if(loginScreen) loginScreen.style.display = "block";
+    if(painel) painel.style.display = "none";
   }
 });
 
@@ -95,10 +95,23 @@ window.trocarAba = function(dispositivo){
   render(playersCache);
 };
 
+/* BUSCA */
+
+window.filtrarPlayers = function(){
+  const termo = document.getElementById("busca")?.value.toLowerCase() || "";
+
+  const filtrados = playersCache.filter(p =>
+    p.nome.toLowerCase().includes(termo)
+  );
+
+  render(filtrados);
+  renderTopGlobal(filtrados);
+};
+
 /* ADD PLAYER */
 
-window.addPlayer = async function () {
-  if (!isAdmin) return;
+window.addPlayer = async function(){
+  if(!isAdmin) return;
 
   const nome = document.getElementById("nome")?.value.trim();
   const modo = document.getElementById("modo")?.value.trim();
@@ -106,9 +119,9 @@ window.addPlayer = async function () {
   const tier = document.getElementById("tier")?.value;
   const dispositivo = document.getElementById("dispositivo")?.value;
 
-  if (!nome || !modo) return;
+  if(!nome || !modo) return;
 
-  await addDoc(collection(db, "players"), {
+  await addDoc(collection(db,"players"),{
     nome,
     modo,
     categoria,
@@ -123,7 +136,7 @@ window.editarPlayer = async function(id){
   const novoNome = prompt("Novo nome:");
   if(!novoNome) return;
 
-  await updateDoc(doc(db,"players",id), {
+  await updateDoc(doc(db,"players",id),{
     nome: novoNome
   });
 };
@@ -134,31 +147,44 @@ window.removerPlayer = async function(id){
   await deleteDoc(doc(db,"players",id));
 };
 
-/* FORMAT */
+/* FORMAT TIER */
 
 function formatTier(t){
   return t.replace("plus","+").replace("minus","-").toUpperCase();
 }
 
-/* TOP GLOBAL */
+/* TOP GLOBAL PREMIUM */
 
 function renderTopGlobal(data){
   const global = document.getElementById("global");
-  if(!global) return;
+  const mobile = document.getElementById("global-mobile");
+  const pc = document.getElementById("global-pc");
+  const controle = document.getElementById("global-controle");
 
-  global.innerHTML = "";
+  if(global) global.innerHTML = "";
+  if(mobile) mobile.innerHTML = "";
+  if(pc) pc.innerHTML = "";
+  if(controle) controle.innerHTML = "";
 
   data.slice(0,20).forEach((p,i)=>{
+
     const icon =
       p.dispositivo === "mobile" ? "📱" :
       p.dispositivo === "pc" ? "🖥️" :
       "🎮";
 
+    const texto = `#${i+1} ${p.nome} ${p.modo} ${icon}`;
+
     const li = document.createElement("li");
+    li.innerHTML = texto;
 
-    li.innerHTML = `#${i+1} ${p.nome} ${p.modo} ${icon}`;
+    global?.appendChild(li);
 
-    global.appendChild(li);
+    const clone = li.cloneNode(true);
+
+    if(p.dispositivo==="mobile") mobile?.appendChild(clone);
+    if(p.dispositivo==="pc") pc?.appendChild(clone);
+    if(p.dispositivo==="controle") controle?.appendChild(clone);
   });
 }
 
@@ -171,14 +197,22 @@ function render(data){
   container.innerHTML = "";
 
   const categorias = ["combate","projeteis","estrategia","skills"];
-  const tiers = ["splus","s","sminus","aplus","a","aminus","bplus","b","bminus","cplus","c","cminus","dplus","d","dminus"];
+  const tiers = [
+    "splus","s","sminus",
+    "aplus","a","aminus",
+    "bplus","b","bminus",
+    "cplus","c","cminus",
+    "dplus","d","dminus"
+  ];
 
-  categorias.forEach(cat => {
+  categorias.forEach(cat=>{
+
     const section = document.createElement("div");
     section.className = "categoria";
     section.innerHTML = `<h2>${cat.toUpperCase()}</h2>`;
 
-    tiers.forEach(t => {
+    tiers.forEach(t=>{
+
       const tierDiv = document.createElement("div");
       tierDiv.className = `tier tier-${t}`;
 
@@ -188,34 +222,41 @@ function render(data){
       playersDiv.className = "players";
 
       const filtrados = data.filter(p =>
-        p.categoria === cat &&
-        p.tier === t &&
-        (abaAtual === "todos" || p.dispositivo === abaAtual)
+        p.categoria===cat &&
+        p.tier===t &&
+        (abaAtual==="todos" || p.dispositivo===abaAtual)
       );
 
-      if(filtrados.length > 0){
-        filtrados.forEach(p => {
+      if(filtrados.length>0){
+
+        filtrados.forEach(p=>{
+
           const icon =
-            p.dispositivo === "mobile" ? "📱" :
-            p.dispositivo === "pc" ? "🖥️" :
+            p.dispositivo==="mobile" ? "📱" :
+            p.dispositivo==="pc" ? "🖥️" :
             "🎮";
 
           const el = document.createElement("div");
           el.className = "player";
 
           el.innerHTML = `
-            <strong>${p.nome}</strong>
-            <span>${p.modo} ${icon}</span>
+            <div>
+              <strong>${p.nome}</strong>
+              <span>${p.modo} ${icon}</span>
+            </div>
 
             ${isAdmin ? `
-              <button onclick="editarPlayer('${p.id}')">✏️</button>
-              <button onclick="removerPlayer('${p.id}')">❌</button>
+              <div class="admin-buttons">
+                <button onclick="editarPlayer('${p.id}')">✏️</button>
+                <button onclick="removerPlayer('${p.id}')">❌</button>
+              </div>
             ` : ""}
           `;
 
           playersDiv.appendChild(el);
         });
-      } else {
+
+      }else{
         playersDiv.innerHTML = `<p>Sem players</p>`;
       }
 
@@ -229,8 +270,9 @@ function render(data){
 
 /* FIREBASE */
 
-onSnapshot(collection(db,"players"), snapshot => {
-  playersCache = snapshot.docs.map(doc => ({
+onSnapshot(collection(db,"players"), snapshot=>{
+
+  playersCache = snapshot.docs.map(doc=>({
     id: doc.id,
     ...doc.data()
   }));
@@ -241,14 +283,15 @@ onSnapshot(collection(db,"players"), snapshot => {
 
 /* LOADING */
 
-window.addEventListener("load", () => {
+window.addEventListener("load",()=>{
+
   const loading = document.getElementById("loading");
 
-  if (loading) {
+  if(loading){
     loading.style.opacity = "0";
 
-    setTimeout(() => {
+    setTimeout(()=>{
       loading.style.display = "none";
-    }, 500);
+    },500);
   }
 });
