@@ -68,13 +68,10 @@ onAuthStateChanged(auth, user => {
 
   if (user) {
     isAdmin = true;
-
     if (login) login.style.display = "none";
     if (painel) painel.style.display = "block";
-
   } else {
     isAdmin = false;
-
     if (login) login.style.display = "block";
     if (painel) painel.style.display = "none";
   }
@@ -93,10 +90,7 @@ window.filtrarPlayers = function(){
 // ================= ADD PLAYER =================
 window.addPlayer = async function () {
   try {
-    if (!isAdmin) {
-      alert("Apenas staff!");
-      return;
-    }
+    if (!isAdmin) return;
 
     const nome = document.getElementById("nome")?.value.trim();
     const modo = document.getElementById("modo")?.value.trim();
@@ -104,8 +98,15 @@ window.addPlayer = async function () {
     const tier = document.getElementById("tier")?.value;
     const dispositivo = document.getElementById("dispositivo")?.value;
 
-    if (!nome || !modo) {
-      alert("Preencha tudo!");
+    const duplicado = playersCache.find(p =>
+      p.nome.toLowerCase() === nome.toLowerCase() &&
+      p.modo.toLowerCase() === modo.toLowerCase() &&
+      p.categoria === categoria &&
+      p.dispositivo === dispositivo
+    );
+
+    if (duplicado) {
+      alert("Player já existe ⚠️");
       return;
     }
 
@@ -120,106 +121,86 @@ window.addPlayer = async function () {
     document.getElementById("nome").value = "";
     document.getElementById("modo").value = "";
 
-    alert("Player adicionado 🔥");
-
   } catch (e) {
-    alert("Erro ao adicionar: " + e.message);
+    alert("Erro: " + e.message);
   }
 };
 
 // ================= REMOVE =================
 window.removerPlayer = async function (id) {
-  try {
-    if (!isAdmin) return;
-
-    if (!confirm("Remover player?")) return;
-
-    await deleteDoc(doc(db, "players", id));
-
-  } catch (e) {
-    alert("Erro: " + e.message);
-  }
+  if (!isAdmin) return;
+  await deleteDoc(doc(db, "players", id));
 };
 
 // ================= EDIT =================
 window.editarPlayer = async function (id, nomeAtual, modoAtual, tierAtual, categoriaAtual) {
-  try {
-    if (!isAdmin) return;
 
-    const nome = prompt("Novo nome:", nomeAtual);
-    if (nome === null) return;
+  const nome = prompt("Nome:", nomeAtual);
+  if (nome === null) return;
 
-    const modo = prompt("Novo modo:", modoAtual);
-    if (modo === null) return;
+  const modo = prompt("Modo:", modoAtual);
+  if (modo === null) return;
 
-    const tier = prompt("Nova tier:", tierAtual);
-    if (tier === null) return;
+  const tier = prompt("Tier:", tierAtual);
+  if (tier === null) return;
 
-    const categoria = prompt("Categoria:", categoriaAtual);
-    if (categoria === null) return;
+  const categoria = prompt("Categoria:", categoriaAtual);
+  if (categoria === null) return;
 
-    await updateDoc(doc(db, "players", id), {
-      nome,
-      modo,
-      tier,
-      categoria
-    });
-
-  } catch (e) {
-    alert("Erro: " + e.message);
-  }
+  await updateDoc(doc(db, "players", id), {
+    nome,
+    modo,
+    tier,
+    categoria
+  });
 };
 
-// ================= FORMAT =================
-function formatTier(t) {
-  if (!t) return "";
-  return t.replace("plus", "+").replace("minus", "-").toUpperCase();
+// ================= TIER =================
+function formatTier(t){
+  return t.replace("plus","+").replace("minus","-").toUpperCase();
 }
 
-// ================= POINTS =================
 function getPoints(tier){
   const map = {
-    splus:100, s:95, sminus:90,
-    aplus:85, a:80, aminus:75,
-    bplus:70, b:65, bminus:60,
-    cplus:55, c:50, cminus:45,
-    dplus:40, d:35, dminus:30
+    splus:100,s:95,sminus:90,
+    aplus:85,a:80,aminus:75,
+    bplus:70,b:65,bminus:60,
+    cplus:55,c:50,cminus:45,
+    dplus:40,d:35,dminus:30
   };
   return map[tier] || 0;
 }
 
-// ================= GLOBAL =================
+// ================= TOP =================
 function renderGlobal(players){
   const global = document.getElementById("global");
+  const mobile = document.getElementById("global-mobile");
+  const pc = document.getElementById("global-pc");
+  const controle = document.getElementById("global-controle");
+
   if(!global) return;
 
   global.innerHTML = "";
+  if(mobile) mobile.innerHTML = "";
+  if(pc) pc.innerHTML = "";
+  if(controle) controle.innerHTML = "";
 
-  const map = {};
-
-  players.forEach(p=>{
-    if(!p.nome) return;
-
-    if(!map[p.nome]){
-      map[p.nome] = {
-        nome:p.nome,
-        pontos:0
-      };
-    }
-
-    map[p.nome].pontos += getPoints(p.tier);
-  });
-
-  const ranking = Object.values(map)
-    .sort((a,b)=>b.pontos-a.pontos)
-    .slice(0,10);
+  const ranking = [...players]
+    .sort((a,b)=>getPoints(b.tier)-getPoints(a.tier))
+    .slice(0,20);
 
   ranking.forEach((p,i)=>{
+
+    const icon =
+      p.dispositivo==="mobile" ? "📱" :
+      p.dispositivo==="pc" ? "🖥️" :
+      "🎮";
+
     const li = document.createElement("li");
 
     li.innerHTML = `
       <strong>#${i+1} ${p.nome}</strong>
-      <span>${p.pontos} pts</span>
+      <span>${p.modo} ${icon}</span>
     `;
 
     global.appendChild(li);
@@ -227,68 +208,52 @@ function renderGlobal(players){
 }
 
 // ================= RENDER =================
-function render(data) {
+function render(data){
   const container = document.getElementById("ranking");
-  if (!container) return;
+  if(!container) return;
 
   container.innerHTML = "";
 
   const busca = document.getElementById("busca")?.value?.toLowerCase() || "";
 
   const categorias = ["combate","projeteis","estrategia","skills"];
+  const tiers = ["splus","s","sminus","aplus","a","aminus","bplus","b","bminus","cplus","c","cminus","dplus","d","dminus"];
 
-  const tiers = [
-    "splus","s","sminus",
-    "aplus","a","aminus",
-    "bplus","b","bminus",
-    "cplus","c","cminus",
-    "dplus","d","dminus"
-  ];
-
-  categorias.forEach(cat => {
+  categorias.forEach(cat=>{
 
     const section = document.createElement("div");
     section.className = "categoria";
 
-    const title = document.createElement("h2");
-    title.innerText = cat.toUpperCase();
-    section.appendChild(title);
+    section.innerHTML = `<h2>${cat.toUpperCase()}</h2>`;
 
-    tiers.forEach(t => {
-
-      const tierDiv = document.createElement("div");
-      tierDiv.className = `tier tier-${t}`;
-
-      const tierTitle = document.createElement("div");
-      tierTitle.className = "tier-title";
-      tierTitle.innerText = formatTier(t);
+    tiers.forEach(t=>{
 
       const playersDiv = document.createElement("div");
       playersDiv.className = "players";
 
       data
-        .filter(p => {
-          const nomeOk = (p.nome || "").toLowerCase().includes(busca);
-          const abaOk = abaAtual === "todos" || p.dispositivo === abaAtual;
+        .filter(p =>
+          p.categoria===cat &&
+          p.tier===t &&
+          (abaAtual==="todos" || p.dispositivo===abaAtual) &&
+          p.nome.toLowerCase().includes(busca)
+        )
+        .forEach(p=>{
 
-          return (
-            p.categoria === cat &&
-            p.tier === t &&
-            nomeOk &&
-            abaOk
-          );
-        })
-        .forEach(p => {
+          const icon =
+            p.dispositivo==="mobile" ? "📱" :
+            p.dispositivo==="pc" ? "🖥️" :
+            "🎮";
 
           const el = document.createElement("div");
           el.className = "player";
 
           el.innerHTML = `
             <strong>${p.nome}</strong>
-            <span>${p.modo}</span>
+            <span>${p.modo} ${icon}</span>
           `;
 
-          if (isAdmin) {
+          if(isAdmin){
             el.innerHTML += `
               <div class="admin-buttons">
                 <button onclick='removerPlayer("${p.id}")'>❌</button>
@@ -300,9 +265,13 @@ function render(data) {
           playersDiv.appendChild(el);
         });
 
-      tierDiv.appendChild(tierTitle);
-      tierDiv.appendChild(playersDiv);
-      section.appendChild(tierDiv);
+      if(playersDiv.innerHTML){
+        const tierDiv = document.createElement("div");
+        tierDiv.className = `tier tier-${t}`;
+        tierDiv.innerHTML = `<div class="tier-title">${formatTier(t)}</div>`;
+        tierDiv.appendChild(playersDiv);
+        section.appendChild(tierDiv);
+      }
     });
 
     container.appendChild(section);
@@ -310,10 +279,10 @@ function render(data) {
 }
 
 // ================= REALTIME =================
-onSnapshot(collection(db, "players"), snapshot => {
+onSnapshot(collection(db,"players"), snapshot=>{
 
-  playersCache = snapshot.docs.map(doc => ({
-    id: doc.id,
+  playersCache = snapshot.docs.map(doc=>({
+    id:doc.id,
     ...doc.data()
   }));
 
