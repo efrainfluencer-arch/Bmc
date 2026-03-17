@@ -973,3 +973,7 @@ box-shadow:0 0 10px rgba(37,99,235,0.7);
 background:#dc2626;
 box-shadow:0 0 10px rgba(220,38,38,0.7);
 }
+
+#loading{
+transition:0.5s;
+}
