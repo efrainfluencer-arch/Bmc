@@ -153,9 +153,23 @@ function formatTier(t){
   return t.replace("plus","+").replace("minus","-").toUpperCase();
 }
 
-/* TOP GLOBAL PREMIUM */
+/* PONTUAÇÃO */
 
-function renderTopGlobal(data){
+function getPoints(tier){
+  const map = {
+    splus:100, s:95, sminus:90,
+    aplus:85, a:80, aminus:75,
+    bplus:70, b:65, bminus:60,
+    cplus:55, c:50, cminus:45,
+    dplus:40, d:35, dminus:30
+  };
+  return map[tier] || 0;
+}
+
+/* TOP GLOBAL */
+
+function renderTopGlobal(players){
+
   const global = document.getElementById("global");
   const mobile = document.getElementById("global-mobile");
   const pc = document.getElementById("global-pc");
@@ -166,17 +180,71 @@ function renderTopGlobal(data){
   if(pc) pc.innerHTML = "";
   if(controle) controle.innerHTML = "";
 
-  data.slice(0,20).forEach((p,i)=>{
+  const map = {};
+
+  players.forEach(p=>{
+
+    if(!p.nome) return;
+
+    const keyPlayer = `${p.nome}-${p.dispositivo}`;
+
+    if(!map[keyPlayer]){
+      map[keyPlayer] = {
+        nome:p.nome,
+        pontos:0,
+        categorias:new Set(),
+        modos:new Set(),
+        tiers:[],
+        dispositivo:p.dispositivo || "mobile"
+      };
+    }
+
+    const player = map[keyPlayer];
+
+    const pontosBase = getPoints(p.tier);
+    const key = p.categoria + "-" + p.modo;
+
+    if(player[key]) return;
+    player[key] = true;
+
+    player.pontos += pontosBase;
+    player.categorias.add(p.categoria);
+    player.modos.add(p.modo);
+    player.tiers.push(p.tier);
+  });
+
+  const ranking = Object.values(map);
+
+  ranking.forEach(p=>{
+
+    const bonusCategoria = p.categorias.size * 10;
+    const bonusModo = p.modos.size * 5;
+    const highTierBonus = p.tiers.filter(t=>t.includes("s")).length * 5;
+
+    p.scoreFinal = p.pontos + bonusCategoria + bonusModo + highTierBonus;
+  });
+
+  ranking.sort((a,b)=>b.scoreFinal-a.scoreFinal);
+
+  ranking.slice(0,20).forEach((p,i)=>{
+
+    const medalha =
+      i===0 ? "🥇" :
+      i===1 ? "🥈" :
+      i===2 ? "🥉" :
+      `#${i+1}`;
 
     const icon =
-      p.dispositivo === "mobile" ? "📱" :
-      p.dispositivo === "pc" ? "🖥️" :
+      p.dispositivo==="mobile" ? "📱" :
+      p.dispositivo==="pc" ? "🖥️" :
       "🎮";
 
-    const texto = `#${i+1} ${p.nome} ${p.modo} ${icon}`;
-
     const li = document.createElement("li");
-    li.innerHTML = texto;
+
+    li.innerHTML = `
+      <strong>${medalha} ${p.nome}</strong>
+      <span>${Math.floor(p.scoreFinal)} pts ${icon}</span>
+    `;
 
     global?.appendChild(li);
 
