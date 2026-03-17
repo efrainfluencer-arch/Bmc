@@ -10,7 +10,10 @@ import {
   getFirestore,
   collection,
   addDoc,
-  onSnapshot
+  onSnapshot,
+  deleteDoc,
+  doc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -65,7 +68,7 @@ window.logout = function () {
   location.reload();
 };
 
-/* AUTH CHECK */
+/* AUTH */
 
 onAuthStateChanged(auth, user => {
   const loginScreen = document.getElementById("login-screen");
@@ -85,7 +88,7 @@ onAuthStateChanged(auth, user => {
   }
 });
 
-/* ABA */
+/* ABAS */
 
 window.trocarAba = function(dispositivo){
   abaAtual = dispositivo;
@@ -114,10 +117,49 @@ window.addPlayer = async function () {
   });
 };
 
+/* EDITAR */
+
+window.editarPlayer = async function(id){
+  const novoNome = prompt("Novo nome:");
+  if(!novoNome) return;
+
+  await updateDoc(doc(db,"players",id), {
+    nome: novoNome
+  });
+};
+
+/* REMOVER */
+
+window.removerPlayer = async function(id){
+  await deleteDoc(doc(db,"players",id));
+};
+
 /* FORMAT */
 
 function formatTier(t){
   return t.replace("plus","+").replace("minus","-").toUpperCase();
+}
+
+/* TOP GLOBAL */
+
+function renderTopGlobal(data){
+  const global = document.getElementById("global");
+  if(!global) return;
+
+  global.innerHTML = "";
+
+  data.slice(0,20).forEach((p,i)=>{
+    const icon =
+      p.dispositivo === "mobile" ? "📱" :
+      p.dispositivo === "pc" ? "🖥️" :
+      "🎮";
+
+    const li = document.createElement("li");
+
+    li.innerHTML = `#${i+1} ${p.nome} ${p.modo} ${icon}`;
+
+    global.appendChild(li);
+  });
 }
 
 /* RENDER */
@@ -164,6 +206,11 @@ function render(data){
           el.innerHTML = `
             <strong>${p.nome}</strong>
             <span>${p.modo} ${icon}</span>
+
+            ${isAdmin ? `
+              <button onclick="editarPlayer('${p.id}')">✏️</button>
+              <button onclick="removerPlayer('${p.id}')">❌</button>
+            ` : ""}
           `;
 
           playersDiv.appendChild(el);
@@ -189,6 +236,7 @@ onSnapshot(collection(db,"players"), snapshot => {
   }));
 
   render(playersCache);
+  renderTopGlobal(playersCache);
 });
 
 /* LOADING */
