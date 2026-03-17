@@ -1,4 +1,3 @@
-// ================= FIREBASE =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
@@ -32,8 +31,10 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ================= CONTROLE STAFF =================
+// ================= CONTROLE =================
 let isAdmin = false;
+let abaAtual = "todos";
+let playersCache = [];
 
 // ================= LOGIN =================
 window.login = async function () {
@@ -48,7 +49,7 @@ window.login = async function () {
 
     await signInWithEmailAndPassword(auth, email, senha);
     alert("Logado 😈");
-    location.reload(); // 🔥 importante
+    location.reload();
 
   } catch (e) {
     alert("Erro: " + e.message);
@@ -60,7 +61,7 @@ window.logout = function () {
   location.reload();
 };
 
-// ================= VERIFICAR LOGIN =================
+// ================= LOGIN CHECK =================
 onAuthStateChanged(auth, user => {
   const login = document.getElementById("login-screen");
   const painel = document.getElementById("painel");
@@ -79,7 +80,17 @@ onAuthStateChanged(auth, user => {
   }
 });
 
-// ================= ADICIONAR PLAYER =================
+// ================= FILTROS =================
+window.trocarAba = function(dispositivo){
+  abaAtual = dispositivo;
+  render(playersCache);
+};
+
+window.filtrarPlayers = function(){
+  render(playersCache);
+};
+
+// ================= ADD PLAYER =================
 window.addPlayer = async function () {
   try {
     if (!isAdmin) {
@@ -91,6 +102,7 @@ window.addPlayer = async function () {
     const modo = document.getElementById("modo")?.value.trim();
     const categoria = document.getElementById("categoria")?.value;
     const tier = document.getElementById("tier")?.value;
+    const dispositivo = document.getElementById("dispositivo")?.value;
 
     if (!nome || !modo) {
       alert("Preencha tudo!");
@@ -101,7 +113,8 @@ window.addPlayer = async function () {
       nome,
       modo,
       categoria,
-      tier
+      tier,
+      dispositivo
     });
 
     document.getElementById("nome").value = "";
@@ -114,46 +127,24 @@ window.addPlayer = async function () {
   }
 };
 
-// ================= REMOVER =================
+// ================= REMOVE =================
 window.removerPlayer = async function (id) {
-  console.log("REMOVER:", id);
-
   try {
-    if (!isAdmin) {
-      alert("Sem permissão!");
-      return;
-    }
-
-    if (!id) {
-      alert("ID inválido");
-      return;
-    }
+    if (!isAdmin) return;
 
     if (!confirm("Remover player?")) return;
 
     await deleteDoc(doc(db, "players", id));
 
-    alert("Removido!");
-
   } catch (e) {
-    alert("Erro ao remover: " + e.message);
+    alert("Erro: " + e.message);
   }
 };
 
-// ================= EDITAR =================
+// ================= EDIT =================
 window.editarPlayer = async function (id, nomeAtual, modoAtual, tierAtual, categoriaAtual) {
-  console.log("EDITAR:", id);
-
   try {
-    if (!isAdmin) {
-      alert("Sem permissão!");
-      return;
-    }
-
-    if (!id) {
-      alert("ID inválido");
-      return;
-    }
+    if (!isAdmin) return;
 
     const nome = prompt("Novo nome:", nomeAtual);
     if (nome === null) return;
@@ -174,20 +165,18 @@ window.editarPlayer = async function (id, nomeAtual, modoAtual, tierAtual, categ
       categoria
     });
 
-    alert("Editado!");
-
   } catch (e) {
-    alert("Erro ao editar: " + e.message);
+    alert("Erro: " + e.message);
   }
 };
 
-// ================= FORMATAR =================
+// ================= FORMAT =================
 function formatTier(t) {
   if (!t) return "";
   return t.replace("plus", "+").replace("minus", "-").toUpperCase();
 }
 
-// ================= PONTUAÇÃO =================
+// ================= POINTS =================
 function getPoints(tier){
   const map = {
     splus:100, s:95, sminus:90,
@@ -199,7 +188,7 @@ function getPoints(tier){
   return map[tier] || 0;
 }
 
-// ================= RENDER GLOBAL =================
+// ================= GLOBAL =================
 function renderGlobal(players){
   const global = document.getElementById("global");
   if(!global) return;
@@ -213,52 +202,24 @@ function renderGlobal(players){
 
     if(!map[p.nome]){
       map[p.nome] = {
-        nome: p.nome,
-        pontos: 0,
-        categorias: new Set(),
-        modos: new Set(),
-        tiers: []
+        nome:p.nome,
+        pontos:0
       };
     }
 
-    const player = map[p.nome];
-
-    const pontosBase = getPoints(p.tier);
-
-    const key = p.categoria + "-" + p.modo;
-    if(player[key]) return;
-    player[key] = true;
-
-    player.pontos += pontosBase;
-
-    player.categorias.add(p.categoria);
-    player.modos.add(p.modo);
-    player.tiers.push(p.tier);
+    map[p.nome].pontos += getPoints(p.tier);
   });
 
-  const ranking = Object.values(map);
+  const ranking = Object.values(map)
+    .sort((a,b)=>b.pontos-a.pontos)
+    .slice(0,10);
 
-  ranking.forEach(p=>{
-    const bonusCategoria = p.categorias.size * 10;
-    const bonusModo = p.modos.size * 5;
-    const highTierBonus = p.tiers.filter(t => t.includes("s")).length * 5;
-
-    p.scoreFinal = p.pontos + bonusCategoria + bonusModo + highTierBonus;
-  });
-
-  ranking.sort((a,b)=>b.scoreFinal - a.scoreFinal);
-
-  ranking.slice(0,10).forEach((p,i)=>{
+  ranking.forEach((p,i)=>{
     const li = document.createElement("li");
 
-    const medalha =
-      i===0?"🥇":
-      i===1?"🥈":
-      i===2?"🥉":`#${i+1}`;
-
     li.innerHTML = `
-      <strong>${medalha} ${p.nome}</strong>
-      <span>${Math.floor(p.scoreFinal)} pts</span>
+      <strong>#${i+1} ${p.nome}</strong>
+      <span>${p.pontos} pts</span>
     `;
 
     global.appendChild(li);
@@ -272,7 +233,9 @@ function render(data) {
 
   container.innerHTML = "";
 
-  const categorias = ["combate", "projeteis", "estrategia", "skills"];
+  const busca = document.getElementById("busca")?.value?.toLowerCase() || "";
+
+  const categorias = ["combate","projeteis","estrategia","skills"];
 
   const tiers = [
     "splus","s","sminus",
@@ -304,32 +267,32 @@ function render(data) {
       playersDiv.className = "players";
 
       data
-        .filter(p => p.categoria === cat && p.tier === t)
-        .forEach(p => {
+        .filter(p => {
+          const nomeOk = (p.nome || "").toLowerCase().includes(busca);
+          const abaOk = abaAtual === "todos" || p.dispositivo === abaAtual;
 
-          const safeNome = (p.nome || "").replace(/"/g, "");
-          const safeModo = (p.modo || "").replace(/"/g, "");
+          return (
+            p.categoria === cat &&
+            p.tier === t &&
+            nomeOk &&
+            abaOk
+          );
+        })
+        .forEach(p => {
 
           const el = document.createElement("div");
           el.className = "player";
 
           el.innerHTML = `
-            <strong>${safeNome}</strong>
-            <span>${safeModo}</span>
+            <strong>${p.nome}</strong>
+            <span>${p.modo}</span>
           `;
 
-          // 🔥 BOTÕES STAFF (FIXADOS)
           if (isAdmin) {
             el.innerHTML += `
               <div class="admin-buttons">
                 <button onclick='removerPlayer("${p.id}")'>❌</button>
-                <button onclick='editarPlayer(
-                  "${p.id}",
-                  "${safeNome}",
-                  "${safeModo}",
-                  "${p.tier}",
-                  "${p.categoria}"
-                )'>✏️</button>
+                <button onclick='editarPlayer("${p.id}","${p.nome}","${p.modo}","${p.tier}","${p.categoria}")'>✏️</button>
               </div>
             `;
           }
@@ -339,7 +302,6 @@ function render(data) {
 
       tierDiv.appendChild(tierTitle);
       tierDiv.appendChild(playersDiv);
-
       section.appendChild(tierDiv);
     });
 
@@ -347,20 +309,16 @@ function render(data) {
   });
 }
 
-// ================= TEMPO REAL =================
+// ================= REALTIME =================
 onSnapshot(collection(db, "players"), snapshot => {
-  try {
-    const players = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
 
-    render(players);
-    renderGlobal(players);
+  playersCache = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
 
-  } catch (e) {
-    console.error("Erro render:", e);
-  }
+  render(playersCache);
+  renderGlobal(playersCache);
 });
 
 // ================= LOADING =================
