@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+
 <div id="loading">
   <div class="loader-box">
     <h1>BMC</h1>
@@ -16,9 +17,9 @@
   </div>
 </div>
 
-
 <h1>🏆 BMC Ranking</h1>
 <br>
+
 <ul class="links">
 <li>
   <a href="staff.html" class="link-btn staff">
@@ -28,16 +29,25 @@
 </li>
 </ul>
 
+<!-- 🔍 BUSCA -->
+<input type="text" id="busca" placeholder="Buscar player..." oninput="filtrarPlayers()">
+
+<!-- 🎮 ABAS -->
+<div class="abas-dispositivo">
+  <button onclick="trocarAba('todos')">Todos</button>
+  <button onclick="trocarAba('mobile')">📱 Mobile</button>
+  <button onclick="trocarAba('pc')">🖥️ PC</button>
+  <button onclick="trocarAba('controle')">🎮 Controle</button>
+</div>
+
+<!-- 🏆 TOP GLOBAL -->
 <div class="categoria">
   <h2>🏆 TOP GLOBAL</h2>
   <ul id="global" class="lista"></ul>
 </div>
 
-
-
+<!-- 📊 RANKING -->
 <div id="ranking"></div>
-
-
 
 <script type="module" src="app.js"></script>
 </body>
