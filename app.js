@@ -48,7 +48,6 @@ window.login = async function () {
     }
 
     await signInWithEmailAndPassword(auth, email, senha);
-    alert("Logado 😈");
     location.reload();
 
   } catch (e) {
@@ -98,10 +97,7 @@ window.addPlayer = async function () {
     const tier = document.getElementById("tier")?.value;
     const dispositivo = document.getElementById("dispositivo")?.value;
 
-    if (!nome || !modo) {
-      alert("Preencha tudo!");
-      return;
-    }
+    if (!nome || !modo) return;
 
     await addDoc(collection(db, "players"), {
       nome,
@@ -121,7 +117,6 @@ window.addPlayer = async function () {
 
 // ================= REMOVE =================
 window.removerPlayer = async function(id){
-  if (!isAdmin) return;
   await deleteDoc(doc(db, "players", id));
 };
 
@@ -185,7 +180,6 @@ function renderGlobal(players){
     const mapa = {};
 
     lista.forEach(p=>{
-
       if(!mapa[p.nome]){
         mapa[p.nome] = {
           nome:p.nome,
@@ -245,9 +239,15 @@ function render(data){
     section.className = "categoria";
     section.innerHTML = `<h2>${cat.toUpperCase()}</h2>`;
 
-    let categoriaTemPlayer = false;
-
     tiers.forEach(t=>{
+
+      const tierDiv = document.createElement("div");
+      tierDiv.className = `tier tier-${t}`;
+
+      tierDiv.innerHTML = `<div class="tier-title">${formatTier(t)}</div>`;
+
+      const playersDiv = document.createElement("div");
+      playersDiv.className = "players";
 
       const filtrados = data.filter(p =>
         p.categoria===cat &&
@@ -257,16 +257,6 @@ function render(data){
       );
 
       if(filtrados.length > 0){
-
-        categoriaTemPlayer = true;
-
-        const tierDiv = document.createElement("div");
-        tierDiv.className = `tier tier-${t}`;
-
-        tierDiv.innerHTML = `<div class="tier-title">${formatTier(t)}</div>`;
-
-        const playersDiv = document.createElement("div");
-        playersDiv.className = "players";
 
         filtrados.forEach(p=>{
 
@@ -295,15 +285,13 @@ function render(data){
           playersDiv.appendChild(el);
         });
 
-        tierDiv.appendChild(playersDiv);
-        section.appendChild(tierDiv);
+      } else {
+        playersDiv.innerHTML = `<p style="opacity:0.4;">Sem players</p>`;
       }
 
+      tierDiv.appendChild(playersDiv);
+      section.appendChild(tierDiv);
     });
-
-    if(!categoriaTemPlayer){
-      section.innerHTML += `<p style="opacity:0.5;">Sem players ainda</p>`;
-    }
 
     container.appendChild(section);
   });
@@ -319,12 +307,4 @@ onSnapshot(collection(db,"players"), snapshot=>{
 
   render(playersCache);
   renderGlobal(playersCache);
-});
-
-// ================= LOADING =================
-window.addEventListener("load", ()=>{
-  setTimeout(()=>{
-    const load = document.getElementById("loading");
-    if(load) load.style.display = "none";
-  },2000);
 });
