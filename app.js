@@ -98,6 +98,11 @@ window.addPlayer = async function () {
     const tier = document.getElementById("tier")?.value;
     const dispositivo = document.getElementById("dispositivo")?.value;
 
+    if (!nome || !modo) {
+      alert("Preencha tudo!");
+      return;
+    }
+
     const duplicado = playersCache.find(p =>
       p.nome.toLowerCase() === nome.toLowerCase() &&
       p.modo.toLowerCase() === modo.toLowerCase() &&
@@ -170,6 +175,7 @@ function getPoints(tier){
   };
   return map[tier] || 0;
 }
+
 // ================= TOP =================
 function renderGlobal(players){
   const global = document.getElementById("global");
@@ -190,15 +196,12 @@ function renderGlobal(players){
     const mapa = {};
 
     lista.forEach(p=>{
-
-      if(!p.nome) return;
-
       if(!mapa[p.nome]){
         mapa[p.nome] = {
-          nome: p.nome,
-          modo: p.modo,
-          pontos: 0,
-          dispositivo: p.dispositivo
+          nome:p.nome,
+          modo:p.modo,
+          pontos:0,
+          dispositivo:p.dispositivo
         };
       }
 
@@ -227,30 +230,42 @@ function renderGlobal(players){
     });
   }
 
-  // TOP GLOBAL (20 players)
   gerarRanking(players, global, 20);
-
-  // TOP MOBILE
-  gerarRanking(
-    players.filter(p=>p.dispositivo==="mobile"),
-    mobile,
-    10
-  );
-
-  // TOP PC
-  gerarRanking(
-    players.filter(p=>p.dispositivo==="pc"),
-    pc,
-    10
-  );
-
-  // TOP CONTROLE
-  gerarRanking(
-    players.filter(p=>p.dispositivo==="controle"),
-    controle,
-    10
-  );
+  gerarRanking(players.filter(p=>p.dispositivo==="mobile"), mobile);
+  gerarRanking(players.filter(p=>p.dispositivo==="pc"), pc);
+  gerarRanking(players.filter(p=>p.dispositivo==="controle"), controle);
 }
+
+// ================= RENDER =================
+function render(data){
+  const container = document.getElementById("ranking");
+  if(!container) return;
+
+  container.innerHTML = "";
+
+  const busca = document.getElementById("busca")?.value?.toLowerCase() || "";
+
+  const categorias = ["combate","projeteis","estrategia","skills"];
+  const tiers = ["splus","s","sminus","aplus","a","aminus","bplus","b","bminus","cplus","c","cminus","dplus","d","dminus"];
+
+  categorias.forEach(cat=>{
+
+    const section = document.createElement("div");
+    section.className = "categoria";
+    section.innerHTML = `<h2>${cat.toUpperCase()}</h2>`;
+
+    tiers.forEach(t=>{
+
+      const playersDiv = document.createElement("div");
+      playersDiv.className = "players";
+
+      data
+        .filter(p =>
+          p.categoria===cat &&
+          p.tier===t &&
+          (abaAtual==="todos" || p.dispositivo===abaAtual) &&
+          p.nome.toLowerCase().includes(busca)
+        )
         .forEach(p=>{
 
           const icon =
