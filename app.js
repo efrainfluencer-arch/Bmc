@@ -170,7 +170,6 @@ function getPoints(tier){
   };
   return map[tier] || 0;
 }
-
 // ================= TOP =================
 function renderGlobal(players){
   const global = document.getElementById("global");
@@ -185,59 +184,73 @@ function renderGlobal(players){
   if(pc) pc.innerHTML = "";
   if(controle) controle.innerHTML = "";
 
-  const ranking = [...players]
-    .sort((a,b)=>getPoints(b.tier)-getPoints(a.tier))
-    .slice(0,20);
+  function gerarRanking(lista, elemento, limite = 10){
+    if(!elemento) return;
 
-  ranking.forEach((p,i)=>{
+    const mapa = {};
 
-    const icon =
-      p.dispositivo==="mobile" ? "📱" :
-      p.dispositivo==="pc" ? "🖥️" :
-      "🎮";
+    lista.forEach(p=>{
 
-    const li = document.createElement("li");
+      if(!p.nome) return;
 
-    li.innerHTML = `
-      <strong>#${i+1} ${p.nome}</strong>
-      <span>${p.modo} ${icon}</span>
-    `;
+      if(!mapa[p.nome]){
+        mapa[p.nome] = {
+          nome: p.nome,
+          modo: p.modo,
+          pontos: 0,
+          dispositivo: p.dispositivo
+        };
+      }
 
-    global.appendChild(li);
-  });
+      mapa[p.nome].pontos += getPoints(p.tier);
+    });
+
+    const ranking = Object.values(mapa)
+      .sort((a,b)=>b.pontos-a.pontos)
+      .slice(0, limite);
+
+    ranking.forEach((p,i)=>{
+
+      const icon =
+        p.dispositivo==="mobile" ? "📱" :
+        p.dispositivo==="pc" ? "🖥️" :
+        "🎮";
+
+      const li = document.createElement("li");
+
+      li.innerHTML = `
+        <strong>#${i+1} ${p.nome}</strong>
+        <span>${p.modo} ${icon} • ${p.pontos} pts</span>
+      `;
+
+      elemento.appendChild(li);
+    });
+  }
+
+  // TOP GLOBAL (20 players)
+  gerarRanking(players, global, 20);
+
+  // TOP MOBILE
+  gerarRanking(
+    players.filter(p=>p.dispositivo==="mobile"),
+    mobile,
+    10
+  );
+
+  // TOP PC
+  gerarRanking(
+    players.filter(p=>p.dispositivo==="pc"),
+    pc,
+    10
+  );
+
+  // TOP CONTROLE
+  gerarRanking(
+    players.filter(p=>p.dispositivo==="controle"),
+    controle,
+    10
+  );
 }
-
-// ================= RENDER =================
-function render(data){
-  const container = document.getElementById("ranking");
-  if(!container) return;
-
-  container.innerHTML = "";
-
-  const busca = document.getElementById("busca")?.value?.toLowerCase() || "";
-
-  const categorias = ["combate","projeteis","estrategia","skills"];
-  const tiers = ["splus","s","sminus","aplus","a","aminus","bplus","b","bminus","cplus","c","cminus","dplus","d","dminus"];
-
-  categorias.forEach(cat=>{
-
-    const section = document.createElement("div");
-    section.className = "categoria";
-
-    section.innerHTML = `<h2>${cat.toUpperCase()}</h2>`;
-
-    tiers.forEach(t=>{
-
-      const playersDiv = document.createElement("div");
-      playersDiv.className = "players";
-
-      data
-        .filter(p =>
-          p.categoria===cat &&
-          p.tier===t &&
-          (abaAtual==="todos" || p.dispositivo===abaAtual) &&
-          p.nome.toLowerCase().includes(busca)
-        )
         .forEach(p=>{
 
           const icon =
