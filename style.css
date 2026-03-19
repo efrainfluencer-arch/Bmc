@@ -347,56 +347,7 @@ box-shadow:0 0 10px rgba(0,200,255,0.15);
 }
 
 /* ===== TOP GLOBAL ===== */
-.global-ranking li{
-display:flex;
-justify-content:space-between;
-align-items:center;
 
-padding:14px;
-margin-bottom:10px;
-
-background:#111827;
-border-radius:12px;
-border:1px solid rgba(255,255,255,0.05);
-
-transition:0.25s;
-}
-
-.global-ranking li:hover{
-transform:translateX(4px);
-box-shadow:0 0 10px rgba(0,200,255,0.12);
-}
-
-/* ===== TIERS ===== */
-.tier-splus .tier-title,
-.tier-s .tier-title,
-.tier-sminus .tier-title{
-background:#7c3aed;
-}
-
-.tier-aplus .tier-title,
-.tier-a .tier-title,
-.tier-aminus .tier-title{
-background:#00c8ff;
-}
-
-.tier-bplus .tier-title,
-.tier-b .tier-title,
-.tier-bminus .tier-title{
-background:#eab308;
-}
-
-.tier-cplus .tier-title,
-.tier-c .tier-title,
-.tier-cminus .tier-title{
-background:#2563eb;
-}
-
-.tier-dplus .tier-title,
-.tier-d .tier-title,
-.tier-dminus .tier-title{
-background:#ef4444;
-}
 
 /* ===== LOADING ===== */
 #loading{
@@ -476,3 +427,86 @@ position:static;
 margin-top:8px;
 }
   }
+
+/* ===== CAIXAS GERAIS ===== */
+section, .painel, .categoria, .global-ranking li, .link-card{
+background:rgba(3,18,28,0.88);
+backdrop-filter:blur(10px);
+border:1px solid rgba(0,180,255,0.08);
+box-shadow:0 0 18px rgba(0,0,0,0.45);
+border-radius:8px;
+}
+
+/* ===== TIER CLEAN ===== */
+.tier{
+display:flex;
+margin:10px 0;
+border-radius:8px;
+overflow:hidden;
+
+background:#03121c;
+border:1px solid rgba(255,255,255,0.04);
+
+transition:0.25s;
+}
+
+/* ===== LABEL BASE ===== */
+.tier-title{
+width:85px;
+min-height:80px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-weight:bold;
+font-size:18px;
+
+background:#03121c;
+}
+
+/* ===== TIER S ===== */
+.tier-s .tier-title,
+.tier-splus .tier-title,
+.tier-sminus .tier-title{
+color:#a855f7;
+border-right:2px solid #a855f7;
+}
+
+/* ===== TIER A ===== */
+.tier-a .tier-title,
+.tier-aplus .tier-title,
+.tier-aminus .tier-title{
+color:#22c55e;
+border-right:2px solid #22c55e;
+}
+
+/* ===== TIER B ===== */
+.tier-b .tier-title,
+.tier-bplus .tier-title,
+.tier-bminus .tier-title{
+color:#eab308;
+border-right:2px solid #eab308;
+}
+
+/* ===== TIER C ===== */
+.tier-c .tier-title,
+.tier-cplus .tier-title,
+.tier-cminus .tier-title{
+color:#3b82f6;
+border-right:2px solid #3b82f6;
+}
+
+/* ===== TIER D ===== */
+.tier-d .tier-title,
+.tier-dplus .tier-title,
+.tier-dminus .tier-title{
+color:#ef4444;
+border-right:2px solid #ef4444;
+}
+
+/* ===== HOVER ===== */
+.tier:hover{
+transform:translateY(-2px);
+box-shadow:0 0 12px rgba(0,180,255,0.12);
+}
