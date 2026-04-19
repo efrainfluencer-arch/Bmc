@@ -11,247 +11,221 @@ box-sizing:border-box;
 }
 
 /* ===== BODY ===== */
-body {
-background: linear-gradient(180deg, #050505 0%, #08110a 40%, #050505 100%);
-color: #d9d9d9;
-font-family: 'Inter', sans-serif;
-}
+body{
+font-family:'Minecraft', sans-serif;
 
-/* brilho leve fundo */
-body::before{
-content:"";
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:radial-gradient(circle at 20% 20%, rgba(34,197,94,0.08), transparent);
-pointer-events:none;
-}
+background:
+radial-gradient(circle at 20% 20%, rgba(0,150,255,0.08), transparent),
+linear-gradient(180deg, #020617 0%, #020617 40%, #010409 100%);
 
-/* ===== SCROLL ===== */
-::-webkit-scrollbar{width:8px;}
-::-webkit-scrollbar-thumb{background:#22c55e;border-radius:10px;}
-::-webkit-scrollbar-track{background:#020617;}
+color:#e5e7eb;
+}
 
 /* ===== CONTAINER ===== */
 .container{
 max-width:950px;
 margin:auto;
 padding:20px;
-animation:fadeUp 0.6s ease;
 }
 
 /* ===== HERO ===== */
+.hero img {
+max-width:50%;
+border-radius:8px;
+}
+
 .hero, .hero1{
 text-align:center;
 padding:50px 20px;
 }
 
 .hero h1, .hero1 h1{
-color:#4cff4c;
-text-shadow:0 0 10px #22c55e;
+color:#38bdf8;
+text-shadow:0 0 8px rgba(56,189,248,0.6);
 }
 
-.hero p{color:#9ca3af;}
-
-.hero img {
-max-width: 100%;
-border-radius: 8px;
+.hero p{
+color:#9ca3af;
 }
 
-/* ===== SECTION ===== */
+/* ===== SEÇÕES ===== */
 section{
 margin-top:30px;
 padding:20px;
-background:rgba(15,23,42,0.75);
+
+background: rgba(2, 6, 23, 0.7);
+backdrop-filter: blur(10px);
+
 border-radius:12px;
-border:1px solid rgba(255,255,255,0.05);
-backdrop-filter:blur(10px);
-box-shadow:0 0 20px rgba(0,0,0,0.3);
+border:1px solid rgba(0,150,255,0.15);
+
+box-shadow:0 0 20px rgba(0,0,0,0.6);
+
+animation:fadeUp 0.6s ease;
 }
 
-/* ===== LISTA ===== */
+/* ===== LISTAS ===== */
 .lista li{
 list-style:none;
 padding:12px;
 margin-bottom:10px;
+
 background:#020617;
+
 border-radius:10px;
-transition:0.25s;
-border:1px solid rgba(255,255,255,0.03);
+border:1px solid rgba(255,255,255,0.05);
+
+transition:0.2s;
 }
 
 .lista li:hover{
-transform:translateX(8px);
-box-shadow:0 0 10px rgba(34,197,94,0.3);
+transform:translateX(5px);
+border-color:#38bdf8;
+box-shadow:0 0 10px rgba(56,189,248,0.3);
 }
 
-/* ===== BOTÃO ===== */
+.lista a{
+color:#38bdf8;
+text-decoration:none;
+font-weight:bold;
+}
+
+.lista a:hover{
+text-shadow:0 0 6px rgba(56,189,248,0.7);
+}
+
+/* ===== BOTÕES ===== */
 .voltar{
 display:inline-block;
 margin-top:15px;
 padding:10px 18px;
-background:#22c55e;
+
+background:#0284c7;
 color:white;
-text-decoration:none;
+
 border-radius:10px;
-transition:0.25s;
-box-shadow:0 0 10px rgba(34,197,94,0.5);
+text-decoration:none;
+
+transition:0.2s;
 }
 
 .voltar:hover{
-background:#16a34a;
-transform:translateY(-3px);
-box-shadow:0 0 20px rgba(34,197,94,0.8);
+transform:translateY(-2px);
+box-shadow:0 0 12px rgba(56,189,248,0.6);
+}
+
+/* ===== FOOTER ===== */
+.footer{
+margin:30px 0 20px 20px;
+font-size:14px;
+opacity:0.5;
 }
 
 /* ================= RANK ================= */
 
 .categoria{
-margin-bottom:50px;
-animation:fadeUp 0.6s ease forwards;
-opacity:0;
+margin-bottom:40px;
+animation:fadeUp 0.6s ease;
 }
 
 .categoria h2{
 text-align:center;
 margin-bottom:15px;
-color:#22c55e;
-text-shadow:0 0 8px #22c55e;
+color:#38bdf8;
 }
 
-/* ===== TIER BASE ===== */
+/* ===== TIER ===== */
 .tier{
 display:flex;
 margin:10px 0;
-border-radius:12px;
+border-radius:10px;
 overflow:hidden;
+
 background:#020617;
-border:1px solid rgba(255,255,255,0.05);
+border:1px solid rgba(0,150,255,0.15);
+
 transition:0.25s;
-position:relative;
+animation:fadeUp 0.5s ease;
 }
 
-/* glow geral */
 .tier:hover{
-transform:scale(1.02);
-box-shadow:0 0 25px rgba(34,197,94,0.2);
-}
-
-/* efeito brilho passando */
-.tier::before{
-content:"";
-position:absolute;
-inset:0;
-opacity:0;
-transition:0.3s;
-}
-
-.tier:hover::before{
-opacity:1;
-background:linear-gradient(120deg, transparent, rgba(255,255,255,0.05), transparent);
+transform:scale(1.01);
+box-shadow:0 0 15px rgba(0,150,255,0.35);
 }
 
 /* ===== LABEL ===== */
 .tier-title{
-width:80px;
+width:85px;
 min-height:80px;
+
 display:flex;
 align-items:center;
 justify-content:center;
+
 font-weight:bold;
-font-size:18px;
-letter-spacing:1px;
-background:#030712;
+color:white;
+font-size:20px;
 }
 
 /* ===== PLAYERS ===== */
 .players{
 flex:1;
 min-height:80px;
+
 display:flex;
 flex-wrap:wrap;
 gap:10px;
+
 padding:12px;
 }
 
 /* ===== PLAYER ===== */
 .player{
-background:#0b0f1a;
+display:flex;
+align-items:center;
+gap:10px;
+
+background:#020617;
 padding:10px;
-border-radius:10px;
+
+border-radius:8px;
 border:1px solid rgba(255,255,255,0.05);
+
 transition:0.25s;
-animation:popIn 0.3s ease;
-cursor:pointer;
+animation:fadeUp 0.4s ease;
 }
 
 .player:hover{
-transform:translateY(-4px) scale(1.03);
-box-shadow:0 0 15px rgba(34,197,94,0.4);
-border-color:#22c55e;
+transform:translateY(-3px) scale(1.02);
+border-color:#38bdf8;
+box-shadow:
+0 0 8px rgba(56,189,248,0.3),
+0 0 2px rgba(255,255,255,0.1) inset;
 }
 
-/* ===== TEXTO PLAYER ===== */
-.player strong{font-size:14px;}
-.player span{font-size:12px;opacity:0.6;}
-
-/* ================= TIER CORES (NEON VOLTOU 🔥) ================= */
-
-/* S */
-.tier-splus .tier-title,
-.tier-s .tier-title,
-.tier-sminus .tier-title{
-background:#7c3aed;
-box-shadow:0 0 15px #7c3aed;
+/* ===== AVATAR ===== */
+.player img{
+width:36px;
+height:36px;
+border-radius:8px;
+image-rendering:pixelated;
+border:1px solid rgba(56,189,248,0.3);
 }
 
-/* A */
-.tier-aplus .tier-title,
-.tier-a .tier-title,
-.tier-aminus .tier-title{
-background:#22c55e;
-box-shadow:0 0 15px #22c55e;
+/* ===== TEXTO ===== */
+.player strong{
+display:block;
+font-size:14px;
 }
 
-/* B */
-.tier-bplus .tier-title,
-.tier-b .tier-title,
-.tier-bminus .tier-title{
-background:#eab308;
-box-shadow:0 0 15px #eab308;
+.player span{
+font-size:12px;
+opacity:0.6;
 }
 
-/* C */
-.tier-cplus .tier-title,
-.tier-c .tier-title,
-.tier-cminus .tier-title{
-background:#2563eb;
-box-shadow:0 0 15px #2563eb;
-}
-
-/* D */
-.tier-dplus .tier-title,
-.tier-d .tier-title,
-.tier-dminus .tier-title{
-background:#dc2626;
-box-shadow:0 0 15px #dc2626;
-}
-
-/* brilho no hover MAIS FORTE */
-.tier-s:hover{box-shadow:0 0 25px #7c3aed;}
-.tier-a:hover{box-shadow:0 0 25px #22c55e;}
-.tier-b:hover{box-shadow:0 0 25px #eab308;}
-.tier-c:hover{box-shadow:0 0 25px #2563eb;}
-.tier-d:hover{box-shadow:0 0 25px #dc2626;}
-
-/* ================= ADMIN ================= */
-
+/* ===== ADMIN ===== */
 .admin-buttons{
-position:absolute;
-top:5px;
-right:5px;
+margin-left:auto;
 display:flex;
 gap:5px;
 opacity:0;
@@ -266,30 +240,175 @@ opacity:1;
 border:none;
 cursor:pointer;
 font-size:12px;
-padding:4px 7px;
+padding:4px 6px;
 border-radius:6px;
 color:white;
 }
 
-.admin-buttons button:nth-child(1){background:#ef4444;}
-.admin-buttons button:nth-child(2){background:#8b5cf6;}
+.admin-buttons button:nth-child(1){
+background:#b91c1c;
+}
 
-/* ================= ANIMAÇÕES ================= */
+.admin-buttons button:nth-child(2){
+background:#0284c7;
+}
 
+/* ===== TIERS ===== */
+
+/* S */
+.tier-splus .tier-title,
+.tier-s .tier-title,
+.tier-sminus .tier-title{
+background:#7c3aed;
+box-shadow:0 0 12px rgba(124,58,237,0.9);
+}
+
+/* A */
+.tier-aplus .tier-title,
+.tier-a .tier-title,
+.tier-aminus .tier-title{
+background:#22c55e;
+box-shadow:0 0 12px rgba(34,197,94,0.8);
+}
+
+/* B */
+.tier-bplus .tier-title,
+.tier-b .tier-title,
+.tier-bminus .tier-title{
+background:#eab308;
+box-shadow:0 0 10px rgba(234,179,8,0.7);
+}
+
+/* C */
+.tier-cplus .tier-title,
+.tier-c .tier-title,
+.tier-cminus .tier-title{
+background:#2563eb;
+box-shadow:0 0 12px rgba(37,99,235,0.9);
+}
+
+/* D */
+.tier-dplus .tier-title,
+.tier-d .tier-title,
+.tier-dminus .tier-title{
+background:#dc2626;
+box-shadow:0 0 10px rgba(220,38,38,0.8);
+}
+
+/* ===== BUSCA ===== */
+#busca{
+width:100%;
+max-width:420px;
+
+display:block;
+margin:20px auto;
+
+padding:12px 14px;
+
+background:#020617;
+color:white;
+
+border:1px solid rgba(0,150,255,0.15);
+border-radius:12px;
+
+font-family:'Minecraft';
+font-size:14px;
+
+transition:0.25s;
+}
+
+#busca:focus{
+outline:none;
+border-color:#38bdf8;
+box-shadow:0 0 10px rgba(56,189,248,0.4);
+transform:scale(1.02);
+}
+
+/* ===== ABAS ===== */
+.abas-dispositivo{
+display:flex;
+justify-content:center;
+gap:10px;
+flex-wrap:wrap;
+margin:20px 0 30px 0;
+}
+
+.abas-dispositivo button{
+padding:10px 16px;
+
+background:#020617;
+color:white;
+
+border:1px solid rgba(255,255,255,0.08);
+border-radius:10px;
+
+font-family:'Minecraft';
+font-size:13px;
+
+transition:0.25s;
+}
+
+.abas-dispositivo button:hover{
+transform:translateY(-2px);
+border-color:#38bdf8;
+box-shadow:0 0 10px rgba(56,189,248,0.3);
+}
+
+/* ===== SCROLL ===== */
+::-webkit-scrollbar{
+width:6px;
+}
+
+::-webkit-scrollbar-track{
+background:#020617;
+}
+
+::-webkit-scrollbar-thumb{
+background:#38bdf8;
+border-radius:10px;
+}
+
+/* ===== ANIMAÇÃO ===== */
 @keyframes fadeUp{
-from{opacity:0;transform:translateY(20px);}
-to{opacity:1;transform:translateY(0);}
+from{
+opacity:0;
+transform:translateY(12px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
 }
 
-@keyframes popIn{
-from{opacity:0;transform:scale(0.8);}
-to{opacity:1;transform:scale(1);}
+/* ===== MOBILE ===== */
+@media (max-width:768px){
+
+.tier{
+flex-direction:column;
 }
 
-/* ================= MOBILE ================= */
+.tier-title{
+width:100%;
+min-height:50px;
+}
 
-@media(max-width:768px){
-.tier{flex-direction:column;}
-.tier-title{width:100%;min-height:50px;}
-.players{justify-content:center;}
+.players{
+padding:10px;
+gap:8px;
+}
+
+.player{
+width:100%;
+}
+
+.admin-buttons{
+opacity:1;
+position:static;
+margin-top:8px;
+}
+
+#busca{
+width:92%;
+}
+
 }
