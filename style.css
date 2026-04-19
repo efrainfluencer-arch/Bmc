@@ -1,8 +1,3 @@
-@font-face {
-font-family:'Minecraft';
-src:url('Minefactory.woff2') format('woff2');
-}
-
 /* ===== RESET ===== */
 *{
 margin:0;
@@ -12,31 +7,12 @@ box-sizing:border-box;
 
 /* ===== BODY ===== */
 body{
-font-family:'Minecraft',sans-serif;
+font-family:'Minecraft', sans-serif;
+
+background: radial-gradient(circle at 20% 20%, rgba(34,197,94,0.08), transparent),
+linear-gradient(180deg, #030303 0%, #08110a 40%, #030303 100%);
+
 color:#e5e7eb;
-
-background:
-radial-gradient(circle at top left, rgba(0,180,255,0.14), transparent 30%),
-radial-gradient(circle at bottom right, rgba(0,120,255,0.10), transparent 30%),
-linear-gradient(135deg,#05070d 0%,#08111f 45%,#05070d 100%);
-
-min-height:100vh;
-}
-
-/* ===== FUNDO SUAVE ===== */
-body::before{
-content:"";
-position:fixed;
-width:200%;
-height:200%;
-background:radial-gradient(circle, rgba(0,180,255,0.04) 0%, transparent 70%);
-animation:bgMove 22s linear infinite;
-z-index:-1;
-}
-
-@keyframes bgMove{
-from{transform:translate(-25%,-25%);}
-to{transform:translate(0,0);}
 }
 
 /* ===== CONTAINER ===== */
@@ -46,105 +22,49 @@ margin:auto;
 padding:20px;
 }
 
-/* ===== HERO ===== */
-.hero img{
-max-width:50%;
-border-radius:14px;
-}
-
-.hero,.hero1{
-text-align:center;
-padding:50px 20px;
-}
-
-.hero h1,.hero1 h1{
-color: #00ff00;
-text-shadow: 0 0 14px rgba(0, 255, 0, 0.28);
+/* ===== TÍTULOS ===== */
+h1, h2{
 letter-spacing:1px;
+color:#22c55e;
+text-shadow:0 0 8px rgba(34,197,94,0.6);
 }
 
-.hero p{
-color:#94a3b8;
-}
-
-/* ===== SECTIONS ===== */
-section,.painel{
+/* ===== SEÇÕES ===== */
+section{
 margin-top:30px;
-padding:22px;
+padding:20px;
 
-background:rgba(15,23,42,0.72);
+background:rgba(2,6,23,0.6);
 backdrop-filter:blur(10px);
 
-border-radius:18px;
-border:1px solid rgba(255,255,255,0.05);
-
-box-shadow:0 10px 30px rgba(0,0,0,0.25);
-animation:fadeSmooth 0.6s ease;
+border-radius:12px;
+border:1px solid rgba(34,197,94,0.15);
+box-shadow:0 0 25px rgba(0,0,0,0.4);
 }
 
-section:hover{
-border-color:rgba(0,200,255,0.15);
-}
+/* ===== LISTA GLOBAL ===== */
+.global-ranking li{
+display:flex;
+justify-content:space-between;
+align-items:center;
 
-/* ===== TITLES ===== */
-h1,h2{
-letter-spacing:1px;
-}
-
-/* ===== LISTAS ===== */
-.lista li{
-list-style:none;
-padding:14px;
+padding:12px;
 margin-bottom:10px;
 
-background:#111827;
-border-radius:14px;
+background:#020617;
+border-radius:10px;
+
 border:1px solid rgba(255,255,255,0.05);
-
-transition:0.25s;
-}
-
-.lista li:hover{
-transform:translateX(5px);
-border-color:#00c8ff;
-box-shadow:0 0 12px rgba(0,200,255,0.15);
-}
-
-.lista a{
-color:#38bdf8;
-text-decoration:none;
-font-weight:bold;
 transition:0.2s;
 }
 
-.lista a:hover{
-letter-spacing:.5px;
+.global-ranking li:hover{
+transform:translateX(5px);
+box-shadow:0 0 10px rgba(34,197,94,0.3);
 }
 
-/* ===== BOTÃO ===== */
-.voltar{
-display:inline-block;
-margin-top:15px;
-padding:10px 18px;
-
-background:#00c8ff;
-color:black;
-
-border-radius:12px;
-text-decoration:none;
-transition:0.25s;
-}
-
-.voltar:hover{
-transform:translateY(-2px);
-box-shadow:0 0 14px rgba(0,200,255,0.25);
-}
-
-/* ===== FOOTER ===== */
-.footer{
-margin:30px 0 20px 20px;
-font-size:14px;
-opacity:0.5;
+.global-ranking li span{
+margin-left:10px;
 }
 
 /* ===== CATEGORIA ===== */
@@ -154,31 +74,36 @@ margin-bottom:40px;
 
 .categoria h2{
 text-align:center;
-margin-bottom:18px;
-color:#38bdf8;
+margin-bottom:15px;
 }
 
 /* ===== TIER ===== */
 .tier{
 display:flex;
-margin:12px 0;
-border-radius:16px;
+margin:10px 0;
+border-radius:10px;
 overflow:hidden;
 
-background:#111827;
-border:1px solid rgba(255,255,255,0.04);
-
-transition:0.25s;
+background:#020617;
+border:1px solid rgba(34,197,94,0.1);
+transition:0.2s;
 position:relative;
 }
 
 .tier:hover{
-transform:translateY(-2px);
-box-shadow:0 8px 22px rgba(0,0,0,0.25);
+transform:scale(1.01);
+animation:glowPulse 2s infinite;
 }
 
+@keyframes glowPulse {
+0%{ box-shadow:0 0 5px rgba(34,197,94,0.3); }
+50%{ box-shadow:0 0 15px rgba(34,197,94,0.6); }
+100%{ box-shadow:0 0 5px rgba(34,197,94,0.3); }
+}
+
+/* ===== LABEL ===== */
 .tier-title{
-width:90px;
+width:85px;
 min-height:80px;
 
 display:flex;
@@ -186,74 +111,74 @@ align-items:center;
 justify-content:center;
 
 font-weight:bold;
-font-size:19px;
 color:white;
+font-size:20px;
 }
 
-/* ===== PLAYERS ===== */
+/* ===== PLAYERS GRID ===== */
 .players{
 flex:1;
 min-height:80px;
 
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-padding:14px;
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+gap:12px;
+padding:12px;
 }
 
 /* ===== PLAYER ===== */
 .player{
-position:relative;
 display:flex;
 align-items:center;
 gap:10px;
 
-background:rgba(255,255,255,0.03);
-padding:12px;
-border-radius:12px;
+background:#020617;
+padding:10px;
+
+border-radius:10px;
 border:1px solid rgba(255,255,255,0.05);
 
-transition:0.25s ease;
-z-index:2;
+transition:0.25s;
 }
 
 .player:hover{
-transform:translateY(-3px);
-border-color:#00c8ff;
-box-shadow:0 0 12px rgba(0,200,255,0.16);
+transform:translateY(-4px) scale(1.02);
+box-shadow:0 0 12px rgba(34,197,94,0.5);
+border-color:#22c55e;
 }
 
+/* ===== AVATAR ===== */
+.player img{
+width:36px;
+height:36px;
+border-radius:8px;
+image-rendering:pixelated;
+
+border:1px solid rgba(120,255,160,0.25);
+transition:0.2s;
+}
+
+.player:hover img{
+transform:scale(1.1);
+box-shadow:0 0 10px rgba(34,197,94,0.7);
+}
+
+/* ===== TEXTO ===== */
 .player strong{
 display:block;
 font-size:14px;
-color:#f8fafc;
 }
 
 .player span{
 font-size:12px;
-color:#94a3b8;
-}
-
-/* ===== TOP PLAYER ===== */
-.players .player:first-child{
-border:1px solid #00c8ff;
-box-shadow:0 0 12px rgba(0,200,255,0.18);
+opacity:0.7;
 }
 
 /* ===== ADMIN ===== */
 .admin-buttons{
-position:absolute;
-top:5px;
-right:5px;
+margin-left:auto;
 display:flex;
 gap:5px;
-opacity:0;
-transition:0.3s;
-z-index:3;
-}
-
-.player:hover .admin-buttons{
-opacity:1;
 }
 
 .admin-buttons button{
@@ -263,141 +188,50 @@ font-size:12px;
 padding:4px 6px;
 border-radius:6px;
 color:white;
-transition:0.2s;
-}
-
-.admin-buttons button:hover{
-transform:scale(1.08);
 }
 
 .admin-buttons button:nth-child(1){
-background:#ef4444;
+background:#15803d;
 }
 
 .admin-buttons button:nth-child(2){
-background:#00c8ff;
-color:black;
+background:#b91c1c;
 }
 
-/* ===== INPUT ===== */
-.painel input,
-.painel select,
-#busca{
-padding:12px;
-border-radius:12px;
-border:1px solid rgba(255,255,255,0.06);
-
-background:#111827;
-color:white;
-
-font-family:'Minecraft';
-transition:0.25s;
+/* ===== TIERS CORES ===== */
+.tier-splus .tier-title,
+.tier-s .tier-title,
+.tier-sminus .tier-title{
+background:#7c3aed;
+box-shadow:0 0 12px rgba(124,58,237,0.8);
 }
 
-.painel input:focus,
-.painel select:focus,
-#busca:focus{
-outline:none;
-border-color:#00c8ff;
-box-shadow:0 0 10px rgba(0,200,255,0.18);
+.tier-aplus .tier-title,
+.tier-a .tier-title,
+.tier-aminus .tier-title{
+background:#22c55e;
+box-shadow:0 0 12px rgba(34,197,94,0.8);
 }
 
-/* ===== BOTÃO PAINEL ===== */
-.painel button{
-padding:10px 14px;
-border:none;
-border-radius:10px;
-cursor:pointer;
-font-family:'Minecraft';
-background:linear-gradient(135deg,#00c8ff,#38bdf8);
-color:black;
+.tier-bplus .tier-title,
+.tier-b .tier-title,
+.tier-bminus .tier-title{
+background:#eab308;
+box-shadow:0 0 10px rgba(234,179,8,0.7);
 }
 
-/* ===== BUSCA ===== */
-#busca{
-width:100%;
-max-width:420px;
-display:block;
-margin:20px auto;
+.tier-cplus .tier-title,
+.tier-c .tier-title,
+.tier-cminus .tier-title{
+background:#2563eb;
+box-shadow:0 0 10px rgba(37,99,235,0.7);
 }
 
-/* ===== ABAS ===== */
-.abas-dispositivo{
-display:flex;
-justify-content:center;
-gap:10px;
-flex-wrap:wrap;
-margin:20px 0 30px;
-}
-
-.abas-dispositivo button{
-padding:10px 16px;
-background:#111827;
-color:white;
-border:1px solid rgba(255,255,255,0.05);
-border-radius:10px;
-font-family:'Minecraft';
-transition:0.25s;
-}
-
-.abas-dispositivo button:hover{
-transform:translateY(-2px);
-border-color:#00c8ff;
-box-shadow:0 0 10px rgba(0,200,255,0.15);
-}
-
-/* ===== TOP GLOBAL ===== */
-
-
-/* ===== LOADING ===== */
-#loading{
-position:fixed;
-width:100%;
-height:100%;
-background:#05070d;
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:9999;
-transition:0.5s;
-}
-
-.loader-box h1{
-color:#00c8ff;
-font-size:40px;
-text-shadow:0 0 18px rgba(0,200,255,0.25);
-}
-
-.bar{
-width:200px;
-height:8px;
-background:#111827;
-border-radius:10px;
-margin-top:10px;
-overflow:hidden;
-}
-
-.progress{
-width:0%;
-height:100%;
-background:#00c8ff;
-animation:load 2s linear forwards;
-}
-
-@keyframes load{
-to{width:100%;}
-}
-
-/* ===== ANIMAÇÃO ===== */
-@keyframes fadeSmooth{
-from{
-opacity:0;
-transform:translateY(10px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
+.tier-dplus .tier-title,
+.tier-d .tier-title,
+.tier-dminus .tier-title{
+background:#dc2626;
+box-shadow:0 0 10px rgba(220,38,38,0.7);
 }
 
 /* ===== MOBILE ===== */
@@ -413,100 +247,90 @@ min-height:50px;
 }
 
 .players{
-padding:10px;
-gap:8px;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
 }
 
 .player{
 width:100%;
 }
 
-.admin-buttons{
-opacity:1;
-position:static;
-margin-top:8px;
 }
+
+/* ================= ANIMAÇÃO BASE ================= */
+
+@keyframes fadeUp {
+  from {
+    opacity:0;
+    transform:translateY(20px);
   }
-
-/* ===== CAIXAS GERAIS ===== */
-section, .painel, .categoria, .global-ranking li, .link-card{
-background:rgba(3,18,28,0.88);
-backdrop-filter:blur(10px);
-border:1px solid rgba(0,180,255,0.08);
-box-shadow:0 0 18px rgba(0,0,0,0.45);
-border-radius:8px;
+  to {
+    opacity:1;
+    transform:translateY(0);
+  }
 }
 
-/* ===== TIER CLEAN ===== */
-.tier{
-display:flex;
-margin:10px 0;
-border-radius:8px;
-overflow:hidden;
-
-background:#03121c;
-border:1px solid rgba(255,255,255,0.04);
-
-transition:0.25s;
+@keyframes fadeIn {
+  from { opacity:0; }
+  to { opacity:1; }
 }
 
-/* ===== LABEL BASE ===== */
-.tier-title{
-width:85px;
-min-height:80px;
+/* ================= CONTAINERS ================= */
 
-display:flex;
-align-items:center;
-justify-content:center;
-
-font-weight:bold;
-font-size:18px;
-
-background:#03121c;
+section,
+.categoria{
+  opacity:0;
+  animation:fadeUp 0.6s ease forwards;
 }
 
-/* ===== TIER S ===== */
-.tier-s .tier-title,
-.tier-splus .tier-title,
-.tier-sminus .tier-title{
-color:#a855f7;
-border-right:2px solid #a855f7;
+/* delay progressivo */
+.categoria:nth-child(1){ animation-delay:0.1s; }
+.categoria:nth-child(2){ animation-delay:0.2s; }
+.categoria:nth-child(3){ animation-delay:0.3s; }
+.categoria:nth-child(4){ animation-delay:0.4s; }
+
+/* ================= TÍTULOS ================= */
+
+h1{
+  opacity:0;
+  animation:fadeUp 0.7s ease forwards;
 }
 
-/* ===== TIER A ===== */
-.tier-a .tier-title,
-.tier-aplus .tier-title,
-.tier-aminus .tier-title{
-color:#22c55e;
-border-right:2px solid #22c55e;
+h2{
+  opacity:0;
+  animation:fadeUp 0.6s ease forwards;
 }
 
-/* ===== TIER B ===== */
-.tier-b .tier-title,
-.tier-bplus .tier-title,
-.tier-bminus .tier-title{
-color:#eab308;
-border-right:2px solid #eab308;
+/* ================= PLAYERS ================= */
+
+.player{
+  opacity:0;
+  transform:translateY(10px);
+  animation:fadeUp 0.4s ease forwards;
 }
 
-/* ===== TIER C ===== */
-.tier-c .tier-title,
-.tier-cplus .tier-title,
-.tier-cminus .tier-title{
-color:#3b82f6;
-border-right:2px solid #3b82f6;
+/* delay automático nos players */
+.player:nth-child(1){ animation-delay:0.05s; }
+.player:nth-child(2){ animation-delay:0.08s; }
+.player:nth-child(3){ animation-delay:0.1s; }
+.player:nth-child(4){ animation-delay:0.12s; }
+.player:nth-child(5){ animation-delay:0.14s; }
+
+/* ================= TOP GLOBAL ================= */
+
+.global-ranking li{
+  opacity:0;
+  animation:fadeUp 0.5s ease forwards;
 }
 
-/* ===== TIER D ===== */
-.tier-d .tier-title,
-.tier-dplus .tier-title,
-.tier-dminus .tier-title{
-color:#ef4444;
-border-right:2px solid #ef4444;
-}
+.global-ranking li:nth-child(1){ animation-delay:0.05s; }
+.global-ranking li:nth-child(2){ animation-delay:0.1s; }
+.global-ranking li:nth-child(3){ animation-delay:0.15s; }
 
-/* ===== HOVER ===== */
-.tier:hover{
-transform:translateY(-2px);
-box-shadow:0 0 12px rgba(0,180,255,0.12);
+/* ================= HOVER MAIS SUAVE ================= */
+
+.player,
+.tier,
+.global-ranking li{
+  transition:all 0.25s ease;
 }
