@@ -46,7 +46,6 @@ window.login = async function(event){
     document.getElementById("painel").style.display = "block";
   }catch(error){
     alert("Login inválido");
-    console.error(error);
   }
 };
 
@@ -68,12 +67,12 @@ onAuthStateChanged(auth,user=>{
 
   if(user){
     isAdmin = true;
-    if(loginScreen) loginScreen.style.display = "none";  
-    if(painel) painel.style.display = "block";
+    loginScreen.style.display = "none";  
+    painel.style.display = "block";
   }else{
     isAdmin = false;
-    if(loginScreen) loginScreen.style.display = "block";  
-    if(painel) painel.style.display = "none";
+    loginScreen.style.display = "block";  
+    painel.style.display = "none";
   }
 });
 
@@ -94,11 +93,13 @@ window.filtrarPlayers = function(){
 /* ADD PLAYER */
 window.addPlayer = async function(){
   if(!isAdmin) return;
+
   const nome = document.getElementById("nome")?.value.trim();
   const modo = document.getElementById("modo")?.value.trim();
   const categoria = document.getElementById("categoria")?.value;
   const tier = document.getElementById("tier")?.value;
   const dispositivo = document.getElementById("dispositivo")?.value;
+
   if(!nome || !modo) return;
 
   await addDoc(collection(db,"players"),{
@@ -106,15 +107,31 @@ window.addPlayer = async function(){
     modo,
     categoria,
     tier,
-    dispositivo
+    dispositivo,
+    posicao: 999 // 🔥 default (vai pro final da tier)
   });
 };
 
-/* EDITAR */
-window.editarPlayer = async function(id){
-  const novoNome = prompt("Novo nome:");
-  if(!novoNome) return;
-  await updateDoc(doc(db,"players",id),{ nome: novoNome });
+/* EDITAR COMPLETO */
+window.editarPlayer = async function(id, atual){
+  const nome = prompt("Nome:", atual.nome);
+  if(nome === null) return;
+
+  const tier = prompt("Tier (ex: splus, a, bminus):", atual.tier);
+  if(tier === null) return;
+
+  const dispositivo = prompt("Dispositivo (mobile, pc, controle):", atual.dispositivo);
+  if(dispositivo === null) return;
+
+  const posicao = prompt("Posição na tier (1,2,3...):", atual.posicao || 999);
+  if(posicao === null) return;
+
+  await updateDoc(doc(db,"players",id),{
+    nome,
+    tier,
+    dispositivo,
+    posicao: Number(posicao)
+  });
 };
 
 /* REMOVER */
@@ -122,12 +139,12 @@ window.removerPlayer = async function(id){
   await deleteDoc(doc(db,"players",id));
 };
 
-/* FORMAT TIER */
+/* FORMAT */
 function formatTier(t){
   return t.replace("plus","+").replace("minus","-").toUpperCase();
 }
 
-/* PONTUAÇÃO */
+/* PONTOS */
 function getPoints(tier){
   const map = {
     splus:100, s:95, sminus:90,
@@ -142,34 +159,33 @@ function getPoints(tier){
 /* TOP GLOBAL */
 function renderTopGlobal(players){
   const global = document.getElementById("global");
-  const mobile = document.getElementById("global-mobile");
-  const pc = document.getElementById("global-pc");
-  const controle = document.getElementById("global-controle");
+  if(!global) return;
 
-  if(global) global.innerHTML = "";
-  if(mobile) mobile.innerHTML = "";
-  if(pc) pc.innerHTML = "";
-  if(controle) controle.innerHTML = "";
+  global.innerHTML = "";
 
   const map = {};
+
   players.forEach(p=>{
-    if(!p.nome) return; // filtra players inválidos
-    const keyPlayer = `${p.nome}-${p.dispositivo}`;
-    if(!map[keyPlayer]){
-      map[keyPlayer] = {  
+    if(!p.nome) return;
+
+    if(!map[p.nome]){
+      map[p.nome] = {  
         nome:p.nome,  
         pontos:0,  
         categorias:new Set(),  
         modos:new Set(),  
-        tiers:[],  
-        dispositivo:p.dispositivo || "mobile"  
+        tiers:[]  
       };
     }
-    const player = map[keyPlayer];
+
+    const player = map[p.nome];
+
     const pontosBase = getPoints(p.tier);
     const key = p.categoria + "-" + p.modo;
+
     if(player[key]) return;
     player[key] = true;
+
     player.pontos += pontosBase;
     player.categorias.add(p.categoria);
     player.modos.add(p.modo);
@@ -177,24 +193,28 @@ function renderTopGlobal(players){
   });
 
   const ranking = Object.values(map);
+
   ranking.forEach(p=>{
-    const bonusCategoria = p.categorias.size * 10;  
-    const bonusModo = p.modos.size * 5;  
-    const highTierBonus = p.tiers.filter(t=>t.includes("s")).length * 5;  
-    p.scoreFinal = p.pontos + bonusCategoria + bonusModo + highTierBonus;
+    const bonusCategoria = p.categorias.size * 10;
+    const bonusModo = p.modos.size * 5;
+    const bonusS = p.tiers.filter(t=>t.includes("s")).length * 5;
+
+    p.scoreFinal = p.pontos + bonusCategoria + bonusModo + bonusS;
   });
 
   ranking.sort((a,b)=>b.scoreFinal-a.scoreFinal);
+
   ranking.slice(0,20).forEach((p,i)=>{
     const medalha = i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${i+1}`;
-    const icon = p.dispositivo==="mobile"?"📱":p.dispositivo==="pc"?"🖥️":"🎮";
+
     const li = document.createElement("li");
-    li.innerHTML = `<strong>${medalha} ${p.nome}</strong><span>${Math.floor(p.scoreFinal)} pts ${icon}</span>`;
-    global?.appendChild(li);
-    const clone = li.cloneNode(true);
-    if(p.dispositivo==="mobile") mobile?.appendChild(clone);
-    if(p.dispositivo==="pc") pc?.appendChild(clone);
-    if(p.dispositivo==="controle") controle?.appendChild(clone);
+
+    li.innerHTML = `
+      <strong>${medalha} ${p.nome}</strong>
+      <span> ${Math.floor(p.scoreFinal)} pts</span>
+    `; // 🔥 espaço corrigido aqui
+
+    global.appendChild(li);
   });
 }
 
@@ -202,7 +222,9 @@ function renderTopGlobal(players){
 function render(data){
   const container = document.getElementById("ranking");
   if(!container) return;
+
   container.innerHTML = "";
+
   const categorias = ["combate","projeteis","estrategia","skills"];
   const tiers = [
     "splus","s","sminus",
@@ -213,41 +235,56 @@ function render(data){
   ];
 
   categorias.forEach(cat=>{
-    const section = document.createElement("div");  
-    section.className = "categoria";  
-    section.innerHTML = `<h2>${cat.toUpperCase()}</h2>`;  
+    const section = document.createElement("div");
+    section.className = "categoria";
+    section.innerHTML = `<h2>${cat.toUpperCase()}</h2>`;
 
-    tiers.forEach(t=>{  
-      const tierDiv = document.createElement("div");  
-      tierDiv.className = `tier tier-${t}`;  
-      tierDiv.innerHTML = `<div class="tier-title">${formatTier(t)}</div>`;  
+    tiers.forEach(t=>{
+      const tierDiv = document.createElement("div");
+      tierDiv.className = `tier tier-${t}`;
+      tierDiv.innerHTML = `<div class="tier-title">${formatTier(t)}</div>`;
 
-      const playersDiv = document.createElement("div");  
-      playersDiv.className = "players";  
+      const playersDiv = document.createElement("div");
+      playersDiv.className = "players";
 
-      const filtrados = data.filter(p =>  
-        p.categoria===cat &&  
-        p.tier===t &&  
-        (abaAtual==="todos" || p.dispositivo===abaAtual)  
-      );  
+      const filtrados = data
+        .filter(p =>
+          p.categoria===cat &&
+          p.tier===t &&
+          (abaAtual==="todos" || p.dispositivo===abaAtual)
+        )
+        .sort((a,b)=>(a.posicao||999)-(b.posicao||999)); // 🔥 ordem por posição
 
-      if(filtrados.length>0){  
-        filtrados.forEach(p=>{  
-          if(!p.id) return; // filtra players sem id
-          const icon = p.dispositivo==="mobile"?"📱":p.dispositivo==="pc"?"🖥️":"🎮";  
-          const el = document.createElement("div");  
-          el.className = "player";  
-          el.innerHTML = `<div><strong>${p.nome}</strong><span>${p.modo} ${icon}</span></div>`+
-            (isAdmin?`<div class="admin-buttons"><button onclick="editarPlayer('${p.id}')">✏️</button><button onclick="removerPlayer('${p.id}')">❌</button></div>`:"");
-          playersDiv.appendChild(el);  
-        });  
-      }else{  
-        playersDiv.innerHTML = `<p>Sem players</p>`;  
-      }  
+      if(filtrados.length>0){
+        filtrados.forEach(p=>{
+          const icon = p.dispositivo==="mobile"?"📱":p.dispositivo==="pc"?"🖥️":"🎮";
 
-      tierDiv.appendChild(playersDiv);  
-      section.appendChild(tierDiv);  
-    });  
+          const el = document.createElement("div");
+          el.className = "player";
+
+          el.innerHTML = `
+            <div>
+              <strong>${p.nome}</strong>
+              <span>${p.modo} ${icon}</span>
+            </div>
+
+            ${isAdmin ? `
+              <div class="admin-buttons">
+                <button onclick='editarPlayer("${p.id}", ${JSON.stringify(p)})'>✏️</button>
+                <button onclick="removerPlayer('${p.id}')">❌</button>
+              </div>
+            ` : ""}
+          `;
+
+          playersDiv.appendChild(el);
+        });
+      }else{
+        playersDiv.innerHTML = `<p>Sem players</p>`;
+      }
+
+      tierDiv.appendChild(playersDiv);
+      section.appendChild(tierDiv);
+    });
 
     container.appendChild(section);
   });
@@ -255,14 +292,10 @@ function render(data){
 
 /* FIREBASE */
 onSnapshot(collection(db,"players"), snapshot=>{
-  // Atualiza playersCache filtrando docs inválidos
-  playersCache = snapshot.docs
-    .map(doc => {
-      const data = doc.data();
-      if(!data.nome) return null;
-      return { id: doc.id, ...data };
-    })
-    .filter(p => p !== null);
+  playersCache = snapshot.docs.map(doc=>({
+    id: doc.id,
+    ...doc.data()
+  }));
 
   render(playersCache);
   renderTopGlobal(playersCache);
