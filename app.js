@@ -80,7 +80,7 @@ onAuthStateChanged(auth,user=>{
 window.trocarAba = function(dispositivo){
   abaAtual = dispositivo;
   render(playersCache);
-  renderTopGlobal(playersCache); // ✅ sincroniza com global
+  renderTopGlobal(playersCache);
 };
 
 /* BUSCA */
@@ -157,14 +157,13 @@ function getPoints(tier){
   return map[tier] || 0;
 }
 
-/* 🔥 TOP GLOBAL CORRIGIDO */
+/* 🔥 TOP GLOBAL SEM BÔNUS */
 function renderTopGlobal(players){
   const global = document.getElementById("global");
   if(!global) return;
 
   global.innerHTML = "";
 
-  // ✅ filtro igual às tiers
   const filtrados = players.filter(p =>
     abaAtual === "todos" || p.dispositivo === abaAtual
   );
@@ -199,12 +198,9 @@ function renderTopGlobal(players){
 
   const ranking = Object.values(map);
 
+  // ✅ SEM bônus
   ranking.forEach(p=>{
-    const bonusCategoria = p.categorias.size * 10;
-    const bonusModo = p.modos.size * 5;
-    const bonusS = p.tiers.filter(t=>t.includes("s")).length * 5;
-
-    p.scoreFinal = p.pontos + bonusCategoria + bonusModo + bonusS;
+    p.scoreFinal = p.pontos;
   });
 
   ranking.sort((a,b)=>b.scoreFinal-a.scoreFinal);
