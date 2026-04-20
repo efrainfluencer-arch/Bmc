@@ -44,7 +44,7 @@ window.login = async function(event){
     await signInWithEmailAndPassword(auth,email,senha);
     document.getElementById("login-screen").style.display = "none";  
     document.getElementById("painel").style.display = "block";
-  }catch(error){
+  }catch{
     alert("Login inválido");
   }
 };
@@ -80,6 +80,7 @@ onAuthStateChanged(auth,user=>{
 window.trocarAba = function(dispositivo){
   abaAtual = dispositivo;
   render(playersCache);
+  renderTopGlobal(playersCache); // ✅ sincroniza com global
 };
 
 /* BUSCA */
@@ -108,22 +109,22 @@ window.addPlayer = async function(){
     categoria,
     tier,
     dispositivo,
-    posicao: 999 // 🔥 default (vai pro final da tier)
+    posicao: 999
   });
 };
 
-/* EDITAR COMPLETO */
+/* EDITAR */
 window.editarPlayer = async function(id, atual){
   const nome = prompt("Nome:", atual.nome);
   if(nome === null) return;
 
-  const tier = prompt("Tier (ex: splus, a, bminus):", atual.tier);
+  const tier = prompt("Tier:", atual.tier);
   if(tier === null) return;
 
-  const dispositivo = prompt("Dispositivo (mobile, pc, controle):", atual.dispositivo);
+  const dispositivo = prompt("Dispositivo:", atual.dispositivo);
   if(dispositivo === null) return;
 
-  const posicao = prompt("Posição na tier (1,2,3...):", atual.posicao || 999);
+  const posicao = prompt("Posição:", atual.posicao || 999);
   if(posicao === null) return;
 
   await updateDoc(doc(db,"players",id),{
@@ -156,30 +157,34 @@ function getPoints(tier){
   return map[tier] || 0;
 }
 
-/* TOP GLOBAL */
+/* 🔥 TOP GLOBAL CORRIGIDO */
 function renderTopGlobal(players){
   const global = document.getElementById("global");
   if(!global) return;
 
   global.innerHTML = "";
 
+  // ✅ filtro igual às tiers
+  const filtrados = players.filter(p =>
+    abaAtual === "todos" || p.dispositivo === abaAtual
+  );
+
   const map = {};
 
-  players.forEach(p=>{
+  filtrados.forEach(p=>{
     if(!p.nome) return;
 
     if(!map[p.nome]){
-      map[p.nome] = {  
-        nome:p.nome,  
-        pontos:0,  
-        categorias:new Set(),  
-        modos:new Set(),  
-        tiers:[]  
+      map[p.nome] = {
+        nome:p.nome,
+        pontos:0,
+        categorias:new Set(),
+        modos:new Set(),
+        tiers:[]
       };
     }
 
     const player = map[p.nome];
-
     const pontosBase = getPoints(p.tier);
     const key = p.categoria + "-" + p.modo;
 
@@ -211,14 +216,14 @@ function renderTopGlobal(players){
 
     li.innerHTML = `
       <strong>${medalha} ${p.nome}</strong>
-      <span> ${Math.floor(p.scoreFinal)} pts</span>
-    `; // 🔥 espaço corrigido aqui
+      <span>${Math.floor(p.scoreFinal)} pts</span>
+    `;
 
     global.appendChild(li);
   });
 }
 
-/* RENDER */
+/* RENDER (tiers) */
 function render(data){
   const container = document.getElementById("ranking");
   if(!container) return;
@@ -253,7 +258,7 @@ function render(data){
           p.tier===t &&
           (abaAtual==="todos" || p.dispositivo===abaAtual)
         )
-        .sort((a,b)=>(a.posicao||999)-(b.posicao||999)); // 🔥 ordem por posição
+        .sort((a,b)=>(a.posicao||999)-(b.posicao||999));
 
       if(filtrados.length>0){
         filtrados.forEach(p=>{
