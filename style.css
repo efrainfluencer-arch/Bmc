@@ -510,3 +510,41 @@ border-right:2px solid #ef4444;
 transform:translateY(-2px);
 box-shadow:0 0 12px rgba(0,180,255,0.12);
 }
+
+/* ===== ANIMAÇÃO DE ENTRADA ===== */
+@keyframes fadeUp {
+  from{
+    opacity:0;
+    transform:translateY(20px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+section,
+.categoria,
+.painel,
+.global-ranking{
+  animation:fadeUp 0.6s ease;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  width:200%;
+  height:200%;
+  background:radial-gradient(circle, rgba(0,180,255,0.05), transparent 70%);
+  animation:bgMove 18s linear infinite;
+  z-index:-1;
+}
+
+@keyframes bgMove{
+  from{
+    transform:translate(-20%,-20%);
+  }
+  to{
+    transform:translate(0,0);
+  }
+}
