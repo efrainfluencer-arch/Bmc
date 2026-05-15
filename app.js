@@ -145,20 +145,114 @@ function formatTier(t){
   return t.replace("plus","+").replace("minus","-").toUpperCase();
 }
 
-/* PONTOS */
+/* =========================================
+   NOVO SISTEMA DE PONTOS (MAIS JUSTO)
+========================================= */
+
+/*
+OBJETIVO:
+- Especialistas valerem MAIS
+- Generalistas não dominarem ranking
+- Redução geral dos pontos
+- Diferença maior entre tiers altas e baixas
+*/
+
 function getPoints(tier){
   const map = {
-    splus:100, s:95, sminus:90,
-    aplus:85, a:80, aminus:75,
-    bplus:70, b:65, bminus:60,
-    cplus:55, c:50, cminus:45,
-    dplus:40, d:35, dminus:30
+
+    // S TIERS
+    splus: 40,
+    s: 36,
+    sminus: 32,
+
+    // A TIERS
+    aplus: 26,
+    a: 23,
+    aminus: 20,
+
+    // B TIERS
+    bplus: 14,
+    b: 11,
+    bminus: 9,
+
+    // C TIERS
+    cplus: 6,
+    c: 4,
+    cminus: 3,
+
+    // D TIERS
+    dplus: 2,
+    d: 1,
+    dminus: 0
   };
+
   return map[tier] || 0;
 }
 
-/* 🔥 TOP GLOBAL SEM BÔNUS */
+/* =========================================
+   BONUS DE ESPECIALISTA
+========================================= */
+
+/*
+Quanto MAIS tiers altas,
+mais bônus o player recebe.
+
+Isso impede:
+"B+ em tudo > S tier"
+
+Agora:
+1 S tier forte > vários B/C
+*/
+
+function getEspecialistaBonus(tiers){
+
+  let bonus = 0;
+
+  tiers.forEach(t=>{
+
+    if(t === "splus") bonus += 16;
+    else if(t === "s") bonus += 13;
+    else if(t === "sminus") bonus += 10;
+
+    else if(t === "aplus") bonus += 6;
+    else if(t === "a") bonus += 5;
+    else if(t === "aminus") bonus += 4;
+
+  });
+
+  return bonus;
+}
+
+/* =========================================
+   PENALIDADE POR MUITOS MODOS
+========================================= */
+
+/*
+Se o player tiver MUITOS modos,
+cada modo extra vale menos.
+
+Isso deixa:
+especialistas > generalistas
+*/
+
+function getDiminishingMultiplier(totalModos){
+
+  if(totalModos <= 2) return 1;
+
+  if(totalModos === 3) return 0.95;
+
+  if(totalModos === 4) return 0.90;
+
+  if(totalModos === 5) return 0.85;
+
+  if(totalModos >= 6) return 0.78;
+
+  return 1;
+}
+
+/* 🔥 TOP GLOBAL BALANCEADO */
 function renderTopGlobal(players){
+
   const global = document.getElementById("global");
   if(!global) return;
 
@@ -171,6 +265,7 @@ function renderTopGlobal(players){
   const map = {};
 
   filtrados.forEach(p=>{
+
     if(!p.nome) return;
 
     if(!map[p.nome]){
@@ -184,29 +279,47 @@ function renderTopGlobal(players){
     }
 
     const player = map[p.nome];
-    const pontosBase = getPoints(p.tier);
+
     const key = p.categoria + "-" + p.modo;
 
+    // impede duplicado
     if(player[key]) return;
     player[key] = true;
 
-    player.pontos += pontosBase;
+    player.pontos += getPoints(p.tier);
+
     player.categorias.add(p.categoria);
     player.modos.add(p.modo);
+
     player.tiers.push(p.tier);
   });
 
   const ranking = Object.values(map);
 
-  // ✅ SEM bônus
   ranking.forEach(p=>{
-    p.scoreFinal = p.pontos;
+
+    // bônus por tiers altas
+    const bonusEspecialista = getEspecialistaBonus(p.tiers);
+
+    // penalidade por muitos modos
+    const multiplier = getDiminishingMultiplier(
+      p.modos.size
+    );
+
+    // score final
+    p.scoreFinal =
+      (p.pontos + bonusEspecialista) * multiplier;
   });
 
   ranking.sort((a,b)=>b.scoreFinal-a.scoreFinal);
 
   ranking.slice(0,20).forEach((p,i)=>{
-    const medalha = i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${i+1}`;
+
+    const medalha =
+      i===0 ? "🥇" :
+      i===1 ? "🥈" :
+      i===2 ? "🥉" :
+      `#${i+1}`;
 
     const li = document.createElement("li");
 
@@ -221,12 +334,19 @@ function renderTopGlobal(players){
 
 /* RENDER (tiers) */
 function render(data){
+
   const container = document.getElementById("ranking");
   if(!container) return;
 
   container.innerHTML = "";
 
-  const categorias = ["combate","projeteis","estrategia","skills"];
+  const categorias = [
+    "combate",
+    "projeteis",
+    "estrategia",
+    "skills"
+  ];
+
   const tiers = [
     "splus","s","sminus",
     "aplus","a","aminus",
@@ -236,31 +356,56 @@ function render(data){
   ];
 
   categorias.forEach(cat=>{
+
     const section = document.createElement("div");
+
     section.className = "categoria";
-    section.innerHTML = `<h2>${cat.toUpperCase()}</h2>`;
+
+    section.innerHTML = `
+      <h2>${cat.toUpperCase()}</h2>
+    `;
 
     tiers.forEach(t=>{
+
       const tierDiv = document.createElement("div");
+
       tierDiv.className = `tier tier-${t}`;
-      tierDiv.innerHTML = `<div class="tier-title">${formatTier(t)}</div>`;
+
+      tierDiv.innerHTML = `
+        <div class="tier-title">
+          ${formatTier(t)}
+        </div>
+      `;
 
       const playersDiv = document.createElement("div");
+
       playersDiv.className = "players";
 
       const filtrados = data
         .filter(p =>
           p.categoria===cat &&
           p.tier===t &&
-          (abaAtual==="todos" || p.dispositivo===abaAtual)
+          (
+            abaAtual==="todos" ||
+            p.dispositivo===abaAtual
+          )
         )
-        .sort((a,b)=>(a.posicao||999)-(b.posicao||999));
+        .sort((a,b)=>
+          (a.posicao||999) -
+          (b.posicao||999)
+        );
 
-      if(filtrados.length>0){
+      if(filtrados.length > 0){
+
         filtrados.forEach(p=>{
-          const icon = p.dispositivo==="mobile"?"📱":p.dispositivo==="pc"?"🖥️":"🎮";
+
+          const icon =
+            p.dispositivo==="mobile" ? "📱" :
+            p.dispositivo==="pc" ? "🖥️" :
+            "🎮";
 
           const el = document.createElement("div");
+
           el.className = "player";
 
           el.innerHTML = `
@@ -279,11 +424,16 @@ function render(data){
 
           playersDiv.appendChild(el);
         });
+
       }else{
-        playersDiv.innerHTML = `<p>Sem players</p>`;
+
+        playersDiv.innerHTML = `
+          <p>Sem players</p>
+        `;
       }
 
       tierDiv.appendChild(playersDiv);
+
       section.appendChild(tierDiv);
     });
 
@@ -293,20 +443,28 @@ function render(data){
 
 /* FIREBASE */
 onSnapshot(collection(db,"players"), snapshot=>{
+
   playersCache = snapshot.docs.map(doc=>({
     id: doc.id,
     ...doc.data()
   }));
 
   render(playersCache);
+
   renderTopGlobal(playersCache);
 });
 
 /* LOADING */
 window.addEventListener("load",()=>{
+
   const loading = document.getElementById("loading");
+
   if(loading){
+
     loading.style.opacity = "0";
-    setTimeout(()=>{ loading.style.display = "none"; },500);
+
+    setTimeout(()=>{
+      loading.style.display = "none";
+    },500);
   }
 });
