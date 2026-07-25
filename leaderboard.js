@@ -217,35 +217,50 @@ function getPoints(tier) {
 
         /* S */
 
-        splus: 100,
-        s: 95,
-        sminus: 90,
+        splus: 40,
+
+        s: 36,
+
+        sminus: 32,
+
 
         /* A */
 
-        aplus: 85,
-        a: 80,
-        aminus: 75,
+        aplus: 26,
+
+        a: 23,
+
+        aminus: 20,
+
 
         /* B */
 
-        bplus: 70,
-        b: 65,
-        bminus: 60,
+        bplus: 14,
+
+        b: 11,
+
+        bminus: 9,
+
 
         /* C */
 
-        cplus: 55,
-        c: 50,
-        cminus: 45,
+        cplus: 6,
+
+        c: 4,
+
+        cminus: 3,
+
 
         /* D */
 
-        dplus: 40,
-        d: 35,
-        dminus: 30
+        dplus: 2,
+
+        d: 1,
+
+        dminus: 0
 
     };
+
 
     return map[tier] || 0;
 
@@ -256,31 +271,48 @@ function getPoints(tier) {
    BONUS DE ESPECIALISTA
 ========================================= */
 
+/* =========================================
+   BONUS DE ESPECIALISTA
+========================================= */
+
 function getEspecialistaBonus(tiers) {
 
     let bonus = 0;
 
+
     tiers.forEach(t => {
 
         if (t === "splus")
-            bonus += 40;
+
+            bonus += 16;
+
 
         else if (t === "s")
-            bonus += 35;
+
+            bonus += 13;
+
 
         else if (t === "sminus")
-            bonus += 30;
+
+            bonus += 10;
+
 
         else if (t === "aplus")
-            bonus += 25;
+
+            bonus += 6;
+
 
         else if (t === "a")
-            bonus += 20;
+
+            bonus += 5;
+
 
         else if (t === "aminus")
-            bonus += 15;
+
+            bonus += 4;
 
     });
+
 
     return bonus;
 
@@ -1227,106 +1259,4 @@ function abrirPlayerModal(player) {
 
 function fecharPlayerModal() {
 
-    const modal =
-
-        document.getElementById(
-            "player-modal"
-        );
-
-
-    if (!modal)
-
-        return;
-
-
-    modal.classList.remove(
-        "active"
-    );
-
-
-    document.body.classList.remove(
-        "modal-open"
-    );
-
-}
-
-
-/* =========================================
-   DISPONIBILIZAR PARA HTML
-========================================= */
-
-window.fecharPlayerModal =
-
-    fecharPlayerModal;
-
-
-/* =========================================
-   BOTÃO FECHAR
-========================================= */
-
-const closeModalButton =
-
-    document.querySelector(
-        ".modal-close"
-    );
-
-
-if (closeModalButton) {
-
-    closeModalButton.addEventListener(
-
-        "click",
-
-        fecharPlayerModal
-
-    );
-
-}
-
-
-/* =========================================
-   OVERLAY
-========================================= */
-
-const modalOverlay =
-
-    document.querySelector(
-        ".player-modal-overlay"
-    );
-
-
-if (modalOverlay) {
-
-    modalOverlay.addEventListener(
-
-        "click",
-
-        fecharPlayerModal
-
-    );
-
-}
-
-
-/* =========================================
-   ESC FECHA MODAL
-========================================= */
-
-document.addEventListener(
-
-    "keydown",
-
-    event => {
-
-        if (
-            event.key ===
-            "Escape"
-        ) {
-
-            fecharPlayerModal();
-
-        }
-
-    }
-
-);
+    const modal 
