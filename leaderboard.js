@@ -1259,4 +1259,106 @@ function abrirPlayerModal(player) {
 
 function fecharPlayerModal() {
 
-    const modal 
+    const modal =
+
+        document.getElementById(
+            "player-modal"
+        );
+
+
+    if (!modal)
+
+        return;
+
+
+    modal.classList.remove(
+        "active"
+    );
+
+
+    document.body.classList.remove(
+        "modal-open"
+    );
+
+}
+
+
+/* =========================================
+   DISPONIBILIZAR PARA HTML
+========================================= */
+
+window.fecharPlayerModal =
+
+    fecharPlayerModal;
+
+
+/* =========================================
+   BOTÃO FECHAR
+========================================= */
+
+const closeModalButton =
+
+    document.querySelector(
+        ".modal-close"
+    );
+
+
+if (closeModalButton) {
+
+    closeModalButton.addEventListener(
+
+        "click",
+
+        fecharPlayerModal
+
+    );
+
+}
+
+
+/* =========================================
+   OVERLAY
+========================================= */
+
+const modalOverlay =
+
+    document.querySelector(
+        ".player-modal-overlay"
+    );
+
+
+if (modalOverlay) {
+
+    modalOverlay.addEventListener(
+
+        "click",
+
+        fecharPlayerModal
+
+    );
+
+}
+
+
+/* =========================================
+   ESC FECHA MODAL
+========================================= */
+
+document.addEventListener(
+
+    "keydown",
+
+    event => {
+
+        if (
+            event.key ===
+            "Escape"
+        ) {
+
+            fecharPlayerModal();
+
+        }
+
+    }
+
+);
