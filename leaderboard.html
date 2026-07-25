@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Leaderboard • BMC</title>
+
+    <link rel="stylesheet" href="./Css/style.css">
+    <link rel="stylesheet" href="./Css/leaderboard.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css"
+        rel="stylesheet">
+
+</head>
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <header class="navbar">
+
+        <div class="container">
+
+            <a href="index.html" class="logo">
+
+                <img src="./assets/logo.png" alt="BMC Logo">
+
+                <div class="logo-text">
+
+                    <h2>BMC</h2>
+
+                    <span>Brazil MCBE Community</span>
+
+                </div>
+
+            </a>
+
+            <nav>
+
+                <a href="index.html">Home</a>
+
+                <a class="active" href="leaderboard.html">
+                    Leaderboard
+                </a>
+
+                <a href="sociais.html">
+                    Social
+                </a>
+
+                <a href="staff.html">
+                    Staff
+                </a>
+
+            </nav>
+
+            <a href="https://discord.gg/SEU-CONVITE"
+                target="_blank"
+                class="discord-btn">
+
+                <i class="ri-discord-fill"></i>
+
+                Discord
+
+            </a>
+
+        </div>
+
+    </header>
+
+    <main>
+
+        <!-- ================= HERO ================= -->
+
+        <section class="leaderboard-hero">
+
+            <div class="container">
+
+                <span class="badge">
+
+                    Official Ranking
+
+                </span>
+
+                <h1>
+
+                    Leaderboard
+
+                </h1>
+
+                <p>
+
+                    Discover the best competitive Minecraft Bedrock players in Brazil.
+
+                </p>
+
+            </div>
+
+        </section>
+
+      <section class="leaderboard-stats">
+
+    <div class="container">
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <h2 id="total-players">0</h2>
+                <span>Players</span>
+            </div>
+
+            <div class="stat-card">
+                <h2>8</h2>
+                <span>Modes</span>
+            </div>
+
+            <div class="stat-card">
+                <h2 id="mobile-count">0</h2>
+                <span>Mobile</span>
+            </div>
+
+            <div class="stat-card">
+                <h2 id="pc-count">0</h2>
+                <span>Keyboard</span>
+            </div>
+
+            <div class="stat-card">
+                <h2 id="controller-count">0</h2>
+                <span>Controller</span>
+            </div>
+
+        </div>
+
+    </div>
+
+      </section>
+
+        <!-- ================= FILTERS ================= -->
+
+        <section class="leaderboard-filters">
+
+            <div class="container filters">
+
+                <div class="search-box">
+
+                    <i class="ri-search-line"></i>
+
+                    <input
+                        type="text"
+                        placeholder="Search player...">
+
+                </div>
+
+                <div class="filters-row">
+
+    <div class="filter-item">
+
+        <label>Device</label>
+
+        <select id="device-filter">
+
+            <option value="todos">🌎 All Devices</option>
+            <option value="mobile">📱 Mobile</option>
+            <option value="pc">⌨️ Keyboard & Mouse</option>
+            <option value="controller">🎮 Controller</option>
+
+        </select>
+
+    </div>
+
+    <div class="filter-item">
+
+        <label>Mode</label>
+
+        <select id="mode-filter">
+
+            <option value="overall">🏆 Overall</option>
+
+            <option value="BedFight">BedFight</option>
+            <option value="Boxing">Boxing</option>
+            <option value="Build UHC">Build UHC</option>
+            <option value="Mid Fight">Mid Fight</option>
+            <option value="NodeBuff">NodeBuff</option>
+            <option value="SkyWars">SkyWars</option>
+            <option value="Sumo">Sumo</option>
+            <option value="The Bridge">The Bridge</option>
+
+        </select>
+
+    </div>
+
+                </div>
+</div>
+              
+        
+
+        </section>
+
+        <!-- ================= TOP 3 ================= -->
+
+<section class="top-three">
+
+    <div class="container">
+
+        <h2 class="section-title">
+            Top 3 Players
+        </h2>
+
+        <div id="top-three-container" class="top-three-grid">
+
+            <!-- JavaScript -->
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= PLAYERS ================= -->
+
+<section class="players-list">
+
+    <div class="container">
+
+        <h2 class="section-title">
+            Ranking
+        </h2>
+
+        <div id="leaderboard-list" class="leaderboard-grid">
+
+            <!-- JavaScript -->
+<script type="module" src="leaderboard.js"></script>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= PLAYER MODAL ================= -->
+
+<div id="player-modal" class="player-modal">
+
+    <div class="player-modal-overlay" onclick="fecharPlayerModal()"></div>
+
+    <div class="player-modal-content">
+
+        <button
+            class="modal-close"
+            onclick="fecharPlayerModal()">
+
+            <i class="ri-close-line"></i>
+
+        </button>
+
+        <div id="player-modal-body">
+
+            <!-- Conteúdo carregado pelo JavaScript -->
+
+        </div>
+
+    </div>
+
+</div>
+      
+    </main>
+</body>
+</html>

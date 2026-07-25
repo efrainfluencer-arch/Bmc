@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Staff Panel • BMC</title>
+
+    <meta name="description" content="Brazil MCBE Community Staff Panel">
+
+    <!-- Se o staff.html estiver dentro da pasta pages -->
+    <link rel="stylesheet" href="../css/style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css"
+        rel="stylesheet">
+
+</head>
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <header class="navbar">
+
+        <div class="container">
+
+            <a href="../index.html" class="logo">
+
+                <img src="../assets/logo.png" alt="BMC Logo">
+
+                <div class="logo-text">
+
+                    <h2>BMC</h2>
+
+                    <span>Brazil MCBE Community</span>
+
+                </div>
+
+            </a>
+
+            <nav>
+
+                <a href="../index.html">Home</a>
+
+                <a href="leaderboard.html">Leaderboard</a>
+
+                <a href="sociais.html">Social</a>
+
+                <a class="active" href="staff.html">Staff</a>
+
+            </nav>
+
+            <a href="https://discord.gg/SEU-LINK"
+                target="_blank"
+                class="discord-btn">
+
+                <i class="ri-discord-fill"></i>
+
+                Discord
+
+            </a>
+
+        </div>
+
+    </header>
+
+    <main>
+
+    <!-- ================= LOGIN ================= -->
+
+    <section id="login-screen" class="login-screen">
+
+        <div class="login-card">
+
+            <div class="login-icon">
+                <i class="ri-shield-keyhole-line"></i>
+            </div>
+
+            <h1>Staff Login</h1>
+
+            <p>
+                Faça login para acessar o painel administrativo da BMC.
+            </p>
+
+            <form onsubmit="login(event)">
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Email"
+                    required
+                >
+
+                <input
+                    type="password"
+                    id="senha"
+                    placeholder="Password"
+                    required
+                >
+
+                <button type="submit" class="primary-btn">
+                    <i class="ri-login-box-line"></i>
+                    Entrar
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= PAINEL PROTEGIDO ================= -->
+
+    <div id="painel" style="display:none;">
+
+        <!-- HERO -->
+
+        <section class="leaderboard-hero">
+
+            <div class="container">
+
+                <span class="badge">
+                    Staff Panel
+                </span>
+
+                <h1>
+                    Staff Dashboard
+                </h1>
+
+                <p>
+                    Manage players, tiers and official rankings.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- STATS -->
+
+        <section class="stats">
+
+            <div class="container">
+
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+
+                        <h2 id="players-count">0</h2>
+
+                        <span>Players</span>
+
+                    </div>
+
+<button onclick="logout()" class="logout-btn">
+    <i class="ri-logout-box-line"></i>
+    Sair
+</button>
+                  
+                    <div class="stat-card">
+
+                        <h2 id="tests-count">0</h2>
+
+                        <span>Tests</span>
+
+                    </div>
+
+                    <div class="stat-card">
+
+                        <h2>8</h2>
+
+                        <span>Modes</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- STAFF -->
+
+        <section class="staff-panel">
+
+            <div class="container">
+
+                <div class="panel-card">
+
+                    <h2>Add Player</h2>
+
+                    <form id="player-form">
+
+                        <input
+                            id="nome"
+                            type="text"
+                            placeholder="Nickname"
+                        >
+
+                        <input
+                            id="avatar"
+                            type="file"
+                            accept="image/*"
+                        >
+
+                        <select id="dispositivo">
+
+                            <option value="mobile">
+                                📱 Mobile
+                            </option>
+
+                            <option value="pc">
+                                ⌨️ Keyboard & Mouse
+                            </option>
+
+                            <option value="controller">
+                                🎮 Controller
+                            </option>
+
+                        </select>
+
+                        <select id="modo">
+
+                            <option>BedFight</option>
+                            <option>Boxing</option>
+                            <option>Build UHC</option>
+                            <option>Mid Fight</option>
+                            <option>NodeBuff</option>
+                            <option>SkyWars</option>
+                            <option>Sumo</option>
+                            <option>The Bridge</option>
+
+                        </select>
+
+                        <select id="tier">
+
+                            <option value="splus">S+</option>
+                            <option value="s">S</option>
+                            <option value="sminus">S-</option>
+
+                            <option value="aplus">A+</option>
+                            <option value="a">A</option>
+                            <option value="aminus">A-</option>
+
+                            <option value="bplus">B+</option>
+                            <option value="b">B</option>
+                            <option value="bminus">B-</option>
+
+                            <option value="cplus">C+</option>
+                            <option value="c">C</option>
+                            <option value="cminus">C-</option>
+
+                            <option value="dplus">D+</option>
+                            <option value="d">D</option>
+                            <option value="dminus">D-</option>
+
+                        </select>
+
+                        <input
+                            id="posicao"
+                            type="number"
+                            placeholder="Position"
+                        >
+
+                        <button
+                            type="button"
+                            class="primary-btn"
+                            onclick="addPlayer()"
+                        >
+                            Add Player
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= PLAYERS ================= -->
+
+        <section class="players-section">
+
+            <div class="container">
+
+                <div class="players-header">
+
+                    <h2>Players</h2>
+
+                    <div class="search-box">
+
+                        <i class="ri-search-line"></i>
+
+                        <input
+                            type="text"
+                            id="busca"
+                            placeholder="Search player..."
+                            oninput="filtrarPlayers()"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="ranking"
+                    class="players-grid"
+                >
+
+                    <!-- Os cards serão criados pelo Firebase -->
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+<script type="module" src="app.js"></script>

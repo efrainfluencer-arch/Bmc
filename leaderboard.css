@@ -1,0 +1,1846 @@
+/* =========================================================
+   BMC LEADERBOARD
+   CSS exclusivo da página Leaderboard
+========================================================= */
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.leaderboard-hero {
+    padding: 100px 0 70px;
+}
+
+.leaderboard-hero .container {
+    text-align: center;
+}
+
+.leaderboard-hero .badge {
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.leaderboard-hero h1 {
+    font-size: 4rem;
+    line-height: 1.1;
+    margin-bottom: 20px;
+}
+
+.leaderboard-hero p {
+    max-width: 600px;
+    margin: auto;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   ESTATÍSTICAS
+========================================================= */
+
+.leaderboard-stats {
+    padding: 20px 0 70px;
+}
+
+.leaderboard-stats .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+}
+
+.leaderboard-stats .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 30px 20px;
+    text-align: center;
+    transition: 0.25s ease;
+}
+
+.leaderboard-stats .stat-card:hover {
+    transform: translateY(-4px);
+    background: var(--surface-hover);
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+.leaderboard-stats .stat-card h2 {
+    color: var(--primary);
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+}
+
+.leaderboard-stats .stat-card span {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.leaderboard-filters {
+    padding: 20px 0 50px;
+}
+
+.filters {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.search-box {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+
+    padding: 14px 18px;
+    border-radius: 14px;
+
+    transition: 0.25s ease;
+}
+
+.search-box:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.08);
+}
+
+.search-box i {
+    color: var(--primary);
+    font-size: 20px;
+}
+
+.search-box input {
+    width: 100%;
+
+    background: transparent;
+    border: none;
+    outline: none;
+
+    color: var(--text);
+    font-family: inherit;
+    font-size: 15px;
+}
+
+.search-box input::placeholder {
+    color: var(--text-secondary);
+}
+
+
+/* FILTROS */
+
+.filters-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-item label {
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.filter-item select {
+    width: 100%;
+
+    appearance: none;
+
+    background-color: var(--surface);
+    color: var(--text);
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    padding: 14px 16px;
+
+    font-family: inherit;
+    font-size: 15px;
+
+    cursor: pointer;
+    outline: none;
+
+    transition: 0.25s ease;
+}
+
+.filter-item select:hover {
+    background-color: var(--surface-hover);
+}
+
+.filter-item select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.08);
+}
+
+.filter-item select option {
+    background: var(--surface);
+    color: var(--text);
+}
+
+
+/* =========================================================
+   TOP 3
+========================================================= */
+
+.top-three {
+    padding: 40px 0 70px;
+}
+
+.section-title {
+    font-size: 30px;
+    margin-bottom: 30px;
+}
+
+#top-three-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    align-items: stretch;
+}
+
+
+/* CARD TOP 3 */
+
+.top-card {
+    position: relative;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+    border-radius: 18px;
+
+    padding: 30px 20px;
+
+    text-align: center;
+
+    transition: 0.25s ease;
+}
+
+.top-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--primary);
+    box-shadow: 0 15px 35px rgba(34, 197, 94, 0.08);
+}
+
+.top-medal {
+    font-size: 36px;
+    margin-bottom: 15px;
+}
+
+.top-avatar {
+    width: 110px;
+    height: 110px;
+
+    margin: 0 auto 15px;
+
+    border-radius: 14px;
+
+    object-fit: cover;
+    image-rendering: pixelated;
+
+    border: 3px solid var(--primary);
+}
+
+.top-card h2 {
+    font-size: 23px;
+    margin-bottom: 8px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.top-card p {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.top-card span {
+    color: var(--primary);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+
+/* TOP 3 CORES */
+
+.top-card.place-1 {
+    border: 2px solid #FFD700;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 215, 0, 0.08),
+            var(--surface)
+        );
+
+    transform: scale(1.03);
+}
+
+.top-card.place-2 {
+    border: 2px solid #C0C0C0;
+}
+
+.top-card.place-3 {
+    border: 2px solid #CD7F32;
+}
+
+
+/* =========================================================
+   RANKING COMPLETO
+========================================================= */
+
+.players-list {
+    padding: 30px 0 100px;
+}
+
+.leaderboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+
+/* CARD DO PLAYER */
+
+.ranking-card {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 22px;
+
+    padding: 18px 24px;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.ranking-card:hover {
+    transform: translateX(5px);
+
+    border-color: var(--primary);
+
+    box-shadow:
+        0 10px 30px rgba(34, 197, 94, 0.10);
+}
+
+
+/* POSIÇÃO */
+
+.ranking-position {
+    width: 55px;
+
+    flex-shrink: 0;
+
+    text-align: center;
+
+    font-size: 20px;
+    font-weight: 800;
+
+    color: var(--text-secondary);
+}
+
+
+/* AVATAR */
+
+.ranking-avatar {
+    width: 64px;
+    height: 64px;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+
+    object-fit: cover;
+    image-rendering: pixelated;
+
+    border: 2px solid var(--border);
+}
+
+
+/* INFORMAÇÕES */
+
+.ranking-info {
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ranking-name {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ranking-device {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    color: var(--text-secondary);
+
+    font-size: 14px;
+}
+
+.ranking-device i {
+    color: var(--primary);
+    font-size: 18px;
+}
+
+.ranking-modes {
+    color: var(--text-secondary);
+    opacity: 0.7;
+
+    font-size: 13px;
+}
+
+
+/* TIER */
+
+.ranking-tier {
+    min-width: 55px;
+
+    padding: 8px 12px;
+
+    border-radius: 999px;
+
+    text-align: center;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    flex-shrink: 0;
+}
+
+
+/* PONTOS */
+
+.ranking-points {
+    min-width: 100px;
+
+    text-align: right;
+
+    color: var(--primary);
+
+    font-size: 18px;
+    font-weight: 800;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   DESTAQUE TOP 3 NO RANKING
+========================================================= */
+
+.ranking-card.rank-1 {
+    border-color: #FFD700;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255, 215, 0, 0.08),
+            var(--surface)
+        );
+}
+
+.ranking-card.rank-2 {
+    border-color: #C0C0C0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(192, 192, 192, 0.06),
+            var(--surface)
+        );
+}
+
+.ranking-card.rank-3 {
+    border-color: #CD7F32;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(205, 127, 50, 0.06),
+            var(--surface)
+        );
+}
+
+
+/* =========================================================
+   CORES DOS TIERS
+========================================================= */
+
+.ranking-tier.tier-splus,
+.ranking-tier.tier-s,
+.ranking-tier.tier-sminus {
+    background: #8B5CF6;
+    color: #fff;
+}
+
+.ranking-tier.tier-aplus,
+.ranking-tier.tier-a,
+.ranking-tier.tier-aminus {
+    background: #22C55E;
+    color: #081018;
+}
+
+.ranking-tier.tier-bplus,
+.ranking-tier.tier-b,
+.ranking-tier.tier-bminus {
+    background: #EAB308;
+    color: #111;
+}
+
+.ranking-tier.tier-cplus,
+.ranking-tier.tier-c,
+.ranking-tier.tier-cminus {
+    background: #3B82F6;
+    color: #fff;
+}
+
+.ranking-tier.tier-dplus,
+.ranking-tier.tier-d,
+.ranking-tier.tier-dminus {
+    background: #EF4444;
+    color: #fff;
+}
+
+
+/* =========================================================
+   MODAL DO PLAYER
+========================================================= */
+
+#player-modal {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(0, 0, 0, 0.75);
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+
+    z-index: 9999;
+}
+
+#player-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+/* FUNDO CLICÁVEL */
+
+.player-modal-overlay {
+    position: absolute;
+    inset: 0;
+
+    cursor: pointer;
+}
+
+
+/* CONTEÚDO */
+
+.player-modal-content {
+    position: relative;
+    z-index: 2;
+
+    width: min(550px, 100%);
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+    border-radius: 20px;
+
+    padding: 30px;
+
+    box-shadow:
+        0 25px 80px rgba(0, 0, 0, 0.5);
+
+    transform: translateY(20px) scale(0.97);
+
+    transition: 0.25s ease;
+}
+
+#player-modal.active .player-modal-content {
+    transform: translateY(0) scale(1);
+}
+
+
+/* BOTÃO FECHAR */
+
+.modal-close {
+    position: absolute;
+
+    top: 15px;
+    right: 15px;
+
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, 0.05);
+
+    color: var(--text);
+
+    font-size: 22px;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #EF4444;
+    border-color: #EF4444;
+}
+
+
+/* CABEÇALHO DO PLAYER */
+
+.modal-player-header {
+    display: flex;
+    align-items: center;
+
+    gap: 20px;
+
+    padding-right: 45px;
+
+    margin-bottom: 25px;
+}
+
+.modal-player-avatar {
+    width: 100px;
+    height: 100px;
+
+    flex-shrink: 0;
+
+    border-radius: 14px;
+
+    object-fit: cover;
+    image-rendering: pixelated;
+
+    border: 3px solid var(--primary);
+}
+
+.modal-player-header h2 {
+    font-size: 26px;
+
+    overflow-wrap: anywhere;
+}
+
+.modal-player-device {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-top: 8px;
+
+    color: var(--text-secondary);
+}
+
+.modal-player-device i {
+    color: var(--primary);
+    font-size: 20px;
+}
+
+
+/* PONTUAÇÃO */
+
+.modal-player-score {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 18px;
+
+    margin-bottom: 25px;
+
+    background: rgba(34, 197, 94, 0.08);
+
+    border: 1px solid rgba(34, 197, 94, 0.2);
+
+    border-radius: 14px;
+}
+
+.modal-player-score span {
+    color: var(--text-secondary);
+}
+
+.modal-player-score strong {
+    color: var(--primary);
+
+    font-size: 22px;
+}
+
+
+/* MODOS */
+
+.modal-modes h3 {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.player-modes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.player-mode-row {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 13px 15px;
+
+    background: rgba(255, 255, 255, 0.04);
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+}
+
+.mode-name {
+    color: var(--text);
+
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.player-mode-row .player-tier {
+    min-width: 50px;
+
+    padding: 5px 10px;
+
+    border-radius: 999px;
+
+    text-align: center;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   MOBILE / TABLET
+========================================================= */
+
+
+/* TABLET */
+
+@media (max-width: 1000px) {
+
+    .leaderboard-stats .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    #top-three-container {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        margin: auto;
+    }
+
+    .top-card.place-1 {
+        transform: none;
+    }
+
+}
+
+
+/* TABLET PEQUENO */
+
+@media (max-width: 768px) {
+
+    .leaderboard-hero {
+        padding: 70px 0 50px;
+    }
+
+    .leaderboard-hero h1 {
+        font-size: 3rem;
+    }
+
+    .leaderboard-stats .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filters-row {
+        grid-template-columns: 1fr;
+    }
+
+    .ranking-card {
+        gap: 14px;
+        padding: 15px;
+    }
+
+    .ranking-position {
+        width: 40px;
+        font-size: 16px;
+    }
+
+    .ranking-avatar {
+        width: 55px;
+        height: 55px;
+    }
+
+    .ranking-name {
+        font-size: 16px;
+    }
+
+    .ranking-device {
+        font-size: 12px;
+    }
+
+    .ranking-modes {
+        font-size: 11px;
+    }
+
+    .ranking-tier {
+        min-width: 45px;
+        padding: 6px 9px;
+        font-size: 12px;
+    }
+
+    .ranking-points {
+        min-width: 70px;
+        font-size: 15px;
+    }
+
+}
+
+
+/* CELULAR */
+
+@media (max-width: 600px) {
+
+    .leaderboard-hero {
+        padding: 55px 0 40px;
+    }
+
+    .leaderboard-hero h1 {
+        font-size: 2.4rem;
+    }
+
+    .leaderboard-hero p {
+        font-size: 14px;
+    }
+
+
+    /* ESTATÍSTICAS */
+
+    .leaderboard-stats {
+        padding-bottom: 40px;
+    }
+
+    .leaderboard-stats .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .leaderboard-stats .stat-card {
+        padding: 22px 10px;
+    }
+
+    .leaderboard-stats .stat-card h2 {
+        font-size: 2rem;
+    }
+
+    .leaderboard-stats .stat-card span {
+        font-size: 12px;
+    }
+
+
+    /* TOP 3 */
+
+    .top-three {
+        padding: 30px 0 50px;
+    }
+
+    .section-title {
+        font-size: 24px;
+    }
+
+
+    /* RANKING */
+
+    .players-list {
+        padding-bottom: 70px;
+    }
+
+    .ranking-card {
+        display: grid;
+
+        grid-template-columns: 28px 48px 1fr;
+
+        gap: 10px;
+
+        padding: 13px;
+    }
+
+    .ranking-position {
+        width: auto;
+
+        font-size: 14px;
+    }
+
+    .ranking-avatar {
+        width: 48px;
+        height: 48px;
+    }
+
+    .ranking-info {
+        min-width: 0;
+    }
+
+    .ranking-name {
+        font-size: 15px;
+    }
+
+    .ranking-device,
+    .ranking-modes {
+        font-size: 11px;
+    }
+
+    .ranking-tier {
+        grid-column: 3;
+
+        justify-self: start;
+
+        min-width: 45px;
+
+        padding: 5px 9px;
+
+        font-size: 11px;
+    }
+
+    .ranking-points {
+        grid-column: 3;
+
+        text-align: left;
+
+        min-width: auto;
+
+        font-size: 14px;
+    }
+
+
+    /* MODAL */
+
+    #player-modal {
+        padding: 15px;
+    }
+
+    .player-modal-content {
+        padding: 22px 18px;
+
+        max-height: 90vh;
+
+        border-radius: 16px;
+    }
+
+    .modal-player-header {
+        gap: 15px;
+    }
+
+    .modal-player-avatar {
+        width: 75px;
+        height: 75px;
+    }
+
+    .modal-player-header h2 {
+        font-size: 20px;
+    }
+
+    .modal-player-score {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+}
+
+
+/* CELULAR PEQUENO */
+
+@media (max-width: 400px) {
+
+    .leaderboard-hero h1 {
+        font-size: 2rem;
+    }
+
+    .leaderboard-stats .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ranking-card {
+        grid-template-columns: 25px 42px 1fr;
+        gap: 8px;
+    }
+
+    .ranking-avatar {
+        width: 42px;
+        height: 42px;
+    }
+
+    .ranking-name {
+        font-size: 14px;
+    }
+
+    .ranking-device span {
+        display: none;
+    }
+
+    .top-avatar {
+        width: 90px;
+        height: 90px;
+    }
+
+    .modal-player-avatar {
+        width: 65px;
+        height: 65px;
+    }
+
+    .modal-player-header h2 {
+        font-size: 18px;
+    }
+
+}
+
+/* =========================================
+   TIERS POR MODO - MODAL
+========================================= */
+
+.player-modes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.player-mode-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+    min-height: 42px;
+
+    padding: 10px 12px;
+
+    background: #1b3048;
+
+    border: 1px solid rgba(255, 255, 255, 0.05);
+
+    border-radius: 10px;
+
+    color: #ffffff;
+}
+
+.mode-name {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.player-mode-row .player-tier {
+    position: static !important;
+
+    display: inline-flex !important;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 45px;
+    height: 28px;
+
+    padding: 4px 10px;
+
+    border-radius: 8px;
+
+    color: #ffffff !important;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+
+/* =========================================
+   CORES DAS TIERS
+========================================= */
+
+.player-mode-row .tier-splus,
+.player-mode-row .tier-s,
+.player-mode-row .tier-sminus {
+    background: #8B5CF6 !important;
+    color: #ffffff !important;
+}
+
+.player-mode-row .tier-aplus,
+.player-mode-row .tier-a,
+.player-mode-row .tier-aminus {
+    background: #22C55E !important;
+    color: #081018 !important;
+}
+
+.player-mode-row .tier-bplus,
+.player-mode-row .tier-b,
+.player-mode-row .tier-bminus {
+    background: #EAB308 !important;
+    color: #111111 !important;
+}
+
+.player-mode-row .tier-cplus,
+.player-mode-row .tier-c,
+.player-mode-row .tier-cminus {
+    background: #3B82F6 !important;
+    color: #ffffff !important;
+}
+
+.player-mode-row .tier-dplus,
+.player-mode-row .tier-d,
+.player-mode-row .tier-dminus {
+    background: #EF4444 !important;
+    color: #ffffff !important;
+}
+
+/* =========================================
+   📱 RESPONSIVIDADE COMPLETA - LEADERBOARD
+========================================= */
+
+
+/* =========================================
+   💻 TABLETS E TELAS MÉDIAS
+   901px até 1100px
+========================================= */
+
+@media (max-width: 1100px) {
+
+    .container {
+        width: min(92%, 1000px);
+    }
+
+    /* NAVBAR */
+
+    .navbar .container {
+        height: 72px;
+    }
+
+    nav {
+        gap: 20px;
+    }
+
+    .discord-btn {
+        padding: 10px 15px;
+    }
+
+
+    /* HERO */
+
+    .leaderboard-hero {
+        padding: 80px 0 60px;
+    }
+
+    .leaderboard-hero h1 {
+        font-size: 3.2rem;
+    }
+
+
+    /* STATS */
+
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+
+    .stat-card {
+        padding: 28px 15px;
+    }
+
+    .stat-card h2 {
+        font-size: 2.2rem;
+    }
+
+
+    /* TOP 3 */
+
+    #top-three-container {
+        gap: 18px;
+    }
+
+    .top-card {
+        padding: 25px 15px;
+    }
+
+    .top-avatar {
+        width: 95px;
+        height: 95px;
+    }
+
+
+    /* RANKING */
+
+    .ranking-card {
+        gap: 15px;
+        padding: 15px 18px;
+    }
+
+    .ranking-position {
+        width: 40px;
+    }
+
+    .ranking-avatar {
+        width: 58px;
+        height: 58px;
+    }
+
+    .ranking-points {
+        min-width: 80px;
+        font-size: 16px;
+    }
+
+}
+
+
+/* =========================================
+   📱 TABLET
+   Até 900px
+========================================= */
+
+@media (max-width: 900px) {
+
+    /* NAVBAR */
+
+    .navbar .container {
+        width: 94%;
+    }
+
+    .logo-text span {
+        font-size: .75rem;
+    }
+
+    nav {
+        gap: 15px;
+    }
+
+    nav a {
+        font-size: 14px;
+    }
+
+    .discord-btn {
+        padding: 9px 12px;
+        font-size: 14px;
+    }
+
+
+    /* HERO */
+
+    .leaderboard-hero {
+        padding: 70px 0 50px;
+    }
+
+    .leaderboard-hero h1 {
+        font-size: 2.8rem;
+    }
+
+
+    /* STATS */
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+
+    /* TOP 3 */
+
+    #top-three-container {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        margin: auto;
+    }
+
+    .place-1 {
+        transform: none;
+    }
+
+
+    /* FILTROS */
+
+    .filters {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .search-box input {
+        width: 100%;
+    }
+
+    .filters-row {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .filter-item {
+        width: 100%;
+    }
+
+    .filter-item select {
+        width: 100%;
+    }
+
+}
+
+
+/* =========================================
+   📱 CELULAR
+   Até 700px
+========================================= */
+
+@media (max-width: 700px) {
+
+    /* =====================================
+       NAVBAR
+    ===================================== */
+
+    .navbar .container {
+        height: auto;
+        min-height: 70px;
+        padding: 12px 0;
+
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .logo {
+        gap: 8px;
+    }
+
+    .logo img {
+        width: 38px;
+    }
+
+    .logo-text h2 {
+        font-size: 1rem;
+    }
+
+    .logo-text span {
+        display: none;
+    }
+
+    nav {
+        order: 3;
+
+        width: 100%;
+
+        display: flex;
+        justify-content: center;
+
+        gap: 20px;
+
+        padding-top: 8px;
+
+        border-top: 1px solid var(--border);
+    }
+
+    nav a {
+        font-size: 13px;
+    }
+
+    .discord-btn {
+        padding: 9px 12px;
+        font-size: 13px;
+    }
+
+
+    /* =====================================
+       HERO
+    ===================================== */
+
+    .leaderboard-hero {
+        padding: 55px 0 40px;
+    }
+
+    .leaderboard-hero h1 {
+        font-size: 2.3rem;
+    }
+
+    .leaderboard-hero p {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .badge {
+        font-size: 12px;
+        padding: 7px 13px;
+    }
+
+
+    /* =====================================
+       STATS
+    ===================================== */
+
+    .leaderboard-stats {
+        padding-bottom: 50px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 22px 10px;
+        border-radius: 12px;
+    }
+
+    .stat-card h2 {
+        font-size: 1.8rem;
+    }
+
+    .stat-card span {
+        font-size: 12px;
+    }
+
+
+    /* =====================================
+       FILTROS
+    ===================================== */
+
+    .leaderboard-filters {
+        padding: 25px 0;
+    }
+
+    .filters-row {
+        grid-template-columns: 1fr;
+    }
+
+    .search-box {
+        padding: 11px 14px;
+    }
+
+    .search-box input {
+        font-size: 14px;
+    }
+
+    .filter-item label {
+        font-size: 13px;
+    }
+
+    .filter-item select {
+        width: 100%;
+        padding: 12px;
+    }
+
+
+    /* =====================================
+       TOP 3
+    ===================================== */
+
+    .top-three {
+        padding: 30px 0;
+    }
+
+    .section-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .top-card {
+        padding: 25px 15px;
+    }
+
+    .top-avatar {
+        width: 90px;
+        height: 90px;
+    }
+
+    .top-card h2 {
+        font-size: 20px;
+    }
+
+    .top-card span {
+        font-size: 17px;
+    }
+
+
+    /* =====================================
+       RANKING
+    ===================================== */
+
+    .players-list {
+        padding: 30px 0 70px;
+    }
+
+    .ranking-card {
+
+        display: grid;
+
+        grid-template-columns: 32px 50px 1fr auto;
+
+        grid-template-areas:
+            "position avatar info tier"
+            "position avatar info points";
+
+        gap: 5px 10px;
+
+        padding: 13px;
+
+        border-radius: 13px;
+
+    }
+
+    .ranking-position {
+        grid-area: position;
+
+        width: auto;
+
+        font-size: 14px;
+    }
+
+    .ranking-avatar {
+        grid-area: avatar;
+
+        width: 50px;
+        height: 50px;
+
+        border-radius: 8px;
+    }
+
+    .ranking-info {
+        grid-area: info;
+
+        min-width: 0;
+    }
+
+    .ranking-name {
+        font-size: 15px;
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .ranking-device {
+        font-size: 11px;
+    }
+
+    .ranking-device i {
+        font-size: 15px;
+    }
+
+    .ranking-modes {
+        font-size: 10px;
+    }
+
+    .ranking-tier {
+        grid-area: tier;
+
+        min-width: 42px;
+
+        padding: 5px 8px;
+
+        font-size: 11px;
+    }
+
+    .ranking-points {
+        grid-area: points;
+
+        min-width: auto;
+
+        font-size: 13px;
+
+        text-align: right;
+    }
+
+}
+
+
+/* =========================================
+   📱 CELULARES PEQUENOS
+   Até 500px
+========================================= */
+
+@media (max-width: 500px) {
+
+    .container {
+        width: 92%;
+    }
+
+
+    /* NAVBAR */
+
+    .navbar .container {
+        justify-content: center;
+    }
+
+    .logo {
+        margin-right: auto;
+    }
+
+    .discord-btn {
+        font-size: 0;
+        width: 40px;
+        height: 40px;
+
+        padding: 0;
+
+        justify-content: center;
+    }
+
+    .discord-btn i {
+        font-size: 20px;
+    }
+
+    nav {
+        gap: 12px;
+    }
+
+    nav a {
+        font-size: 11px;
+    }
+
+
+    /* HERO */
+
+    .leaderboard-hero h1 {
+        font-size: 2rem;
+    }
+
+
+    /* STATS */
+
+    .stats-grid {
+        gap: 8px;
+    }
+
+    .stat-card {
+        padding: 18px 5px;
+    }
+
+    .stat-card h2 {
+        font-size: 1.5rem;
+    }
+
+
+    /* RANKING */
+
+    .ranking-card {
+
+        grid-template-columns: 25px 44px 1fr auto;
+
+        gap: 5px 8px;
+
+        padding: 10px;
+
+    }
+
+    .ranking-position {
+        font-size: 12px;
+    }
+
+    .ranking-avatar {
+        width: 44px;
+        height: 44px;
+    }
+
+    .ranking-name {
+        font-size: 14px;
+    }
+
+    .ranking-device {
+        font-size: 10px;
+    }
+
+    .ranking-device i {
+        font-size: 13px;
+    }
+
+    .ranking-modes {
+        font-size: 9px;
+    }
+
+    .ranking-tier {
+        min-width: 38px;
+        padding: 4px 7px;
+        font-size: 10px;
+    }
+
+    .ranking-points {
+        font-size: 11px;
+    }
+
+
+    /* MODAL */
+
+    #player-modal {
+        padding: 12px;
+    }
+
+    .player-modal-content {
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 20px 15px;
+        border-radius: 16px;
+    }
+
+    .modal-player-header {
+        gap: 12px;
+    }
+
+    .modal-player-avatar {
+        width: 75px;
+        height: 75px;
+    }
+
+    .modal-player-header h2 {
+        font-size: 20px;
+    }
+
+    .modal-player-device {
+        font-size: 12px;
+    }
+
+    .modal-player-score {
+        padding: 15px;
+        margin-top: 15px;
+    }
+
+    .modal-player-score strong {
+        font-size: 20px;
+    }
+
+    .modal-modes h3 {
+        font-size: 18px;
+    }
+
+    .player-mode-row {
+        min-height: 38px;
+        padding: 8px 10px;
+    }
+
+    .mode-name {
+        font-size: 12px;
+    }
+
+    .player-mode-row .player-tier {
+        min-width: 40px;
+        height: 25px;
+        font-size: 10px;
+    }
+
+}
+
+
+/* =========================================
+   📱 CELULARES MUITO PEQUENOS
+   Até 380px
+========================================= */
+
+@media (max-width: 380px) {
+
+    .container {
+        width: 94%;
+    }
+
+    nav {
+        gap: 8px;
+    }
+
+    nav a {
+        font-size: 10px;
+    }
+
+    .ranking-card {
+        grid-template-columns: 22px 40px 1fr auto;
+        gap: 4px 6px;
+    }
+
+    .ranking-avatar {
+        width: 40px;
+        height: 40px;
+    }
+
+    .ranking-name {
+        font-size: 13px;
+    }
+
+    .ranking-tier {
+        min-width: 34px;
+        padding: 4px 5px;
+        font-size: 9px;
+    }
+
+    .ranking-points {
+        font-size: 10px;
+    }
+
+}

@@ -1,0 +1,915 @@
+/* =========================================
+   BMC • SOCIAIS
+========================================= */
+
+
+/* =========================================
+   HERO
+========================================= */
+
+.social-hero{
+
+    padding:110px 0 80px;
+
+    text-align:center;
+
+}
+
+
+.social-hero .container{
+
+    max-width:800px;
+
+}
+
+
+.social-hero .badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+}
+
+
+.social-hero h1{
+
+    margin-top:20px;
+
+    font-size:clamp(3rem,7vw,5rem);
+
+    line-height:1.1;
+
+}
+
+
+.social-hero p{
+
+    max-width:650px;
+
+    margin:25px auto 0;
+
+    color:var(--text-secondary);
+
+    font-size:18px;
+
+    line-height:1.7;
+
+}
+
+
+/* =========================================
+   CANAL OFICIAL
+========================================= */
+
+.official-channel{
+
+    padding:30px 0 90px;
+
+}
+
+
+.official-card{
+
+    position:relative;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:45px;
+
+    padding:50px;
+
+    background:
+
+        linear-gradient(
+
+            135deg,
+
+            rgba(34,197,94,.12),
+
+            rgba(17,24,39,.95)
+
+        );
+
+    border:1px solid rgba(34,197,94,.25);
+
+    border-radius:24px;
+
+    overflow:hidden;
+
+    box-shadow:
+
+        0 25px 70px rgba(0,0,0,.2);
+
+}
+
+
+.official-card::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:250px;
+
+    height:250px;
+
+    right:-100px;
+
+    top:-100px;
+
+    background:rgba(34,197,94,.08);
+
+    border-radius:50%;
+
+    filter:blur(10px);
+
+}
+
+
+.official-icon{
+
+    flex-shrink:0;
+
+    width:120px;
+
+    height:120px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:30px;
+
+    background:#FF0000;
+
+    color:#fff;
+
+    font-size:60px;
+
+    box-shadow:
+
+        0 15px 40px rgba(255,0,0,.2);
+
+}
+
+
+.official-info{
+
+    position:relative;
+
+    z-index:2;
+
+}
+
+
+.official-label{
+
+    color:var(--primary);
+
+    font-size:13px;
+
+    font-weight:800;
+
+    letter-spacing:2px;
+
+}
+
+
+.official-info h2{
+
+    margin:10px 0;
+
+    font-size:32px;
+
+}
+
+
+.official-info p{
+
+    max-width:650px;
+
+    color:var(--text-secondary);
+
+    line-height:1.7;
+
+    margin-bottom:25px;
+
+}
+
+
+.youtube-btn{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:13px 20px;
+
+    background:#FF0000;
+
+    color:#fff;
+
+    border-radius:12px;
+
+    font-weight:700;
+
+    transition:.25s;
+
+}
+
+
+.youtube-btn:hover{
+
+    transform:translateY(-3px);
+
+    background:#CC0000;
+
+    box-shadow:
+
+        0 10px 25px rgba(255,0,0,.2);
+
+}
+
+
+/* =========================================
+   TESTERS
+========================================= */
+
+.testers-section{
+
+    padding:30px 0 110px;
+
+}
+
+
+.section-heading{
+
+    text-align:center;
+
+    max-width:650px;
+
+    margin:0 auto 50px;
+
+}
+
+
+.section-label{
+
+    color:var(--primary);
+
+    font-size:13px;
+
+    font-weight:800;
+
+    letter-spacing:2px;
+
+}
+
+
+.section-heading h2{
+
+    margin:12px 0;
+
+    font-size:36px;
+
+}
+
+
+.section-heading p{
+
+    color:var(--text-secondary);
+
+    line-height:1.7;
+
+}
+
+
+/* =========================================
+   TESTERS GRID
+========================================= */
+
+.testers-grid{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(
+
+            auto-fit,
+
+            minmax(220px,1fr)
+
+        );
+
+    gap:22px;
+
+}
+
+
+/* =========================================
+   TESTER CARD
+========================================= */
+
+.tester-card{
+
+    position:relative;
+
+    background:#111827;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:20px;
+
+    padding:28px 22px 20px;
+
+    text-align:center;
+
+    overflow:hidden;
+
+    transition:
+
+        transform .25s ease,
+
+        border-color .25s ease,
+
+        box-shadow .25s ease;
+
+}
+
+
+.tester-card:hover{
+
+    transform:translateY(-7px);
+
+    border-color:rgba(34,197,94,.5);
+
+    box-shadow:
+
+        0 20px 45px rgba(0,0,0,.25),
+
+        0 0 30px rgba(34,197,94,.06);
+
+}
+
+
+/* =========================================
+   AVATAR
+========================================= */
+
+.tester-avatar{
+
+    width:110px;
+
+    height:110px;
+
+    margin:0 auto 20px;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    background:#0d1322;
+
+    border:3px solid rgba(255,255,255,.08);
+
+    box-shadow:
+
+        0 10px 25px rgba(0,0,0,.25);
+
+}
+
+
+.tester-avatar img{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+    image-rendering:pixelated;
+
+    transition:.3s;
+
+}
+
+
+.tester-card:hover
+.tester-avatar img{
+
+    transform:scale(1.08);
+
+}
+
+
+/* =========================================
+   INFO
+========================================= */
+
+.tester-info h3{
+
+    font-size:21px;
+
+    margin-bottom:10px;
+
+}
+
+
+.tester-role{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    padding:6px 12px;
+
+    border-radius:999px;
+
+    background:rgba(34,197,94,.12);
+
+    color:var(--primary);
+
+    font-size:12px;
+
+    font-weight:700;
+
+}
+
+
+.tester-role.admin{
+
+    background:
+
+        rgba(139,92,246,.15);
+
+    color:#A78BFA;
+
+}
+
+
+/* =========================================
+   FOOTER DO CARD
+========================================= */
+
+.tester-footer{
+
+    margin-top:22px;
+
+    padding-top:15px;
+
+    border-top:
+
+        1px solid rgba(255,255,255,.06);
+
+}
+
+
+.tester-footer span{
+
+    color:#6B7280;
+
+    font-size:12px;
+
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.footer-links{
+
+    display:flex;
+
+    gap:20px;
+
+    align-items:center;
+
+}
+
+
+.footer-links a{
+
+    color:var(--text-secondary);
+
+    transition:.25s;
+
+}
+
+
+.footer-links a:hover{
+
+    color:var(--primary);
+
+}
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media(max-width:900px){
+
+    .social-hero{
+
+        padding:90px 0 60px;
+
+    }
+
+
+    .official-card{
+
+        gap:30px;
+
+        padding:35px;
+
+    }
+
+
+    .official-icon{
+
+        width:95px;
+
+        height:95px;
+
+        font-size:48px;
+
+    }
+
+
+    .official-info h2{
+
+        font-size:27px;
+
+    }
+
+
+    .testers-grid{
+
+        grid-template-columns:
+
+            repeat(
+
+                3,
+
+                1fr
+
+            );
+
+    }
+
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media(max-width:700px){
+
+    .social-hero{
+
+        padding:70px 0 50px;
+
+    }
+
+
+    .social-hero h1{
+
+        font-size:42px;
+
+    }
+
+
+    .social-hero p{
+
+        font-size:15px;
+
+    }
+
+
+    .official-channel{
+
+        padding:20px 0 60px;
+
+    }
+
+
+    .official-card{
+
+        flex-direction:column;
+
+        text-align:center;
+
+        padding:35px 22px;
+
+        gap:25px;
+
+    }
+
+
+    .official-icon{
+
+        width:90px;
+
+        height:90px;
+
+        border-radius:24px;
+
+        font-size:45px;
+
+    }
+
+
+    .official-info h2{
+
+        font-size:24px;
+
+    }
+
+
+    .official-info p{
+
+        font-size:14px;
+
+    }
+
+
+    .youtube-btn{
+
+        justify-content:center;
+
+        width:100%;
+
+    }
+
+
+    .testers-section{
+
+        padding:20px 0 70px;
+
+    }
+
+
+    .section-heading{
+
+        margin-bottom:35px;
+
+    }
+
+
+    .section-heading h2{
+
+        font-size:30px;
+
+    }
+
+
+    .section-heading p{
+
+        font-size:14px;
+
+    }
+
+
+    .testers-grid{
+
+        grid-template-columns:
+
+            repeat(
+
+                2,
+
+                1fr
+
+            );
+
+        gap:14px;
+
+    }
+
+
+    .tester-card{
+
+        padding:22px 12px 16px;
+
+        border-radius:16px;
+
+    }
+
+
+    .tester-avatar{
+
+        width:80px;
+
+        height:80px;
+
+        border-radius:14px;
+
+    }
+
+
+    .tester-info h3{
+
+        font-size:17px;
+
+        word-break:break-word;
+
+    }
+
+
+    .tester-role{
+
+        font-size:10px;
+
+        padding:5px 8px;
+
+    }
+
+
+    .tester-footer{
+
+        margin-top:15px;
+
+        padding-top:12px;
+
+    }
+
+
+    .tester-footer span{
+
+        font-size:10px;
+
+    }
+
+
+    .footer-content{
+
+        flex-direction:column;
+
+        text-align:center;
+
+        gap:25px;
+
+    }
+
+
+    .footer-links{
+
+        flex-wrap:wrap;
+
+        justify-content:center;
+
+    }
+
+}
+
+
+/* =========================================
+   CELULARES PEQUENOS
+========================================= */
+
+@media(max-width:400px){
+
+    .container{
+
+        width:92%;
+
+    }
+
+
+    .social-hero h1{
+
+        font-size:36px;
+
+    }
+
+
+    .testers-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .tester-card{
+
+        max-width:280px;
+
+        width:100%;
+
+        margin:auto;
+
+    }
+
+
+    .tester-avatar{
+
+        width:95px;
+
+        height:95px;
+
+    }
+
+}
+
+/* =========================================
+   CARGO DONO
+========================================= */
+/* =========================================
+   CARGO DONO
+========================================= */
+
+.tester-role.owner{
+
+    background:rgba(250,204,21,.15);
+
+    color:#FACC15;
+
+    border:1px solid rgba(250,204,21,.35);
+
+    box-shadow:
+        0 0 12px rgba(250,204,21,.08);
+
+}
+
+/* =========================================
+   BOTÃO YOUTUBE DOS TESTERS
+========================================= */
+
+.tester-youtube {
+
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-left: auto;
+
+    color: #ffffff;
+
+    background: rgba(255, 0, 0, 0.12);
+
+    border: 1px solid rgba(255, 0, 0, 0.25);
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    font-size: 20px;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+/* HOVER */
+
+.tester-youtube:hover {
+
+    background: #ff0000;
+
+    border-color: #ff0000;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 6px 18px rgba(255, 0, 0, 0.3);
+
+}
+
+
+/* CLIQUE */
+
+.tester-youtube:active {
+
+    transform: scale(0.92);
+
+}
+
+
+/* ÍCONE */
+
+.tester-youtube i {
+
+    line-height: 1;
+
+}

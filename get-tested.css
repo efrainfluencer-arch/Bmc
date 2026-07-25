@@ -1,0 +1,923 @@
+/* =========================================
+   GET TESTED - BMC
+========================================= */
+
+
+/* =========================================
+   HERO
+========================================= */
+
+.get-tested-hero {
+
+    padding: 100px 20px 80px;
+
+    text-align: center;
+
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(80, 120, 255, 0.12),
+            transparent 50%
+        );
+
+}
+
+
+.get-tested-hero .badge {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 8px 16px;
+
+    margin-bottom: 20px;
+
+    border: 1px solid rgba(100, 130, 255, 0.25);
+
+    border-radius: 30px;
+
+    background: rgba(80, 100, 255, 0.08);
+
+    color: #8ea2ff;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+}
+
+
+.get-tested-hero h1 {
+
+    margin: 0 0 20px;
+
+    font-size: clamp(42px, 7vw, 72px);
+
+    font-weight: 800;
+
+    letter-spacing: -2px;
+
+}
+
+
+.get-tested-hero p {
+
+    max-width: 650px;
+
+    margin: 0 auto;
+
+    color: #a8a8b3;
+
+    font-size: 18px;
+
+    line-height: 1.7;
+
+}
+
+
+/* =========================================
+   INTRODUÇÃO
+========================================= */
+
+.get-tested-intro {
+
+    padding: 20px 20px 80px;
+
+}
+
+
+.intro-card {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 25px;
+
+    max-width: 900px;
+
+    margin: auto;
+
+    padding: 30px;
+
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    border-radius: 20px;
+
+    background: rgba(255, 255, 255, 0.025);
+
+}
+
+
+.intro-icon {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 55px;
+
+    width: 55px;
+
+    height: 55px;
+
+    border-radius: 15px;
+
+    background: rgba(80, 120, 255, 0.12);
+
+    color: #7890ff;
+
+    font-size: 25px;
+
+}
+
+
+.intro-card h2 {
+
+    margin: 0 0 10px;
+
+    font-size: 23px;
+
+}
+
+
+.intro-card p {
+
+    margin: 0;
+
+    color: #a8a8b3;
+
+    line-height: 1.7;
+
+}
+
+
+/* =========================================
+   SEÇÃO DOS PASSOS
+========================================= */
+
+.steps-section {
+
+    padding: 60px 20px 100px;
+
+}
+
+
+.section-heading {
+
+    max-width: 700px;
+
+    margin: 0 auto 70px;
+
+    text-align: center;
+
+}
+
+
+.section-label {
+
+    display: block;
+
+    margin-bottom: 12px;
+
+    color: #7890ff;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    letter-spacing: 2px;
+
+}
+
+
+.section-heading h2 {
+
+    margin: 0 0 15px;
+
+    font-size: clamp(30px, 5vw, 45px);
+
+    font-weight: 800;
+
+}
+
+
+.section-heading p {
+
+    margin: 0;
+
+    color: #9999a5;
+
+    line-height: 1.7;
+
+}
+
+
+/* =========================================
+   CARD DO PASSO
+========================================= */
+
+.test-step {
+
+    position: relative;
+
+    max-width: 1000px;
+
+    margin: 0 auto 50px;
+
+    padding: 35px;
+
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    border-radius: 24px;
+
+    background:
+
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.035),
+            rgba(255, 255, 255, 0.015)
+        );
+
+    overflow: hidden;
+
+    transition:
+
+        transform 0.3s ease,
+
+        border-color 0.3s ease,
+
+        box-shadow 0.3s ease;
+
+}
+
+
+.test-step:hover {
+
+    transform: translateY(-4px);
+
+    border-color: rgba(100, 130, 255, 0.18);
+
+    box-shadow:
+
+        0 20px 50px rgba(0, 0, 0, 0.2);
+
+}
+
+
+/* =========================================
+   NÚMERO DO PASSO
+========================================= */
+
+.step-number {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 48px;
+
+    height: 48px;
+
+    margin-bottom: 25px;
+
+    border-radius: 14px;
+
+    background: rgba(80, 120, 255, 0.12);
+
+    color: #8da0ff;
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+}
+
+
+.step-content {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 40px;
+
+    align-items: center;
+
+}
+
+
+.step-text {
+
+    min-width: 0;
+
+}
+
+
+.step-label {
+
+    display: block;
+
+    margin-bottom: 10px;
+
+    color: #7890ff;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.5px;
+
+}
+
+
+.step-text h3 {
+
+    margin: 0 0 15px;
+
+    font-size: 28px;
+
+    font-weight: 700;
+
+}
+
+
+.step-text p {
+
+    margin: 0;
+
+    color: #a4a4af;
+
+    font-size: 16px;
+
+    line-height: 1.8;
+
+}
+
+
+/* =========================================
+   IMAGENS DOS PASSOS
+========================================= */
+
+.step-image {
+
+    width: 100%;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(255, 255, 255, 0.07);
+
+    background: #191a20;
+
+}
+
+
+.step-image img {
+
+    display: block;
+
+    width: 100%;
+
+    height: auto;
+
+    max-height: 600px;
+
+    object-fit: contain;
+
+    transition: transform 0.4s ease;
+
+}
+
+
+.step-image:hover img {
+
+    transform: scale(1.02);
+
+}
+
+
+/* =========================================
+   BOTÃO DO PASSO
+========================================= */
+
+.step-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    margin-top: 25px;
+
+    padding: 12px 18px;
+
+    border-radius: 10px;
+
+    background: #5865f2;
+
+    color: white;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition:
+
+        transform 0.2s ease,
+
+        background 0.2s ease;
+
+}
+
+
+.step-button:hover {
+
+    transform: translateY(-2px);
+
+    background: #4752c4;
+
+}
+
+
+/* =========================================
+   VÍDEO
+========================================= */
+
+.step-video {
+
+    width: 100%;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(255, 255, 255, 0.07);
+
+    background: #101116;
+
+}
+
+
+.step-video video {
+
+    display: block;
+
+    width: 100%;
+
+    height: auto;
+
+    max-height: 600px;
+
+    object-fit: contain;
+
+}
+
+
+/* =========================================
+   CARD DE ÍCONE
+========================================= */
+
+.step-icon-card {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 15px;
+
+    min-height: 220px;
+
+    padding: 30px;
+
+    border-radius: 18px;
+
+    background:
+
+        radial-gradient(
+            circle,
+            rgba(80, 120, 255, 0.08),
+            transparent 65%
+        );
+
+    border: 1px solid rgba(255, 255, 255, 0.05);
+
+    color: #9999a5;
+
+    text-align: center;
+
+}
+
+
+.step-icon-card i {
+
+    font-size: 55px;
+
+    color: #7890ff;
+
+}
+
+
+.step-icon-card span {
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+}
+
+
+.step-icon-card.success i {
+
+    color: #7ee787;
+
+}
+
+
+/* =========================================
+   REGRAS IMPORTANTES
+========================================= */
+
+.important-rules {
+
+    padding: 20px 20px 100px;
+
+}
+
+
+.rules-card {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 25px;
+
+    max-width: 1000px;
+
+    margin: auto;
+
+    padding: 35px;
+
+    border: 1px solid rgba(255, 180, 60, 0.15);
+
+    border-radius: 22px;
+
+    background:
+
+        rgba(255, 180, 60, 0.035);
+
+}
+
+
+.rules-icon {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 55px;
+
+    width: 55px;
+
+    height: 55px;
+
+    border-radius: 15px;
+
+    background: rgba(255, 180, 60, 0.1);
+
+    color: #ffbf5f;
+
+    font-size: 26px;
+
+}
+
+
+.rules-content h2 {
+
+    margin: 0 0 20px;
+
+    font-size: 24px;
+
+}
+
+
+.rules-content ul {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+
+    margin: 0;
+
+    padding: 0;
+
+    list-style: none;
+
+}
+
+
+.rules-content li {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 10px;
+
+    color: #aaaab4;
+
+    line-height: 1.6;
+
+}
+
+
+.rules-content li i {
+
+    margin-top: 3px;
+
+    color: #7ee787;
+
+}
+
+
+/* =========================================
+   CALL TO ACTION
+========================================= */
+
+.get-tested-cta {
+
+    padding: 20px 20px 110px;
+
+}
+
+
+.cta-card {
+
+    max-width: 750px;
+
+    margin: auto;
+
+    padding: 60px 30px;
+
+    border: 1px solid rgba(100, 130, 255, 0.15);
+
+    border-radius: 25px;
+
+    background:
+
+        radial-gradient(
+            circle at top,
+            rgba(80, 110, 255, 0.12),
+            transparent 60%
+        );
+
+    text-align: center;
+
+}
+
+
+.cta-card > i {
+
+    display: block;
+
+    margin-bottom: 20px;
+
+    color: #7890ff;
+
+    font-size: 45px;
+
+}
+
+
+.cta-card h2 {
+
+    margin: 0 0 12px;
+
+    font-size: 32px;
+
+}
+
+
+.cta-card p {
+
+    margin: 0 0 25px;
+
+    color: #9999a5;
+
+}
+
+
+.cta-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 14px 24px;
+
+    border-radius: 12px;
+
+    background: #5865f2;
+
+    color: white;
+
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition:
+
+        transform 0.2s ease,
+
+        background 0.2s ease;
+
+}
+
+
+.cta-button:hover {
+
+    transform: translateY(-2px);
+
+    background: #4752c4;
+
+}
+
+
+/* =========================================
+   RESPONSIVIDADE
+========================================= */
+
+@media (max-width: 800px) {
+
+
+    .get-tested-hero {
+
+        padding: 70px 20px 60px;
+
+    }
+
+
+    .get-tested-hero h1 {
+
+        letter-spacing: -1px;
+
+    }
+
+
+    .intro-card {
+
+        flex-direction: column;
+
+        padding: 25px;
+
+    }
+
+
+    .step-content {
+
+        grid-template-columns: 1fr;
+
+        gap: 30px;
+
+    }
+
+
+    .test-step {
+
+        padding: 25px;
+
+    }
+
+
+    .step-text h3 {
+
+        font-size: 24px;
+
+    }
+
+
+    .step-image {
+
+        order: 2;
+
+    }
+
+
+    .step-video {
+
+        order: 2;
+
+    }
+
+
+    .rules-card {
+
+        flex-direction: column;
+
+        padding: 25px;
+
+    }
+
+
+    .cta-card {
+
+        padding: 45px 25px;
+
+    }
+
+
+}
+
+
+@media (max-width: 500px) {
+
+
+    .get-tested-hero p {
+
+        font-size: 16px;
+
+    }
+
+
+    .section-heading {
+
+        margin-bottom: 45px;
+
+    }
+
+
+    .test-step {
+
+        margin-bottom: 30px;
+
+        padding: 20px;
+
+        border-radius: 18px;
+
+    }
+
+
+    .step-number {
+
+        width: 42px;
+
+        height: 42px;
+
+        margin-bottom: 20px;
+
+    }
+
+
+    .step-text h3 {
+
+        font-size: 22px;
+
+    }
+
+
+    .step-text p {
+
+        font-size: 15px;
+
+    }
+
+
+    .step-image,
+
+    .step-video {
+
+        border-radius: 12px;
+
+    }
+
+
+    .cta-card h2 {
+
+        font-size: 26px;
+
+    }
+
+
+}
