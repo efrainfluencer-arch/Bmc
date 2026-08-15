@@ -1,10 +1,21 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp } from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
     getFirestore,
     collection,
-    onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    onSnapshot,
+    doc,
+    getDoc,
+    updateDoc
+} from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+    getAuth,
+    onAuthStateChanged
+} from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 
 /* =========================================
@@ -13,24 +24,35 @@ import {
 
 const firebaseConfig = {
 
-    apiKey: "AIzaSyDhsV1GJeEvBGBAQmcUXQ8FDcAOXus4DP0",
+    apiKey:
+        "AIzaSyDhsV1GJeEvBGBAQmcUXQ8FDcAOXus4DP0",
 
-    authDomain: "bmc-ranking.firebaseapp.com",
+    authDomain:
+        "bmc-ranking.firebaseapp.com",
 
-    projectId: "bmc-ranking",
+    projectId:
+        "bmc-ranking",
 
-    storageBucket: "bmc-ranking.firebasestorage.app",
+    storageBucket:
+        "bmc-ranking.firebasestorage.app",
 
-    messagingSenderId: "81111080222",
+    messagingSenderId:
+        "81111080222",
 
-    appId: "1:81111080222:web:3370c3289ab07b83493d0f"
+    appId:
+        "1:81111080222:web:3370c3289ab07b83493d0f"
 
 };
 
 
-const app = initializeApp(firebaseConfig);
+const app =
+    initializeApp(firebaseConfig);
 
-const db = getFirestore(app);
+const db =
+    getFirestore(app);
+
+const auth =
+    getAuth(app);
 
 
 /* =========================================
@@ -45,22 +67,96 @@ let filtroDispositivo = "todos";
 
 let filtroModo = "overall";
 
+let usuarioAtual = null;
+
+let podeEditarPosicoes = false;
+
+
+/* =========================================
+   BÔNUS DE POSIÇÃO
+   SOMENTE MODOS ESPECÍFICOS
+========================================= */
+
+const BONUS_POSICAO_TIER = {
+
+    1: 3,
+
+    2: 2,
+
+    3: 1
+
+};
+
+
+/* =========================================
+   MODOS DO BMC
+========================================= */
+
+const MODOS = [
+
+    "BedFight",
+    "Boxing",
+    "Build UHC",
+    "Mid Fight",
+    "NodeBuff",
+    "SkyWars",
+    "Sumo",
+    "The Bridge"
+
+];
+
+
+/* =========================================
+   ORDEM DAS TIERS
+========================================= */
+
+const ORDEM_TIER = {
+
+    splus: 1,
+    s: 2,
+    sminus: 3,
+
+    aplus: 4,
+    a: 5,
+    aminus: 6,
+
+    bplus: 7,
+    b: 8,
+    bminus: 9,
+
+    cplus: 10,
+    c: 11,
+    cminus: 12,
+
+    dplus: 13,
+    d: 14,
+    dminus: 15
+
+};
+
 
 /* =========================================
    FIREBASE — CARREGAR PLAYERS
 ========================================= */
 
 onSnapshot(
+
     collection(db, "players"),
+
     snapshot => {
 
-        players = snapshot.docs.map(doc => ({
+        players =
+            snapshot.docs.map(
+                docSnapshot => ({
 
-            id: doc.id,
+                    id:
+                        docSnapshot.id,
 
-            ...doc.data()
+                    ...docSnapshot.data()
 
-        }));
+                })
+            );
+
 
         aplicarFiltros();
 
@@ -74,24 +170,132 @@ onSnapshot(
         );
 
     }
+
 );
 
 
 /* =========================================
-   AVATAR DO PLAYER
+   VERIFICAR USUÁRIO
 ========================================= */
 
-function getPlayerAvatar(player, size = 100) {
+onAuthStateChanged(
 
-    if (player.avatarUrl) {
+    auth,
+
+    async user => {
+
+        usuarioAtual = user;
+
+        podeEditarPosicoes = false;
+
+
+        if (!user) {
+
+            console.log(
+                "Nenhum usuário logado."
+            );
+
+            aplicarFiltros();
+
+            return;
+
+        }
+
+
+        console.log(
+            "Usuário logado:",
+            user.email
+        );
+
+
+        try {
+
+            const userRef =
+                doc(
+                    db,
+                    "users",
+                    user.uid
+                );
+
+
+            const userSnap =
+                await getDoc(
+                    userRef
+                );
+
+
+            if (
+                userSnap.exists()
+            ) {
+
+                const dados =
+                    userSnap.data();
+
+
+                const role =
+                    dados.role;
+
+
+                if (
+                    role === "tester" ||
+                    role === "staff"
+                ) {
+
+                    podeEditarPosicoes =
+                        true;
+
+                }
+
+            }
+
+
+            console.log(
+                "Pode editar posições:",
+                podeEditarPosicoes
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Erro ao verificar cargo:",
+                error
+            );
+
+        }
+
+
+        aplicarFiltros();
+
+    }
+
+);
+
+
+/* =========================================
+   AVATAR
+========================================= */
+
+function getPlayerAvatar(
+    player,
+    size = 100
+) {
+
+    if (
+        player.avatarUrl
+    ) {
 
         return player.avatarUrl;
 
     }
 
-    return `https://tabavatars.net/avatar/?username=${encodeURIComponent(player.nome)}&platform=bedrock&size=${size}&type=helm`;
+
+    return `https://tabavatars.net/avatar/?username=${encodeURIComponent(
+        player.nome || ""
+    )}&platform=bedrock&size=${size}&type=helm`;
 
 }
+
 
 /* =========================================
    FORMATAR TIER
@@ -99,116 +303,48 @@ function getPlayerAvatar(player, size = 100) {
 
 function formatTier(t) {
 
-    if (!t) return "";
+    if (!t)
+
+        return "";
+
 
     return t
-        .replace("plus", "+")
-        .replace("minus", "-")
+        .toString()
+        .replace(
+            "plus",
+            "+"
+        )
+        .replace(
+            "minus",
+            "-"
+        )
         .toUpperCase();
 
 }
 
 
 /* =========================================
-   FILTROS
+   NORMALIZAR TIER
 ========================================= */
 
-function aplicarFiltros() {
+function normalizarTier(tier) {
 
-    let filtrados = [...players];
+    if (!tier)
 
-
-    /* =====================================
-       PESQUISA
-    ===================================== */
-
-    if (filtroBusca) {
-
-        filtrados = filtrados.filter(player => {
-
-            const nome =
-                player.nome || "";
-
-            return nome
-                .toLowerCase()
-                .includes(
-                    filtroBusca.toLowerCase()
-                );
-
-        });
-
-    }
+        return "";
 
 
-    /* =====================================
-       DISPOSITIVO
-    ===================================== */
-
-    if (
-        filtroDispositivo !== "todos"
-    ) {
-
-        filtrados = filtrados.filter(player =>
-
-            player.dispositivo ===
-            filtroDispositivo
-
-        );
-
-    }
-
-
-    /* =====================================
-       MODO
-    ===================================== */
-
-    if (
-        filtroModo !== "overall"
-    ) {
-
-        filtrados = filtrados.filter(player =>
-
-            player.modo ===
-            filtroModo
-
-        );
-
-    }
-
-
-    /* =====================================
-       CALCULAR RANKING
-    ===================================== */
-
-    const ranking =
-        calcularRanking(filtrados);
-
-
-    /* =====================================
-       ESTATÍSTICAS
-    ===================================== */
-
-    atualizarStats(ranking);
-
-
-    /* =====================================
-       TOP 3
-    ===================================== */
-
-    renderTop3(ranking);
-
-
-    /* =====================================
-       RANKING
-    ===================================== */
-
-    renderRankingList(ranking);
+    return tier
+        .toString()
+        .trim()
+        .toLowerCase();
 
 }
 
 
 /* =========================================
    SISTEMA DE PONTOS
+   SISTEMA ORIGINAL EQUILIBRADO
 ========================================= */
 
 function getPoints(tier) {
@@ -218,100 +354,111 @@ function getPoints(tier) {
         /* S */
 
         splus: 40,
-
         s: 36,
-
         sminus: 32,
 
 
         /* A */
 
         aplus: 26,
-
         a: 23,
-
         aminus: 20,
 
 
         /* B */
 
         bplus: 14,
-
         b: 11,
-
         bminus: 9,
 
 
         /* C */
 
         cplus: 6,
-
         c: 4,
-
         cminus: 3,
 
 
         /* D */
 
         dplus: 2,
-
         d: 1,
-
         dminus: 0
 
     };
 
 
-    return map[tier] || 0;
+    return map[
+        normalizarTier(tier)
+    ] || 0;
 
 }
 
 
 /* =========================================
-   BONUS DE ESPECIALISTA
+   BÔNUS DE ESPECIALISTA
+   SOMENTE GLOBAL
 ========================================= */
 
-/* =========================================
-   BONUS DE ESPECIALISTA
-========================================= */
-
-function getEspecialistaBonus(tiers) {
+function getEspecialistaBonus(
+    tiers
+) {
 
     let bonus = 0;
 
 
-    tiers.forEach(t => {
+    tiers.forEach(
+        tier => {
 
-        if (t === "splus")
-
-            bonus += 16;
-
-
-        else if (t === "s")
-
-            bonus += 13;
+            tier =
+                normalizarTier(
+                    tier
+                );
 
 
-        else if (t === "sminus")
+            if (
+                tier === "splus"
+            )
 
-            bonus += 10;
-
-
-        else if (t === "aplus")
-
-            bonus += 6;
+                bonus += 16;
 
 
-        else if (t === "a")
+            else if (
+                tier === "s"
+            )
 
-            bonus += 5;
+                bonus += 13;
 
 
-        else if (t === "aminus")
+            else if (
+                tier === "sminus"
+            )
 
-            bonus += 4;
+                bonus += 10;
 
-    });
+
+            else if (
+                tier === "aplus"
+            )
+
+                bonus += 6;
+
+
+            else if (
+                tier === "a"
+            )
+
+                bonus += 5;
+
+
+            else if (
+                tier === "aminus"
+            )
+
+                bonus += 4;
+
+        }
+    );
 
 
     return bonus;
@@ -321,26 +468,343 @@ function getEspecialistaBonus(tiers) {
 
 /* =========================================
    PENALIDADE POR MUITOS MODOS
+   SOMENTE GLOBAL
 ========================================= */
 
-function getDiminishingMultiplier(totalModos) {
+function getDiminishingMultiplier(
+    totalModos
+) {
 
-    if (totalModos <= 2)
+    if (
+        totalModos <= 2
+    )
+
         return 1;
 
-    if (totalModos === 3)
+
+    if (
+        totalModos === 3
+    )
+
         return 0.95;
 
-    if (totalModos === 4)
+
+    if (
+        totalModos === 4
+    )
+
         return 0.90;
 
-    if (totalModos === 5)
+
+    if (
+        totalModos === 5
+    )
+
         return 0.85;
 
-    if (totalModos >= 6)
+
+    if (
+        totalModos >= 6
+    )
+
         return 0.80;
 
+
     return 1;
+
+}
+
+
+/* =========================================
+   OBTER POSIÇÃO SALVA
+========================================= */
+
+function getPosicaoSalva(
+    player,
+    modo
+) {
+
+    /*
+       Formato atual:
+
+       posicoes: {
+           BedFight: 1,
+           Boxing: 2
+       }
+    */
+
+    if (
+        player.posicoes &&
+        typeof player.posicoes === "object"
+    ) {
+
+        const valor =
+            player.posicoes[modo];
+
+
+        if (
+            valor !== undefined &&
+            valor !== null
+        ) {
+
+            const numero =
+                Number(valor);
+
+
+            if (
+                Number.isInteger(
+                    numero
+                )
+            ) {
+
+                return numero;
+
+            }
+
+        }
+
+    }
+
+
+    /*
+       Compatibilidade com
+       sistema antigo.
+    */
+
+    if (
+        player.modo === modo &&
+        player.posicao !== undefined &&
+        player.posicao !== null
+    ) {
+
+        const numero =
+            Number(
+                player.posicao
+            );
+
+
+        if (
+            Number.isInteger(
+                numero
+            )
+        ) {
+
+            return numero;
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================
+   CALCULAR POSIÇÕES DA MESMA TIER
+========================================= */
+
+function calcularPosicoesPorTier(
+    lista,
+    modo
+) {
+
+    const grupos = {};
+
+
+    /*
+       Separar jogadores por tier.
+    */
+
+    lista.forEach(
+        player => {
+
+            const tier =
+                normalizarTier(
+                    player.tier
+                );
+
+
+            if (!tier)
+
+                return;
+
+
+            if (!grupos[tier]) {
+
+                grupos[tier] = [];
+
+            }
+
+
+            grupos[tier].push(
+                player
+            );
+
+        }
+    );
+
+
+    /*
+       Processar cada tier.
+    */
+
+    Object.values(
+        grupos
+    ).forEach(
+        grupo => {
+
+            /*
+               Se só existe um jogador,
+               não existe posição manual.
+            */
+
+            if (
+                grupo.length <= 1
+            ) {
+
+                grupo.forEach(
+                    player => {
+
+                        player.posicaoTier =
+                            null;
+
+                        player.bonusPosicao =
+                            0;
+
+                        player.temPosicaoEditavel =
+                            false;
+
+                    }
+                );
+
+                return;
+
+            }
+
+
+            /*
+               Ordenação:
+
+               1. posição salva
+               2. nome
+               3. ID
+            */
+
+            grupo.sort(
+                (a, b) => {
+
+                    const posA =
+                        getPosicaoSalva(
+                            a,
+                            modo
+                        );
+
+
+                    const posB =
+                        getPosicaoSalva(
+                            b,
+                            modo
+                        );
+
+
+                    const valorA =
+                        posA === null
+                            ? 999999
+                            : posA;
+
+
+                    const valorB =
+                        posB === null
+                            ? 999999
+                            : posB;
+
+
+                    if (
+                        valorA !==
+                        valorB
+                    ) {
+
+                        return (
+                            valorA -
+                            valorB
+                        );
+
+                    }
+
+
+                    const nomeA =
+                        (
+                            a.nome ||
+                            ""
+                        ).toLowerCase();
+
+
+                    const nomeB =
+                        (
+                            b.nome ||
+                            ""
+                        ).toLowerCase();
+
+
+                    if (
+                        nomeA !==
+                        nomeB
+                    ) {
+
+                        return nomeA
+                            .localeCompare(
+                                nomeB
+                            );
+
+                    }
+
+
+                    return (
+                        a.id || ""
+                    ).localeCompare(
+                        b.id || ""
+                    );
+
+                }
+            );
+
+
+            /*
+               Atribuir posição
+               e bônus.
+            */
+
+            grupo.forEach(
+                (player, index) => {
+
+                    player.posicaoTier =
+                        index + 1;
+
+
+                    player.bonusPosicao =
+                        BONUS_POSICAO_TIER[
+                            index + 1
+                        ] || 0;
+
+
+                    /*
+                       Só é editável se:
+
+                       - usuário for Staff/Tester
+                       - houver mais de um
+                         jogador na tier
+                    */
+
+                    player.temPosicaoEditavel =
+                        podeEditarPosicoes;
+
+                }
+            );
+
+        }
+    );
 
 }
 
@@ -349,168 +813,385 @@ function getDiminishingMultiplier(totalModos) {
    CALCULAR RANKING
 ========================================= */
 
-function calcularRanking(players) {
+function calcularRanking(
+    lista
+) {
+
+    /* =====================================
+       RANKING DE MODO ESPECÍFICO
+    ===================================== */
+
+    if (
+        filtroModo !== "overall"
+    ) {
+
+        const rankingModo =
+
+            lista
+
+                .filter(
+                    player =>
+                        player.nome &&
+                        player.modo &&
+                        player.tier
+                )
+
+                .map(
+                    player => ({
+
+                        ...player,
+
+                        tier:
+                            normalizarTier(
+                                player.tier
+                            ),
+
+                        score:
+                            getPoints(
+                                player.tier
+                            ),
+
+                        modoTiers: {
+
+                            [player.modo]:
+                                normalizarTier(
+                                    player.tier
+                                )
+
+                        },
+
+                        tiers: [
+
+                            normalizarTier(
+                                player.tier
+                            )
+
+                        ],
+
+                        modos:
+                            new Set([
+                                player.modo
+                            ])
+
+                    })
+                );
+
+
+        /*
+           Calcular posições somente
+           entre jogadores da mesma tier.
+        */
+
+        calcularPosicoesPorTier(
+            rankingModo,
+            filtroModo
+        );
+
+
+        /*
+           Ordenação principal:
+
+           1. Tier
+           2. Posição dentro da tier
+
+           A posição NÃO permite
+           ultrapassar outra tier.
+        */
+
+        rankingModo.sort(
+            (a, b) => {
+
+                const tierA =
+                    ORDEM_TIER[
+                        normalizarTier(
+                            a.tier
+                        )
+                    ] || 999;
+
+
+                const tierB =
+                    ORDEM_TIER[
+                        normalizarTier(
+                            b.tier
+                        )
+                    ] || 999;
+
+
+                if (
+                    tierA !==
+                    tierB
+                ) {
+
+                    return (
+                        tierA -
+                        tierB
+                    );
+
+                }
+
+
+                return (
+
+                    (
+                        a.posicaoTier ||
+                        999999
+                    )
+
+                    -
+
+                    (
+                        b.posicaoTier ||
+                        999999
+                    )
+
+                );
+
+            }
+        );
+
+
+        /*
+           Pontuação do modo:
+
+           Pontos da tier
+           +
+           bônus de posição.
+
+           SEM bônus de especialista
+           e SEM multiplicador.
+        */
+
+        rankingModo.forEach(
+            player => {
+
+                player.score =
+
+                    getPoints(
+                        player.tier
+                    )
+
+                    +
+
+                    (
+                        player.bonusPosicao ||
+                        0
+                    );
+
+            }
+        );
+
+
+        return rankingModo;
+
+    }
+
+
+    /* =====================================
+       RANKING GLOBAL
+    ===================================== */
 
     const mapa = {};
 
 
-    players.forEach(p => {
+    lista.forEach(
+        p => {
 
-        if (
-            !p.nome ||
-            !p.modo ||
-            !p.tier
-        ) {
+            if (
+                !p.nome ||
+                !p.modo ||
+                !p.tier
+            ) {
 
-            return;
+                return;
+
+            }
+
+
+            /*
+               Criar player.
+            */
+
+            if (
+                !mapa[p.nome]
+            ) {
+
+                mapa[p.nome] = {
+
+                    nome:
+                        p.nome,
+
+                    dispositivo:
+                        p.dispositivo ||
+                        "mobile",
+
+                    avatarUrl:
+                        p.avatarUrl ||
+                        "",
+
+                    tiers: [],
+
+                    modos:
+                        new Set(),
+
+                    modoTiers: {},
+
+                    pontos: 0
+
+                };
+
+            }
+
+
+            const player =
+                mapa[p.nome];
+
+
+            /*
+               Avatar.
+            */
+
+            if (
+                p.avatarUrl
+            ) {
+
+                player.avatarUrl =
+                    p.avatarUrl;
+
+            }
+
+
+            /*
+               Não duplicar o mesmo
+               modo do mesmo jogador.
+            */
+
+            if (
+                player.modoTiers[
+                    p.modo
+                ]
+            ) {
+
+                return;
+
+            }
+
+
+            const tier =
+                normalizarTier(
+                    p.tier
+                );
+
+
+            player.modoTiers[
+                p.modo
+            ] =
+                tier;
+
+
+            player.modos.add(
+                p.modo
+            );
+
+
+            player.tiers.push(
+                tier
+            );
+
+
+            player.pontos +=
+                getPoints(
+                    tier
+                );
 
         }
-
-
-        /* ================================
-           CRIAR PLAYER
-        ================================= */
-
-        if (!mapa[p.nome]) {
-
-            mapa[p.nome] = {
-
-                nome: p.nome,
-
-                dispositivo:
-                    p.dispositivo ||
-                    "mobile",
-
-                /*
-                Guarda o avatar personalizado.
-                */
-
-                avatar:
-                    p.avatar ||
-                    null,
-
-                tiers: [],
-
-                modos: new Set(),
-
-                modoTiers: {},
-
-                pontos: 0
-
-            };
-
-        }
-
-
-        const player =
-            mapa[p.nome];
-
-
-        /* ================================
-           ATUALIZAR AVATAR
-        ================================= */
-
-        if (p.avatar) {
-
-            player.avatar =
-                p.avatar;
-
-        }
-
-
-        /* ================================
-           EVITAR DUPLICAR MODO
-        ================================= */
-
-        if (
-            player.modoTiers[p.modo]
-        ) {
-
-            return;
-
-        }
-
-
-        /* ================================
-           SALVAR MODO + TIER
-        ================================= */
-
-        player.modoTiers[p.modo] =
-            p.tier;
-
-
-        /* ================================
-           ADICIONAR MODO
-        ================================= */
-
-        player.modos.add(
-            p.modo
-        );
-
-
-        /* ================================
-           ADICIONAR TIER
-        ================================= */
-
-        player.tiers.push(
-            p.tier
-        );
-
-
-        /* ================================
-           ADICIONAR PONTOS
-        ================================= */
-
-        player.pontos +=
-            getPoints(p.tier);
-
-    });
+    );
 
 
     const ranking =
-        Object.values(mapa);
+        Object.values(
+            mapa
+        );
 
 
-    /* =====================================
-       CALCULAR SCORE
-    ===================================== */
+    /*
+       Calcular score global.
 
-    ranking.forEach(player => {
+       IMPORTANTE:
 
-        const bonusEspecialista =
-            getEspecialistaBonus(
-                player.tiers
-            );
+       Pontos = sistema antigo.
 
+       Bônus especialista = SIM.
 
-        const multiplier =
-            getDiminishingMultiplier(
-                player.modos.size
-            );
+       Multiplicador por quantidade
+       de modos = SIM.
 
+       Bônus de posição = NÃO.
+    */
 
-        player.score =
+    ranking.forEach(
+        player => {
 
-            (
-                player.pontos +
-                bonusEspecialista
-            )
-
-            *
-
-            multiplier;
-
-    });
+            const bonusEspecialista =
+                getEspecialistaBonus(
+                    player.tiers
+                );
 
 
-    /* =====================================
-       ORDENAR
-    ===================================== */
+            const multiplier =
+                getDiminishingMultiplier(
+                    player.modos.size
+                );
+
+
+            player.score =
+
+                (
+                    player.pontos +
+                    bonusEspecialista
+                )
+
+                *
+
+                multiplier;
+
+        }
+    );
+
+
+    /*
+       Ordenar Global somente
+       pelo score.
+    */
 
     ranking.sort(
-        (a, b) =>
-            b.score -
-            a.score
+        (a, b) => {
+
+            const diferenca =
+                b.score -
+                a.score;
+
+
+            if (
+                diferenca !== 0
+            ) {
+
+                return diferenca;
+
+            }
+
+
+            /*
+               Desempate:
+
+               Mais modos primeiro.
+            */
+
+            return (
+                b.modos.size -
+                a.modos.size
+            );
+
+        }
     );
 
 
@@ -519,11 +1200,121 @@ function calcularRanking(players) {
 }
 
 
+
+
+
+/* =========================================
+   FILTROS
+========================================= */
+
+function aplicarFiltros() {
+
+    let filtrados =
+        [...players];
+
+
+    /*
+       PESQUISA
+    */
+
+    if (
+        filtroBusca
+    ) {
+
+        filtrados =
+            filtrados.filter(
+                player => {
+
+                    const nome =
+                        player.nome ||
+                        "";
+
+
+                    return nome
+                        .toLowerCase()
+                        .includes(
+                            filtroBusca
+                                .toLowerCase()
+                        );
+
+                }
+            );
+
+    }
+
+
+/*
+       DISPOSITIVO
+    */
+
+    if (
+        filtroDispositivo !==
+        "todos"
+    ) {
+
+        filtrados =
+            filtrados.filter(
+                player =>
+
+                    player.dispositivo ===
+                    filtroDispositivo
+
+            );
+
+    }
+
+
+    /*
+       MODO
+    */
+
+    if (
+        filtroModo !==
+        "overall"
+    ) {
+
+        filtrados =
+            filtrados.filter(
+                player =>
+
+                    player.modo ===
+                    filtroModo
+
+            );
+
+    }
+
+
+    const ranking =
+        calcularRanking(
+            filtrados
+        );
+
+
+    atualizarStats(
+        ranking
+    );
+
+
+    renderTop3(
+        ranking
+    );
+
+
+    renderRankingList(
+        ranking
+    );
+
+}
+
+
 /* =========================================
    TOP 3
 ========================================= */
 
-function renderTop3(ranking) {
+function renderTop3(
+    ranking
+) {
 
     const container =
         document.getElementById(
@@ -536,13 +1327,15 @@ function renderTop3(ranking) {
         return;
 
 
-    container.innerHTML = "";
+    container.innerHTML =
+        "";
 
 
-    if (ranking.length === 0) {
+    if (
+        ranking.length === 0
+    ) {
 
         container.innerHTML =
-
             "<p>Nenhum player encontrado.</p>";
 
         return;
@@ -551,12 +1344,14 @@ function renderTop3(ranking) {
 
 
     const top3 =
-        ranking.slice(0, 3);
+        ranking.slice(
+            0,
+            3
+        );
 
 
     top3.forEach(
         (player, index) => {
-
 
             const medalha =
 
@@ -570,7 +1365,6 @@ function renderTop3(ranking) {
 
 
             const avatar =
-
                 getPlayerAvatar(
                     player,
                     120
@@ -594,7 +1388,9 @@ function renderTop3(ranking) {
 
             container.innerHTML += `
 
-                <div class="top-card place-${index + 1}">
+                <div
+                    class="top-card place-${index + 1}"
+                >
 
                     <div class="top-medal">
 
@@ -604,15 +1400,16 @@ function renderTop3(ranking) {
 
 
                     <img
-
                         src="${avatar}"
-
                         class="top-avatar"
-
                         alt="${player.nome}"
 
-                        onerror="this.onerror=null;this.src='https://minotar.net/avatar/${encodeURIComponent(player.nome)}/120';"
-
+                        onerror="
+                            this.onerror=null;
+                            this.src='https://minotar.net/avatar/${encodeURIComponent(
+                                player.nome
+                            )}/120';
+                        "
                     >
 
 
@@ -632,7 +1429,11 @@ function renderTop3(ranking) {
 
                     <span>
 
-                        ${Math.floor(player.score)} pts
+                        ${Math.floor(
+                            player.score
+                        )}
+
+                        pts
 
                     </span>
 
@@ -641,7 +1442,6 @@ function renderTop3(ranking) {
             `;
 
         }
-
     );
 
 }
@@ -651,7 +1451,9 @@ function renderTop3(ranking) {
    RANKING COMPLETO
 ========================================= */
 
-function renderRankingList(ranking) {
+function renderRankingList(
+    ranking
+) {
 
     const container =
         document.getElementById(
@@ -664,19 +1466,18 @@ function renderRankingList(ranking) {
         return;
 
 
-    container.innerHTML = "";
+    container.innerHTML =
+        "";
 
 
     ranking.forEach(
         (player, index) => {
-
 
             const position =
                 index + 1;
 
 
             const avatar =
-
                 getPlayerAvatar(
                     player,
                     100
@@ -705,13 +1506,16 @@ function renderRankingList(ranking) {
 
 
             card.className =
-
                 `ranking-card rank-${position}`;
 
 
             card.style.cursor =
                 "pointer";
 
+
+            /*
+               Abrir modal.
+            */
 
             card.addEventListener(
                 "click",
@@ -725,6 +1529,76 @@ function renderRankingList(ranking) {
             );
 
 
+            /*
+               =================================
+               BOTÃO DE EDITAR POSIÇÃO
+               =================================
+            */
+
+            let editarHTML = "";
+
+
+            /*
+               O lápis aparece SOMENTE:
+
+               - modo específico
+               - usuário Tester/Staff
+               - mais de um jogador na mesma tier
+            */
+
+            if (
+                filtroModo !== "overall" &&
+                podeEditarPosicoes &&
+                player.temPosicaoEditavel === true
+            ) {
+
+                editarHTML = `
+
+                    <button
+                        type="button"
+                        class="position-edit-btn"
+                        title="Editar posição dentro da tier"
+                        aria-label="Editar posição de ${player.nome}"
+                    >
+
+                        <i class="ri-pencil-line"></i>
+
+                    </button>
+
+                `;
+
+            }
+
+
+            /*
+               =================================
+               BÔNUS DE POSIÇÃO
+               =================================
+            */
+
+            let bonusHTML = "";
+
+
+            if (
+                filtroModo !== "overall" &&
+                player.bonusPosicao > 0
+            ) {
+
+                bonusHTML = `
+
+                    <span
+                        class="tier-position-bonus"
+                    >
+
+                        +${player.bonusPosicao}
+
+                    </span>
+
+                `;
+
+            }
+
+
             card.innerHTML = `
 
                 <div class="ranking-position">
@@ -735,15 +1609,16 @@ function renderRankingList(ranking) {
 
 
                 <img
-
                     src="${avatar}"
-
                     class="ranking-avatar"
-
                     alt="${player.nome}"
 
-                    onerror="this.onerror=null;this.src='https://minotar.net/avatar/${encodeURIComponent(player.nome)}/100';"
-
+                    onerror="
+                        this.onerror=null;
+                        this.src='https://minotar.net/avatar/${encodeURIComponent(
+                            player.nome
+                        )}/100';
+                    "
                 >
 
 
@@ -771,18 +1646,35 @@ function renderRankingList(ranking) {
 
                     <div class="ranking-modes">
 
-                        ${player.modos.size}
-                        modos
+                        ${
+                            filtroModo === "overall"
+
+                                ? `${player.modos.size} modos`
+
+                                : `${formatTier(
+                                    player.tier
+                                )}`
+
+                        }
 
                     </div>
 
                 </div>
 
 
-                <div class="ranking-tier tier-${player.tiers[0]}">
+                <div
+                    class="
+                        ranking-tier
+                        tier-${normalizarTier(
+                            player.tier ||
+                            player.tiers?.[0]
+                        )}
+                    "
+                >
 
                     ${formatTier(
-                        player.tiers[0]
+                        player.tier ||
+                        player.tiers?.[0]
                     )}
 
                 </div>
@@ -796,9 +1688,51 @@ function renderRankingList(ranking) {
 
                     pts
 
+                    ${bonusHTML}
+
                 </div>
 
+
+                ${editarHTML}
+
             `;
+
+
+            /*
+               =================================
+               EVENTO DO LÁPIS
+               =================================
+            */
+
+            const editButton =
+                card.querySelector(
+                    ".position-edit-btn"
+                );
+
+
+            if (
+                editButton
+            ) {
+
+                editButton.addEventListener(
+                    "click",
+                    event => {
+
+                        /*
+                           Impede abrir o modal.
+                        */
+
+                        event.stopPropagation();
+
+
+                        editarPosicao(
+                            player.id
+                        );
+
+                    }
+                );
+
+            }
 
 
             container.appendChild(
@@ -806,10 +1740,504 @@ function renderRankingList(ranking) {
             );
 
         }
-
     );
 
 }
+
+
+/* =========================================
+   EDITAR POSIÇÃO
+========================================= */
+
+async function editarPosicao(
+    id
+) {
+
+    /*
+       Verificar permissão.
+    */
+
+    if (
+        !podeEditarPosicoes
+    ) {
+
+        alert(
+            "Você não tem permissão para editar posições."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Nunca permitir no Global.
+    */
+
+    if (
+        filtroModo ===
+        "overall"
+    ) {
+
+        alert(
+            "As posições só podem ser editadas nos modos específicos."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Encontrar player.
+    */
+
+    const player =
+        players.find(
+            p =>
+                p.id === id
+        );
+
+
+    if (!player) {
+
+        alert(
+            "Player não encontrado."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Encontrar todos os jogadores
+       da mesma tier no mesmo modo.
+    */
+
+    const mesmaTier =
+        players.filter(
+            p =>
+
+                p.modo ===
+                player.modo
+
+                &&
+
+                normalizarTier(
+                    p.tier
+                ) ===
+                normalizarTier(
+                    player.tier
+                )
+        );
+
+
+    /*
+       Se houver somente um,
+       não existe posição editável.
+    */
+
+    if (
+        mesmaTier.length <= 1
+    ) {
+
+        alert(
+            "Esse player é o único dessa tier neste modo. A posição não pode ser editada."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Descobrir posição atual.
+    */
+
+    const posicaoAtualSalva =
+        getPosicaoSalva(
+            player,
+            player.modo
+        );
+
+
+    /*
+       Se ainda não houver posição,
+       descobrir pela ordem atual.
+    */
+
+    let posicaoAtual =
+        posicaoAtualSalva;
+
+
+    if (
+        posicaoAtual === null
+    ) {
+
+        const ordenadosInicial =
+            [...mesmaTier].sort(
+                (a, b) => {
+
+                    const posA =
+                        getPosicaoSalva(
+                            a,
+                            player.modo
+                        );
+
+
+                    const posB =
+                        getPosicaoSalva(
+                            b,
+                            player.modo
+                        );
+
+
+                    const valorA =
+                        posA === null
+                            ? 999999
+                            : posA;
+
+
+                    const valorB =
+                        posB === null
+                            ? 999999
+                            : posB;
+
+
+                    if (
+                        valorA !==
+                        valorB
+                    ) {
+
+                        return (
+                            valorA -
+                            valorB
+                        );
+
+                    }
+
+
+                    return (
+                        a.nome || ""
+                    ).localeCompare(
+                        b.nome || ""
+                    );
+
+                }
+            );
+
+
+        posicaoAtual =
+            ordenadosInicial
+                .findIndex(
+                    p =>
+                        p.id === id
+                ) + 1;
+
+    }
+
+
+    /*
+       Perguntar nova posição.
+    */
+
+    const novaPosicao =
+        prompt(
+
+            `Posição de ${player.nome} dentro da tier ${formatTier(
+                player.tier
+            )} no modo ${player.modo}:
+
+Digite uma posição de 1 até ${mesmaTier.length}.`,
+
+            posicaoAtual
+
+        );
+
+
+    if (
+        novaPosicao === null
+    ) {
+
+        return;
+
+    }
+
+
+    const numero =
+        Number(
+            novaPosicao
+        );
+
+
+    /*
+       Validar número.
+    */
+
+    if (
+        !Number.isInteger(
+            numero
+        )
+    ) {
+
+        alert(
+            "Digite um número inteiro."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        numero < 1 ||
+        numero > mesmaTier.length
+    ) {
+
+        alert(
+            `A posição deve estar entre 1 e ${mesmaTier.length}.`
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Organizar jogadores
+       pela posição atual.
+    */
+
+    try {
+
+        const ordenados =
+            [...mesmaTier].sort(
+                (a, b) => {
+
+                    const posA =
+                        getPosicaoSalva(
+                            a,
+                            player.modo
+                        );
+
+
+                    const posB =
+                        getPosicaoSalva(
+                            b,
+                            player.modo
+                        );
+
+
+                    const valorA =
+                        posA === null
+                            ? 999999
+                            : posA;
+
+
+                    const valorB =
+                        posB === null
+                            ? 999999
+                            : posB;
+
+
+                    if (
+                        valorA !==
+                        valorB
+                    ) {
+
+                        return (
+                            valorA -
+                            valorB
+                        );
+
+                    }
+
+
+                    return (
+                        a.nome || ""
+                    ).localeCompare(
+                        b.nome || ""
+                    );
+
+                }
+            );
+
+
+        /*
+           Encontrar jogador.
+        */
+
+        const jogadorIndex =
+            ordenados.findIndex(
+                p =>
+                    p.id === id
+            );
+
+
+        if (
+            jogadorIndex === -1
+        ) {
+
+            alert(
+                "Não foi possível encontrar o jogador."
+            );
+
+            return;
+
+        }
+
+
+        /*
+           Remover jogador da posição atual.
+        */
+
+        const jogador =
+            ordenados.splice(
+                jogadorIndex,
+                1
+            )[0];
+
+
+        /*
+           Colocar na nova posição.
+        */
+
+        ordenados.splice(
+            numero - 1,
+            0,
+            jogador
+        );
+
+
+        /*
+           Atualizar todos da mesma tier.
+
+           Usa o formato:
+
+           posicoes: {
+               BedFight: 1
+           }
+
+           Assim não apaga posições
+           de outros modos.
+        */
+
+        const atualizacoes =
+            ordenados.map(
+                async (
+                    p,
+                    index
+                ) => {
+
+                    const posicoesAtuais =
+
+                        p.posicoes &&
+                        typeof p.posicoes === "object"
+
+                            ? {
+                                ...p.posicoes
+                            }
+
+                            : {};
+
+
+                    posicoesAtuais[
+                        player.modo
+                    ] =
+                        index + 1;
+
+
+                    await updateDoc(
+
+                        doc(
+                            db,
+                            "players",
+                            p.id
+                        ),
+
+                        {
+                            posicoes:
+                                posicoesAtuais
+                        }
+
+                    );
+
+                }
+            );
+
+
+        await Promise.all(
+            atualizacoes
+        );
+
+
+        /*
+           Atualizar também o
+           sistema antigo "posicao"
+           para compatibilidade.
+        */
+
+        const atualizacoesCompatibilidade =
+            ordenados.map(
+                async (
+                    p,
+                    index
+                ) => {
+
+                    await updateDoc(
+
+                        doc(
+                            db,
+                            "players",
+                            p.id
+                        ),
+
+                        {
+                            posicao:
+                                index + 1
+                        }
+
+                    );
+
+                }
+            );
+
+
+        await Promise.all(
+            atualizacoesCompatibilidade
+        );
+
+
+        alert(
+            "Posições atualizadas com sucesso!"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao atualizar posição:",
+            error
+        );
+
+
+        alert(
+            "Erro ao atualizar posição. Verifique o console."
+        );
+
+    }
+
+}
+
+
+/*
+   Disponibilizar função globalmente
+   caso outro código precise chamar.
+*/
+
+window.editarPosicao =
+    editarPosicao;
 
 
 /* =========================================
@@ -817,13 +2245,14 @@ function renderRankingList(ranking) {
 ========================================= */
 
 const searchInput =
-
     document.querySelector(
         ".search-box input"
     );
 
 
-if (searchInput) {
+if (
+    searchInput
+) {
 
     searchInput.addEventListener(
         "input",
@@ -846,13 +2275,14 @@ if (searchInput) {
 ========================================= */
 
 const deviceFilter =
-
     document.getElementById(
         "device-filter"
     );
 
 
-if (deviceFilter) {
+if (
+    deviceFilter
+) {
 
     deviceFilter.addEventListener(
         "change",
@@ -875,13 +2305,14 @@ if (deviceFilter) {
 ========================================= */
 
 const modeFilter =
-
     document.getElementById(
         "mode-filter"
     );
 
 
-if (modeFilter) {
+if (
+    modeFilter
+) {
 
     modeFilter.addEventListener(
         "change",
@@ -899,46 +2330,46 @@ if (modeFilter) {
 }
 
 
+
+
+
 /* =========================================
    ESTATÍSTICAS
 ========================================= */
 
-function atualizarStats(ranking) {
+function atualizarStats(
+    ranking
+) {
 
     const totalPlayers =
-
         document.getElementById(
             "total-players"
         );
 
 
     const mobileCount =
-
         document.getElementById(
             "mobile-count"
         );
 
 
     const pcCount =
-
         document.getElementById(
             "pc-count"
         );
 
 
     const controllerCount =
-
         document.getElementById(
             "controller-count"
         );
 
 
-    /* =====================================
+    /*
        TOTAL
-    ===================================== */
+    */
 
     const nomes =
-
         new Set(
 
             ranking.map(
@@ -949,7 +2380,9 @@ function atualizarStats(ranking) {
         );
 
 
-    if (totalPlayers) {
+    if (
+        totalPlayers
+    ) {
 
         totalPlayers.textContent =
             nomes.size;
@@ -957,16 +2390,17 @@ function atualizarStats(ranking) {
     }
 
 
-    /* =====================================
+    /*
        MOBILE
-    ===================================== */
+    */
 
-    if (mobileCount) {
+    if (
+        mobileCount
+    ) {
 
         mobileCount.textContent =
 
             ranking.filter(
-
                 player =>
 
                     player.dispositivo ===
@@ -977,16 +2411,17 @@ function atualizarStats(ranking) {
     }
 
 
-    /* =====================================
+    /*
        PC
-    ===================================== */
+    */
 
-    if (pcCount) {
+    if (
+        pcCount
+    ) {
 
         pcCount.textContent =
 
             ranking.filter(
-
                 player =>
 
                     player.dispositivo ===
@@ -997,16 +2432,17 @@ function atualizarStats(ranking) {
     }
 
 
-    /* =====================================
+    /*
        CONTROLLER
-    ===================================== */
+    */
 
-    if (controllerCount) {
+    if (
+        controllerCount
+    ) {
 
         controllerCount.textContent =
 
             ranking.filter(
-
                 player =>
 
                     player.dispositivo ===
@@ -1023,17 +2459,17 @@ function atualizarStats(ranking) {
    MODAL
 ========================================= */
 
-function abrirPlayerModal(player) {
+function abrirPlayerModal(
+    player
+) {
 
     const modal =
-
         document.getElementById(
             "player-modal"
         );
 
 
     const body =
-
         document.getElementById(
             "player-modal-body"
         );
@@ -1047,21 +2483,20 @@ function abrirPlayerModal(player) {
         return;
 
 
-    /* =====================================
-       AVATAR
-    ===================================== */
+    /*
+       Avatar
+    */
 
     const avatar =
-
         getPlayerAvatar(
             player,
             150
         );
 
 
-    /* =====================================
-       ÍCONE
-    ===================================== */
+    /*
+       Ícone
+    */
 
     const deviceIcon =
 
@@ -1078,11 +2513,12 @@ function abrirPlayerModal(player) {
             : '<i class="ri-gamepad-line"></i>';
 
 
-    /* =====================================
-       TIERS POR MODO
-    ===================================== */
+    /*
+       Tiers por modo
+    */
 
-    let modosHTML = "";
+    let modosHTML =
+        "";
 
 
     if (
@@ -1095,7 +2531,6 @@ function abrirPlayerModal(player) {
 
     ) {
 
-
         modosHTML =
 
             Object.entries(
@@ -1107,16 +2542,27 @@ function abrirPlayerModal(player) {
 
                     return `
 
-                        <div class="player-mode-row">
+                        <div
+                            class="player-mode-row"
+                        >
 
-                            <span class="mode-name">
+                            <span
+                                class="mode-name"
+                            >
 
                                 ${modo}
 
                             </span>
 
 
-                            <span class="player-tier tier-${tier}">
+                            <span
+                                class="
+                                    player-tier
+                                    tier-${normalizarTier(
+                                        tier
+                                    )}
+                                "
+                            >
 
                                 ${formatTier(
                                     tier
@@ -1138,7 +2584,6 @@ function abrirPlayerModal(player) {
 
     else {
 
-
         modosHTML = `
 
             <p class="no-modes">
@@ -1152,13 +2597,57 @@ function abrirPlayerModal(player) {
     }
 
 
-    /* =====================================
-       MODAL HTML
-    ===================================== */
+    /*
+       Posição dentro da tier
+       somente em modo específico.
+    */
+
+    let posicaoHTML =
+        "";
+
+
+    if (
+        filtroModo !==
+        "overall" &&
+
+        player.posicaoTier
+    ) {
+
+        posicaoHTML = `
+
+            <div
+                class="modal-tier-position"
+            >
+
+                <span>
+
+                    Posição na tier
+
+                </span>
+
+
+                <strong>
+
+                    #${player.posicaoTier}
+
+                </strong>
+
+            </div>
+
+        `;
+
+    }
+
+
+    /*
+       Modal
+    */
 
     body.innerHTML = `
 
-        <div class="modal-player-header">
+        <div
+            class="modal-player-header"
+        >
 
             <img
 
@@ -1168,12 +2657,19 @@ function abrirPlayerModal(player) {
 
                 alt="${player.nome}"
 
-                onerror="this.onerror=null;this.src='https://minotar.net/avatar/${encodeURIComponent(player.nome)}/150';"
+                onerror="
+                    this.onerror=null;
+                    this.src='https://minotar.net/avatar/${encodeURIComponent(
+                        player.nome
+                    )}/150';
+                "
 
             >
 
 
-            <div class="modal-player-info">
+            <div
+                class="modal-player-info"
+            >
 
                 <h2>
 
@@ -1182,7 +2678,9 @@ function abrirPlayerModal(player) {
                 </h2>
 
 
-                <div class="modal-player-device">
+                <div
+                    class="modal-player-device"
+                >
 
                     ${deviceIcon}
 
@@ -1199,11 +2697,13 @@ function abrirPlayerModal(player) {
         </div>
 
 
-        <div class="modal-player-score">
+        <div
+            class="modal-player-score"
+        >
 
             <span>
 
-                Pontuação Global
+                Pontuação
 
             </span>
 
@@ -1221,7 +2721,12 @@ function abrirPlayerModal(player) {
         </div>
 
 
-        <div class="modal-modes">
+        ${posicaoHTML}
+
+
+        <div
+            class="modal-modes"
+        >
 
             <h3>
 
@@ -1230,7 +2735,9 @@ function abrirPlayerModal(player) {
             </h3>
 
 
-            <div class="player-modes-list">
+            <div
+                class="player-modes-list"
+            >
 
                 ${modosHTML}
 
@@ -1260,13 +2767,14 @@ function abrirPlayerModal(player) {
 function fecharPlayerModal() {
 
     const modal =
-
         document.getElementById(
             "player-modal"
         );
 
 
-    if (!modal)
+    if (
+        !modal
+    )
 
         return;
 
@@ -1283,34 +2791,27 @@ function fecharPlayerModal() {
 }
 
 
-/* =========================================
-   DISPONIBILIZAR PARA HTML
-========================================= */
-
 window.fecharPlayerModal =
-
     fecharPlayerModal;
 
 
 /* =========================================
-   BOTÃO FECHAR
+   BOTÃO FECHAR MODAL
 ========================================= */
 
 const closeModalButton =
-
     document.querySelector(
         ".modal-close"
     );
 
 
-if (closeModalButton) {
+if (
+    closeModalButton
+) {
 
     closeModalButton.addEventListener(
-
         "click",
-
         fecharPlayerModal
-
     );
 
 }
@@ -1321,33 +2822,29 @@ if (closeModalButton) {
 ========================================= */
 
 const modalOverlay =
-
     document.querySelector(
         ".player-modal-overlay"
     );
 
 
-if (modalOverlay) {
+if (
+    modalOverlay
+) {
 
     modalOverlay.addEventListener(
-
         "click",
-
         fecharPlayerModal
-
     );
 
 }
 
 
 /* =========================================
-   ESC FECHA MODAL
+   ESC
 ========================================= */
 
 document.addEventListener(
-
     "keydown",
-
     event => {
 
         if (
@@ -1360,5 +2857,23 @@ document.addEventListener(
         }
 
     }
+);
 
+
+/* =========================================
+   DEBUG
+========================================= */
+
+console.log(
+    "🔥 BMC Leaderboard V3 iniciado."
+);
+
+console.log(
+    "👤 Usuário:",
+    usuarioAtual
+);
+
+console.log(
+    "✏️ Pode editar posições:",
+    podeEditarPosicoes
 );
