@@ -1844,3 +1844,134 @@
     }
 
 }
+
+/* =========================================
+   ANIMAÇÃO DOS CARDS
+========================================= */
+
+.ranking-card,
+.top-card,
+.stat-card {
+    animation: leaderboardFadeScale 0.55s ease both;
+}
+
+
+/* =========================================
+   FADE + LEVE SCALE
+========================================= */
+
+@keyframes leaderboardFadeScale {
+
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+}
+
+
+/* =========================================
+   DELAY DOS CARDS
+========================================= */
+
+.ranking-card:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.ranking-card:nth-child(2) {
+    animation-delay: 0.10s;
+}
+
+.ranking-card:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.ranking-card:nth-child(4) {
+    animation-delay: 0.20s;
+}
+
+.ranking-card:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.ranking-card:nth-child(6) {
+    animation-delay: 0.30s;
+}
+
+.ranking-card:nth-child(7) {
+    animation-delay: 0.35s;
+}
+
+.ranking-card:nth-child(8) {
+    animation-delay: 0.40s;
+}
+
+.ranking-card:nth-child(9) {
+    animation-delay: 0.45s;
+}
+
+.ranking-card:nth-child(10) {
+    animation-delay: 0.50s;
+}
+
+
+/* =========================================
+   TOP 3
+========================================= */
+
+.top-card:nth-child(1) {
+    animation-delay: 0.10s;
+}
+
+.top-card:nth-child(2) {
+    animation-delay: 0.20s;
+}
+
+.top-card:nth-child(3) {
+    animation-delay: 0.30s;
+}
+
+
+/* =========================================
+   STATS
+========================================= */
+
+.stat-card:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.stat-card:nth-child(2) {
+    animation-delay: 0.10s;
+}
+
+.stat-card:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.stat-card:nth-child(4) {
+    animation-delay: 0.20s;
+}
+
+.stat-card:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+
+/* =========================================
+   ACESSIBILIDADE
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .ranking-card,
+    .top-card,
+    .stat-card {
+        animation: none;
+    }
+
+}
