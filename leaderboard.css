@@ -1975,3 +1975,141 @@
     }
 
 }
+
+/* =========================================
+   ANIMAÇÃO DOS TEXTOS E NÚMEROS
+========================================= */
+
+.section-title,
+.leaderboard-hero h1,
+.leaderboard-hero p,
+.leaderboard-hero .badge,
+.stat-card h2,
+.stat-card span,
+.ranking-name,
+.ranking-device,
+.ranking-modes,
+.ranking-tier,
+.ranking-points,
+.top-card h2,
+.top-card p,
+.top-card span {
+    animation: textFadeScale 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+
+@keyframes textFadeScale {
+
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+}
+
+
+/* =========================================
+   DELAY DOS TEXTOS
+========================================= */
+
+.leaderboard-hero .badge {
+    animation-delay: 0.05s;
+}
+
+.leaderboard-hero h1 {
+    animation-delay: 0.12s;
+}
+
+.leaderboard-hero p {
+    animation-delay: 0.19s;
+}
+
+.section-title {
+    animation-delay: 0.10s;
+}
+
+
+/* =========================================
+   NÚMEROS DAS ESTATÍSTICAS
+========================================= */
+
+.stat-card h2 {
+    animation-delay: 0.15s;
+}
+
+.stat-card span {
+    animation-delay: 0.22s;
+}
+
+
+/* =========================================
+   CONTEÚDO DOS PLAYERS
+========================================= */
+
+.ranking-name {
+    animation-delay: 0.15s;
+}
+
+.ranking-device {
+    animation-delay: 0.20s;
+}
+
+.ranking-modes {
+    animation-delay: 0.25s;
+}
+
+.ranking-tier {
+    animation-delay: 0.20s;
+}
+
+.ranking-points {
+    animation-delay: 0.25s;
+}
+
+
+/* =========================================
+   TOP 3
+========================================= */
+
+.top-card h2 {
+    animation-delay: 0.20s;
+}
+
+.top-card p {
+    animation-delay: 0.25s;
+}
+
+.top-card span {
+    animation-delay: 0.30s;
+}
+
+
+/* =========================================
+   REDUZIR ANIMAÇÕES SE NECESSÁRIO
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .section-title,
+    .leaderboard-hero h1,
+    .leaderboard-hero p,
+    .leaderboard-hero .badge,
+    .stat-card h2,
+    .stat-card span,
+    .ranking-name,
+    .ranking-device,
+    .ranking-modes,
+    .ranking-tier,
+    .ranking-points,
+    .top-card h2,
+    .top-card p,
+    .top-card span {
+        animation: none;
+    }
+
+}
