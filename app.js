@@ -17,6 +17,7 @@ import {
     getFirestore,
     collection,
     addDoc,
+    getDocs,
     onSnapshot,
     doc,
     updateDoc,
@@ -395,6 +396,12 @@ window.addPlayer = async function(){
     const posicaoInput =
         document.getElementById("posicao");
 
+    const statusInput =
+        document.getElementById("status");
+
+    const tagInput =
+        document.getElementById("discordTag");
+
 
     if(!nomeInput ||
        !dispositivoInput ||
@@ -426,6 +433,16 @@ window.addPlayer = async function(){
         posicaoInput
             ? posicaoInput.value
             : "";
+
+    const status =
+        statusInput
+            ? statusInput.value
+            : "active";
+
+    const discordTag =
+        tagInput
+            ? tagInput.value
+            : "none";
 
 
     if(!nome){
@@ -491,6 +508,10 @@ window.addPlayer = async function(){
 
                     avatarUrl: "",
 
+                    status: status,
+
+                    discordTag: discordTag,
+
                     criadoEm:
                         new Date()
 
@@ -539,6 +560,18 @@ window.addPlayer = async function(){
             );
 
         }
+
+        // =====================================
+        // 4️⃣ SINCRONIZAR STATUS/TAG DO PLAYER
+        // =====================================
+
+        await sincronizarDadosDoPlayer(
+            nome,
+            {
+                status: status,
+                discordTag: discordTag
+            }
+        );
 
 
         alert(
@@ -612,6 +645,128 @@ function limparFormulario(){
     }
 
 }
+
+
+// =========================================
+// 🔄 SINCRONIZAR DADOS DO PLAYER
+// =========================================
+
+async function sincronizarDadosDoPlayer(nome, dados){
+
+    const snapshot =
+        await getDocs(
+            collection(db, "players")
+        );
+
+    const atualizacoes = [];
+
+    snapshot.docs.forEach(snapshotDoc => {
+
+        const player = snapshotDoc.data();
+
+        if(
+            player.nome &&
+            player.nome.toLowerCase() === nome.toLowerCase()
+        ){
+
+            atualizacoes.push(
+                updateDoc(
+                    doc(db, "players", snapshotDoc.id),
+                    dados
+                )
+            );
+
+        }
+
+    });
+
+    await Promise.all(atualizacoes);
+}
+
+
+// =========================================
+// 🏷️ FORMATAR TAG DISCORD
+// =========================================
+
+function formatDiscordTag(tag){
+
+    const nomes = {
+        member: "Member",
+        tester: "Tester",
+        media: "Media",
+        famous: "Famous",
+        mod: "Mod",
+        admin: "Admin",
+        owner: "Owner"
+    };
+
+    return nomes[tag] || tag;
+}
+
+
+// =========================================
+// 🎨 ESTILOS DAS TAGS DO STAFF
+// =========================================
+
+function garantirEstilosMetaStaff(){
+
+    if(document.getElementById("bmc-staff-meta-styles"))
+        return;
+
+    const style = document.createElement("style");
+
+    style.id = "bmc-staff-meta-styles";
+
+    style.textContent = `
+        .player-meta-tags {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:6px;
+            flex-wrap:wrap;
+            margin-top:10px;
+        }
+
+        .player-status,
+        .player-discord-tag {
+            display:inline-flex;
+            align-items:center;
+            padding:4px 8px;
+            border-radius:999px;
+            font-size:10px;
+            font-weight:700;
+            line-height:1;
+        }
+
+        .player-status.active {
+            color:#22c55e;
+            background:rgba(34,197,94,.12);
+        }
+
+        .player-status.inactive {
+            color:#9ca3af;
+            background:rgba(156,163,175,.12);
+        }
+
+        .player-discord-tag {
+            color:#d1d5db;
+            background:rgba(255,255,255,.07);
+        }
+
+        .player-discord-tag.tag-admin { color:#ef4444; background:rgba(239,68,68,.12); }
+        .player-discord-tag.tag-owner { color:#facc15; background:rgba(250,204,21,.12); }
+        .player-discord-tag.tag-tester { color:#f97316; background:rgba(249,115,22,.12); }
+        .player-discord-tag.tag-media { color:#a855f7; background:rgba(168,85,247,.12); }
+        .player-discord-tag.tag-famous { color:#ec4899; background:rgba(236,72,153,.12); }
+        .player-discord-tag.tag-mod { color:#3b82f6; background:rgba(59,130,246,.12); }
+        .player-discord-tag.tag-member { color:#9ca3af; background:rgba(156,163,175,.12); }
+    `;
+
+    document.head.appendChild(style);
+}
+
+
+garantirEstilosMetaStaff();
 
 
 // =========================================
@@ -743,6 +898,17 @@ console.log("AVATAR URL:", player.avatarUrl);
                 ${player.modo}
 
             </p>
+
+            <div class="player-meta-tags">
+                <span class="player-status ${player.status === "inactive" ? "inactive" : "active"}">
+                    ${player.status === "inactive" ? "● Inativo" : "● Ativo"}
+                </span>
+                ${player.discordTag && player.discordTag !== "none" ? `
+                    <span class="player-discord-tag tag-${player.discordTag}">
+                        ${formatDiscordTag(player.discordTag)}
+                    </span>
+                ` : ""}
+            </div>
 
 
             <div class="player-actions">
@@ -894,6 +1060,22 @@ window.editarPlayer = function(id){
 
     }
 
+    const status =
+        document.getElementById("status");
+
+    if(status){
+        status.value =
+            player.status || "active";
+    }
+
+    const discordTag =
+        document.getElementById("discordTag");
+
+    if(discordTag){
+        discordTag.value =
+            player.discordTag || "none";
+    }
+
 
     const button =
         document.querySelector(
@@ -927,6 +1109,7 @@ window.editarPlayer = function(id){
 // =========================================
 // 💾 SALVAR EDIÇÃO
 // =========================================
+
 
 window.salvarEdicao = async function(){
 
@@ -971,6 +1154,22 @@ window.salvarEdicao = async function(){
         posicaoInput
             ? posicaoInput.value
             : "";
+
+    const statusInput =
+        document.getElementById("status");
+
+    const tagInput =
+        document.getElementById("discordTag");
+
+    const status =
+        statusInput
+            ? statusInput.value
+            : "active";
+
+    const discordTag =
+        tagInput
+            ? tagInput.value
+            : "none";
 
 
     const avatarInput =
