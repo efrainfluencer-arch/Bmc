@@ -806,7 +806,286 @@ function calcularPosicoesPorTier(
         }
     );
 
+    }
+
+ /* =========================================
+   CALCULAR POSIÇÕES DO OVERALL
+========================================= */
+
+function calcularPosicoesOverall(lista) {
+
+    const grupos = {};
+
+    /*
+       Separar jogadores pela mesma
+       pontuação final.
+    */
+
+    lista.forEach(player => {
+
+        const score = Number(player.score);
+
+        if (!Number.isFinite(score))
+            return;
+
+        /*
+           Usamos o score como chave.
+        */
+
+        const chave = score.toFixed(6);
+
+        if (!grupos[chave]) {
+
+            grupos[chave] = [];
+
+        }
+
+        grupos[chave].push(player);
+
+    });
+
+
+    /*
+       Processar cada grupo de empate.
+    */
+
+    Object.values(grupos).forEach(grupo => {
+
+        /*
+           Se só existe um jogador
+           com aquela pontuação,
+           não existe posição editável.
+        */
+
+        if (grupo.length <= 1) {
+
+            grupo.forEach(player => {
+
+                player.posicaoOverall = null;
+
+                player.temPosicaoOverallEditavel = false;
+
+            });
+
+            return;
+
+        }
+
+
+        /*
+           Ordenação inicial:
+
+           1. posição Overall salva
+           2. quantidade de modos
+           3. nome
+           4. ID
+        */
+
+        grupo.sort((a, b) => {
+
+            const posA =
+                getPosicaoSalva(
+                    a,
+                    "overall"
+                );
+
+            const posB =
+                getPosicaoSalva(
+                    b,
+                    "overall"
+                );
+
+
+            const valorA =
+                posA === null
+                    ? 999999
+                    : posA;
+
+            const valorB =
+                posB === null
+                    ? 999999
+                    : posB;
+
+
+            if (
+                valorA !== valorB
+            ) {
+
+                return valorA - valorB;
+
+            }
+
+
+            /*
+               Se ninguém tiver posição salva,
+               mantém o desempate antigo:
+               mais modos primeiro.
+            */
+
+            if (
+                a.modos.size !==
+                b.modos.size
+            ) {
+
+                return (
+                    b.modos.size -
+                    a.modos.size
+                );
+
+            }
+
+
+            const nomeA =
+                (a.nome || "").toLowerCase();
+
+            const nomeB =
+                (b.nome || "").toLowerCase();
+
+
+            if (
+                nomeA !== nomeB
+            ) {
+
+                return nomeA.localeCompare(
+                    nomeB
+                );
+
+            }
+
+
+            return (
+                a.id || ""
+            ).localeCompare(
+                b.id || ""
+            );
+
+        });
+
+
+        /*
+           Atribuir posição dentro
+           do empate.
+        */
+
+        grupo.forEach(
+            (player, index) => {
+
+                player.posicaoOverall =
+                    index + 1;
+
+
+                /*
+                   Só aparece o lápis
+                   se houver empate.
+                */
+
+                player.temPosicaoOverallEditavel =
+                    podeEditarPosicoes;
+
+            }
+        );
+
+    });
+
 }
+
+
+/* =========================================
+   STATUS / TAG DISCORD
+========================================= */
+
+function getStatus(player) {
+    return player.status === "inactive"
+        ? "inactive"
+        : "active";
+}
+
+function formatDiscordTag(tag) {
+    const nomes = {
+        member: "Member",
+        tester: "Tester",
+        media: "Media",
+        famous: "Famous",
+        mod: "Mod",
+        admin: "Admin",
+        owner: "Owner"
+    };
+
+    return nomes[tag] || "";
+}
+
+function getDiscordTagClass(tag) {
+    return tag && tag !== "none"
+        ? `tag-${tag}`
+        : "";
+}
+
+function getDiscordTagHTML(player) {
+    if (!player.discordTag || player.discordTag === "none") {
+        return "";
+    }
+
+    const label = formatDiscordTag(player.discordTag);
+
+    if (!label) return "";
+
+    return `
+        <span class="leaderboard-discord-tag ${getDiscordTagClass(player.discordTag)}">
+            ${label}
+        </span>
+    `;
+}
+
+function garantirEstilosTags() {
+    if (document.getElementById("bmc-player-meta-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "bmc-player-meta-styles";
+    style.textContent = `
+        .leaderboard-player-meta {
+            display:flex;
+            align-items:center;
+            gap:7px;
+            flex-wrap:wrap;
+            margin-top:6px;
+        }
+        .leaderboard-status,
+        .leaderboard-discord-tag {
+            display:inline-flex;
+            align-items:center;
+            gap:4px;
+            padding:4px 8px;
+            border-radius:999px;
+            font-size:10px;
+            font-weight:700;
+            line-height:1;
+        }
+        .leaderboard-status.active {
+            color:#22c55e;
+            background:rgba(34,197,94,.12);
+        }
+        .leaderboard-status.inactive {
+            color:#9ca3af;
+            background:rgba(156,163,175,.12);
+        }
+        .leaderboard-discord-tag {
+            color:#d1d5db;
+            background:rgba(255,255,255,.07);
+        }
+        .leaderboard-discord-tag.tag-admin { color:#ef4444; background:rgba(239,68,68,.12); }
+        .leaderboard-discord-tag.tag-owner { color:#facc15; background:rgba(250,204,21,.12); }
+        .leaderboard-discord-tag.tag-tester { color:#f97316; background:rgba(249,115,22,.12); }
+        .leaderboard-discord-tag.tag-media { color:#a855f7; background:rgba(168,85,247,.12); }
+        .leaderboard-discord-tag.tag-famous { color:#ec4899; background:rgba(236,72,153,.12); }
+        .leaderboard-discord-tag.tag-mod { color:#3b82f6; background:rgba(59,130,246,.12); }
+        .leaderboard-discord-tag.tag-member { color:#9ca3af; background:rgba(156,163,175,.12); }
+        .ranking-card.player-inactive { opacity:.62; }
+    `;
+    document.head.appendChild(style);
+}
+
+
+garantirEstilosTags();
 
 
 /* =========================================
@@ -1028,6 +1307,14 @@ function calcularRanking(
                         p.avatarUrl ||
                         "",
 
+                    status:
+                        p.status ||
+                        "active",
+
+                    discordTag:
+                        p.discordTag ||
+                        "none",
+
                     tiers: [],
 
                     modos:
@@ -1057,6 +1344,18 @@ function calcularRanking(
                 player.avatarUrl =
                     p.avatarUrl;
 
+            }
+
+            if (p.status === "inactive") {
+                player.status = "inactive";
+            }
+
+            if (
+                (!player.discordTag || player.discordTag === "none") &&
+                p.discordTag &&
+                p.discordTag !== "none"
+            ) {
+                player.discordTag = p.discordTag;
             }
 
 
@@ -1159,48 +1458,95 @@ function calcularRanking(
 
 
     /*
-       Ordenar Global somente
-       pelo score.
-    */
+   ======================================
+   POSIÇÕES DO OVERALL
+   ======================================
 
-    ranking.sort(
-        (a, b) => {
+   Jogadores com pontuação diferente
+   continuam sendo ordenados normalmente.
 
-            const diferenca =
-                b.score -
-                a.score;
+   Jogadores com EXATAMENTE a mesma
+   pontuação podem ter posição manual.
+*/
 
-
-            if (
-                diferenca !== 0
-            ) {
-
-                return diferenca;
-
-            }
+calcularPosicoesOverall(
+    ranking
+);
 
 
-            /*
-               Desempate:
+/*
+   ======================================
+   ORDENAR OVERALL
+   ======================================
+*/
 
-               Mais modos primeiro.
-            */
+ranking.sort(
+    (a, b) => {
 
-            return (
-                b.modos.size -
-                a.modos.size
-            );
+        /*
+           Primeiro:
+           maior pontuação.
+        */
+
+        const diferenca =
+            b.score -
+            a.score;
+
+
+        if (
+            diferenca !== 0
+        ) {
+
+            return diferenca;
 
         }
-    );
+
+
+        /*
+           Se empatar em pontos:
+           posição manual do Overall.
+        */
+
+        const posA =
+            a.posicaoOverall === null ||
+            a.posicaoOverall === undefined
+                ? 999999
+                : a.posicaoOverall;
+
+
+        const posB =
+            b.posicaoOverall === null ||
+            b.posicaoOverall === undefined
+                ? 999999
+                : b.posicaoOverall;
+
+
+        if (
+            posA !== posB
+        ) {
+
+            return posA - posB;
+
+        }
+
+
+        /*
+           Fallback:
+           mais modos primeiro.
+        */
+
+        return (
+            b.modos.size -
+            a.modos.size
+        );
+
+    }
+);
 
 
     return ranking;
 
 }
-
-
-
 
 
 /* =========================================
@@ -1307,7 +1653,6 @@ function aplicarFiltros() {
 
 }
 
-
 /* =========================================
    TOP 3
 ========================================= */
@@ -1389,7 +1734,7 @@ function renderTop3(
             container.innerHTML += `
 
                 <div
-                    class="top-card place-${index + 1}"
+                    class="top-card place-${index + 1}${getStatus(player) === "inactive" ? " player-inactive" : ""}"
                 >
 
                     <div class="top-medal">
@@ -1506,7 +1851,10 @@ function renderRankingList(
 
 
             card.className =
-                `ranking-card rank-${position}`;
+                `ranking-card rank-${position}` +
+                (getStatus(player) === "inactive"
+                    ? " player-inactive"
+                    : "");
 
 
             card.style.cursor =
@@ -1547,28 +1895,36 @@ function renderRankingList(
             */
 
             if (
-                filtroModo !== "overall" &&
-                podeEditarPosicoes &&
-                player.temPosicaoEditavel === true
-            ) {
+    podeEditarPosicoes &&
+    (
+        (
+            filtroModo !== "overall" &&
+            player.temPosicaoEditavel === true
+        )
+        ||
+        (
+            filtroModo === "overall" &&
+            player.temPosicaoOverallEditavel === true
+        )
+    )
+) {
 
-                editarHTML = `
-
-                    <button
-                        type="button"
-                        class="position-edit-btn"
-                        title="Editar posição dentro da tier"
-                        aria-label="Editar posição de ${player.nome}"
-                    >
-
-                        <i class="ri-pencil-line"></i>
-
-                    </button>
-
-                `;
+    editarHTML = `
+        <button
+            type="button"
+            class="position-edit-btn"
+            title="${
+                filtroModo === "overall"
+                    ? "Editar posição no Overall"
+                    : "Editar posição dentro da tier"
+            }"
+            aria-label="Editar posição de ${player.nome}"
+        >
+            <i class="ri-pencil-line"></i>
+        </button>
+    `;
 
             }
-
 
             /*
                =================================
@@ -1641,6 +1997,13 @@ function renderRankingList(
 
                         </span>
 
+                    </div>
+
+                    <div class="leaderboard-player-meta">
+                        <span class="leaderboard-status ${getStatus(player)}">
+                            ● ${getStatus(player) === "inactive" ? "Inativo" : "Ativo"}
+                        </span>
+                        ${getDiscordTagHTML(player)}
                     </div>
 
 
@@ -1725,9 +2088,21 @@ function renderRankingList(
                         event.stopPropagation();
 
 
-                        editarPosicao(
-                            player.id
-                        );
+                        if (
+    filtroModo === "overall"
+) {
+
+    editarPosicaoOverall(
+        player.id
+    );
+
+} else {
+
+    editarPosicao(
+        player.id
+    );
+
+                        }
 
                     }
                 );
@@ -1743,6 +2118,558 @@ function renderRankingList(
     );
 
 }
+
+/* =========================================
+   EDITAR POSIÇÃO NO OVERALL
+========================================= */
+
+async function editarPosicaoOverall(id) {
+
+    /*
+       Verificar permissão.
+    */
+
+    if (
+        !podeEditarPosicoes
+    ) {
+
+        alert(
+            "Você não tem permissão para editar posições."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Encontrar player.
+    */
+
+    const player =
+        players.find(
+            p =>
+                p.id === id
+        );
+
+
+    if (!player) {
+
+        alert(
+            "Player não encontrado."
+        );
+
+        return;
+
+    }
+
+
+   
+
+    /*
+       Criar o Overall completo
+       novamente para descobrir
+       a pontuação real de todos.
+    */
+
+    const mapa = {};
+
+
+    players.forEach(p => {
+
+        if (
+            !p.nome ||
+            !p.modo ||
+            !p.tier
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            !mapa[p.nome]
+        ) {
+
+            mapa[p.nome] = {
+
+                id: p.id,
+
+                nome: p.nome,
+
+                dispositivo:
+                    p.dispositivo ||
+                    "mobile",
+
+                avatarUrl:
+                    p.avatarUrl ||
+                    "",
+
+                status:
+                    p.status ||
+                    "active",
+
+                discordTag:
+                    p.discordTag ||
+                    "none",
+
+                tiers: [],
+
+                modos:
+                    new Set(),
+
+                modoTiers: {},
+
+                pontos: 0
+
+            };
+
+        }
+
+
+        const jogador =
+            mapa[p.nome];
+
+
+        if (
+            jogador.modoTiers[p.modo]
+        ) {
+
+            return;
+
+        }
+
+
+        const tier =
+            normalizarTier(
+                p.tier
+            );
+
+
+        jogador.modoTiers[p.modo] =
+            tier;
+
+
+        jogador.modos.add(
+            p.modo
+        );
+
+
+        jogador.tiers.push(
+            tier
+        );
+
+
+        jogador.pontos +=
+            getPoints(
+                tier
+            );
+
+    });
+
+
+    const ranking =
+        Object.values(
+            mapa
+        );
+
+
+    /*
+       Calcular score global
+       exatamente igual ao
+       sistema principal.
+    */
+
+    ranking.forEach(
+        jogador => {
+
+            const bonusEspecialista =
+                getEspecialistaBonus(
+                    jogador.tiers
+                );
+
+
+            const multiplier =
+                getDiminishingMultiplier(
+                    jogador.modos.size
+                );
+
+
+            jogador.score =
+                (
+                    jogador.pontos +
+                    bonusEspecialista
+                )
+                *
+                multiplier;
+
+        }
+    );
+
+
+    /*
+       Encontrar o jogador
+       dentro desse Overall.
+    */
+
+    const jogadorAtual =
+        ranking.find(
+            jogador =>
+                jogador.id === id
+        );
+
+
+    if (!jogadorAtual) {
+
+        alert(
+            "Não foi possível encontrar o jogador no Overall."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Encontrar todos que possuem
+       exatamente a mesma pontuação.
+    */
+
+    const mesmaPontuacao =
+        ranking.filter(
+            jogador =>
+                Math.abs(
+                    jogador.score -
+                    jogadorAtual.score
+                ) < 0.000001
+        );
+
+
+    /*
+       Se não houver empate,
+       não existe posição editável.
+    */
+
+    if (
+        mesmaPontuacao.length <= 1
+    ) {
+
+        alert(
+            "Esse player não está empatado em pontos com outro player. A posição não pode ser editada."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Organizar o grupo do empate.
+    */
+
+    mesmaPontuacao.sort(
+        (a, b) => {
+
+            const posA =
+                getPosicaoSalva(
+                    a,
+                    "overall"
+                );
+
+
+            const posB =
+                getPosicaoSalva(
+                    b,
+                    "overall"
+                );
+
+
+            const valorA =
+                posA === null
+                    ? 999999
+                    : posA;
+
+
+            const valorB =
+                posB === null
+                    ? 999999
+                    : posB;
+
+
+            if (
+                valorA !== valorB
+            ) {
+
+                return (
+                    valorA -
+                    valorB
+                );
+
+            }
+
+
+            /*
+               Se ainda não houver
+               posição salva, usar
+               quantidade de modos.
+            */
+
+            if (
+                a.modos.size !==
+                b.modos.size
+            ) {
+
+                return (
+                    b.modos.size -
+                    a.modos.size
+                );
+
+            }
+
+
+            return (
+                a.nome || ""
+            ).localeCompare(
+                b.nome || ""
+            );
+
+        }
+    );
+
+
+    /*
+       Descobrir posição atual.
+    */
+
+    let posicaoAtual =
+        getPosicaoSalva(
+            jogadorAtual,
+            "overall"
+        );
+
+
+    if (
+        posicaoAtual === null
+    ) {
+
+        posicaoAtual =
+            mesmaPontuacao.findIndex(
+                jogador =>
+                    jogador.id === id
+            ) + 1;
+
+    }
+
+
+    /*
+       Perguntar nova posição.
+    */
+
+    const novaPosicao =
+        prompt(
+
+            `Posição de ${player.nome} no Overall:
+
+Pontos: ${Math.floor(
+    jogadorAtual.score
+)}
+
+Existem ${mesmaPontuacao.length} players empatados.
+
+Digite uma posição de 1 até ${mesmaPontuacao.length}.`,
+
+            posicaoAtual
+
+        );
+
+
+    if (
+        novaPosicao === null
+    ) {
+
+        return;
+
+    }
+
+
+    const numero =
+        Number(
+            novaPosicao
+        );
+
+
+    /*
+       Validar.
+    */
+
+    if (
+        !Number.isInteger(
+            numero
+        )
+    ) {
+
+        alert(
+            "Digite um número inteiro."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        numero < 1 ||
+        numero > mesmaPontuacao.length
+    ) {
+
+        alert(
+            `A posição deve estar entre 1 e ${mesmaPontuacao.length}.`
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Descobrir posição atual
+       dentro do grupo.
+    */
+
+    const jogadorIndex =
+        mesmaPontuacao.findIndex(
+            jogador =>
+                jogador.id === id
+        );
+
+
+    if (
+        jogadorIndex === -1
+    ) {
+
+        alert(
+            "Não foi possível encontrar o jogador."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Remover da posição atual.
+    */
+
+    const jogador =
+        mesmaPontuacao.splice(
+            jogadorIndex,
+            1
+        )[0];
+
+
+    /*
+       Colocar na nova posição.
+    */
+
+    mesmaPontuacao.splice(
+        numero - 1,
+        0,
+        jogador
+    );
+
+
+    /*
+       Salvar posição Overall
+       de TODOS os empatados.
+
+       Não mexe nas posições
+       dos modos específicos.
+    */
+
+    try {
+
+        const atualizacoes =
+            mesmaPontuacao.map(
+                async (
+                    jogador,
+                    index
+                ) => {
+
+                    const playerOriginal =
+                        players.find(
+                            p =>
+                                p.id ===
+                                jogador.id
+                        );
+
+
+                    const posicoesAtuais =
+                        playerOriginal &&
+                        playerOriginal.posicoes &&
+                        typeof playerOriginal.posicoes === "object"
+
+                            ? {
+                                ...playerOriginal.posicoes
+                            }
+
+                            : {};
+
+
+                    posicoesAtuais.overall =
+                        index + 1;
+
+
+                    await updateDoc(
+                        doc(
+                            db,
+                            "players",
+                            jogador.id
+                        ),
+                        {
+                            posicoes:
+                                posicoesAtuais
+                        }
+                    );
+
+                }
+            );
+
+
+        await Promise.all(
+            atualizacoes
+        );
+
+
+        alert(
+            "Posições do Overall atualizadas com sucesso!"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao atualizar posição do Overall:",
+            error
+        );
+
+
+        alert(
+            "Erro ao atualizar posição do Overall. Verifique o console."
+        );
+
+    }
+
+}
+
+
+/*
+   Disponibilizar globalmente.
+*/
+
+window.editarPosicaoOverall =
+    editarPosicaoOverall;
+
 
 
 /* =========================================
@@ -2330,9 +3257,6 @@ if (
 }
 
 
-
-
-
 /* =========================================
    ESTATÍSTICAS
 ========================================= */
@@ -2692,6 +3616,13 @@ function abrirPlayerModal(
 
                 </div>
 
+                <div class="leaderboard-player-meta">
+                    <span class="leaderboard-status ${getStatus(player)}">
+                        ● ${getStatus(player) === "inactive" ? "Inativo" : "Ativo"}
+                    </span>
+                    ${getDiscordTagHTML(player)}
+                </div>
+
             </div>
 
         </div>
@@ -2793,7 +3724,6 @@ function fecharPlayerModal() {
 
 window.fecharPlayerModal =
     fecharPlayerModal;
-
 
 /* =========================================
    BOTÃO FECHAR MODAL
