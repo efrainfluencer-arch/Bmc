@@ -1295,36 +1295,29 @@ function calcularRanking(
             ) {
 
                 mapa[p.nome] = {
+    id:
+        p.id,
 
-                    nome:
-                        p.nome,
+    nome:
+        p.nome,
 
-                    dispositivo:
-                        p.dispositivo ||
-                        "mobile",
+    dispositivo:
+        p.dispositivo ||
+        "mobile",
 
-                    avatarUrl:
-                        p.avatarUrl ||
-                        "",
+    avatarUrl:
+        p.avatarUrl ||
+        "",
 
-                    status:
-                        p.status ||
-                        "active",
+    tiers: [],
 
-                    discordTag:
-                        p.discordTag ||
-                        "none",
+    modos:
+        new Set(),
 
-                    tiers: [],
+    modoTiers: {},
 
-                    modos:
-                        new Set(),
-
-                    modoTiers: {},
-
-                    pontos: 0
-
-                };
+    pontos: 0
+};
 
             }
 
