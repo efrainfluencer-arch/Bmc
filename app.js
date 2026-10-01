@@ -25,16 +25,6 @@ import {
 } from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import {
-    getStorage,
-    ref,
-    uploadBytes,
-    getDownloadURL,
-    deleteObject
-} from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-
-
 // =========================================
 // ⚙️ CONFIGURAÇÃO FIREBASE
 // =========================================
@@ -66,7 +56,6 @@ const auth = getAuth(app);
 
 const db = getFirestore(app);
 
-const storage = getStorage(app);
 
 // =========================================
 // 📦 VARIÁVEIS
@@ -76,7 +65,6 @@ let players = [];
 
 let editandoPlayerId = null;
 
-let avatarAtual = "";
 
 
 // =========================================
@@ -275,101 +263,6 @@ function iniciarPlayers(){
 // 🖼️ UPLOAD DO AVATAR
 // =========================================
 
-async function uploadAvatar(file, playerId){
-
-    if(!file){
-        console.log("Nenhum arquivo selecionado.");
-        return "";
-    }
-
-    console.log("1. Arquivo selecionado:", file.name);
-    console.log("2. Tipo:", file.type);
-    console.log("3. Tamanho:", file.size);
-
-    if(!file.type.startsWith("image/")){
-        throw new Error(
-            "O arquivo selecionado não é uma imagem."
-        );
-    }
-
-    if(file.size > 5 * 1024 * 1024){
-        throw new Error(
-            "A imagem deve ter no máximo 5 MB."
-        );
-    }
-
-    const extension =
-        file.name
-            .split(".")
-            .pop()
-            .toLowerCase();
-
-    const fileName =
-        `${Date.now()}_${Math.random()
-            .toString(36)
-            .substring(2)}.${extension}`;
-
-    const storagePath =
-        `players/${playerId}/${fileName}`;
-
-    const storageRef =
-        ref(storage, storagePath);
-
-    console.log("4. Caminho criado:", storagePath);
-
-    try {
-
-        console.log("5. Iniciando upload...");
-
-        const uploadResult =
-            await uploadBytes(
-                storageRef,
-                file
-            );
-
-        console.log(
-            "6. Upload concluído:",
-            uploadResult
-        );
-
-        console.log(
-            "7. Buscando URL..."
-        );
-
-        const downloadURL =
-            await getDownloadURL(
-                storageRef
-            );
-
-        console.log(
-            "8. URL recebida:",
-            downloadURL
-        );
-
-        return downloadURL;
-
-    } catch(error) {
-
-        console.error(
-            "❌ ERRO NO FIREBASE STORAGE:",
-            error
-        );
-
-        console.error(
-            "Código do erro:",
-            error.code
-        );
-
-        console.error(
-            "Mensagem:",
-            error.message
-        );
-
-        throw error;
-
-    }
-
-}
 
 
 // =========================================
@@ -478,13 +371,6 @@ window.addPlayer = async function(){
     }
 
 
-    const file =
-        avatarInput &&
-        avatarInput.files.length > 0
-            ? avatarInput.files[0]
-            : null;
-
-
     try {
 
         // =====================================
@@ -506,8 +392,6 @@ window.addPlayer = async function(){
 
                     posicao: posicao,
 
-                    avatarUrl: "",
-
                     status: status,
 
                     discordTag: discordTag,
@@ -523,46 +407,8 @@ window.addPlayer = async function(){
             "Player criado:",
             playerRef.id
         );
-
-
         // =====================================
-        // 2️⃣ UPLOAD DO AVATAR
-        // =====================================
-
-        if(file){
-
-            const avatarUrl =
-                await uploadAvatar(
-                    file,
-                    playerRef.id
-                );
-
-
-            // =================================
-            // 3️⃣ SALVAR URL NO FIRESTORE
-            // =================================
-
-            await updateDoc(
-
-                doc(
-                    db,
-                    "players",
-                    playerRef.id
-                ),
-
-                {
-
-                    avatarUrl:
-                        avatarUrl
-
-                }
-
-            );
-
-        }
-
-        // =====================================
-        // 4️⃣ SINCRONIZAR STATUS/TAG DO PLAYER
+        // 2️⃣ SINCRONIZAR STATUS/TAG DO PLAYER
         // =====================================
 
         await sincronizarDadosDoPlayer(
@@ -621,9 +467,6 @@ function limparFormulario(){
 
     editandoPlayerId =
         null;
-
-    avatarAtual =
-        "";
 
 
     const button =
@@ -828,9 +671,7 @@ console.log("PLAYER:", player.nome);
 console.log("AVATAR URL:", player.avatarUrl);
       
         const avatar =
-    player.avatarUrl
-        ? player.avatarUrl
-        : `https://tabavatars.net/avatar/?username=${encodeURIComponent(player.nome)}&platform=bedrock&size=150&type=helm`;
+    `https://tabavatars.net/avatar/?username=${encodeURIComponent(player.nome)}&platform=bedrock&size=150&type=helm`;
 
 
         // =====================================
@@ -1019,10 +860,6 @@ window.editarPlayer = function(id){
         id;
 
 
-    avatarAtual =
-        player.avatarUrl || "";
-
-
     document.getElementById(
         "nome"
     ).value =
@@ -1178,13 +1015,6 @@ window.salvarEdicao = async function(){
         );
 
 
-    const file =
-        avatarInput &&
-        avatarInput.files.length > 0
-            ? avatarInput.files[0]
-            : null;
-
-
     try {
 
         let avatarUrl =
@@ -1231,9 +1061,6 @@ window.salvarEdicao = async function(){
 
                 posicao:
                     posicao,
-
-                avatarUrl:
-                    avatarUrl
 
             }
 
