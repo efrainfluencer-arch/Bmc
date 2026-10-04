@@ -25,6 +25,8 @@ import {
 } from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+
+
 // =========================================
 // ⚙️ CONFIGURAÇÃO FIREBASE
 // =========================================
@@ -260,12 +262,6 @@ function iniciarPlayers(){
 
 
 // =========================================
-// 🖼️ UPLOAD DO AVATAR
-// =========================================
-
-
-
-// =========================================
 // ➕ ADICIONAR PLAYER
 // =========================================
 
@@ -273,9 +269,6 @@ window.addPlayer = async function(){
 
     const nomeInput =
         document.getElementById("nome");
-
-    const avatarInput =
-        document.getElementById("avatar");
 
     const dispositivoInput =
         document.getElementById("dispositivo");
@@ -667,11 +660,9 @@ function renderPlayers(lista){
         // =====================================
         // AVATAR
         // =====================================
-console.log("PLAYER:", player.nome);
-console.log("AVATAR URL:", player.avatarUrl);
       
         const avatar =
-    `https://tabavatars.net/avatar/?username=${encodeURIComponent(player.nome)}&platform=bedrock&size=150&type=helm`;
+            `https://tabavatars.net/avatar/?username=${encodeURIComponent(player.nome)}&platform=bedrock&size=150&type=helm`;
 
 
         // =====================================
@@ -1009,33 +1000,7 @@ window.salvarEdicao = async function(){
             : "none";
 
 
-    const avatarInput =
-        document.getElementById(
-            "avatar"
-        );
-
-
     try {
-
-        let avatarUrl =
-            avatarAtual;
-
-
-        // =====================================
-        // NOVO AVATAR
-        // =====================================
-
-        if(file){
-
-            avatarUrl =
-                await uploadAvatar(
-                    file,
-                    editandoPlayerId
-                );
-
-        }
-
-
         // =====================================
         // ATUALIZAR FIRESTORE
         // =====================================
@@ -1061,6 +1026,10 @@ window.salvarEdicao = async function(){
 
                 posicao:
                     posicao,
+
+                status: status,
+
+                discordTag: discordTag
 
             }
 
