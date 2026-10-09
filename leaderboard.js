@@ -3800,3 +3800,293 @@ console.log(
     "✏️ Pode editar posições:",
     podeEditarPosicoes
 );
+
+
+/* =====================================================
+   BMC RANKED — TEMPORADAS (integrado sem alterar o score de tiers)
+===================================================== */
+const BMC_RANKED_MODES = {
+    skywars: "SkyWars",
+    bedfight: "BedFight",
+    builduhc: "Build UHC",
+    nodebuff: "NodeBuff"
+};
+const BMC_TIER_MODE_OPTIONS = ["BedFight", "Boxing", "Build UHC", "Mid Fight", "NodeBuff", "SkyWars", "Sumo", "Survival Games"];
+const BMC_DIVISIONS = [
+    { name: "Bronze IV", min: 0 }, { name: "Bronze III", min: 800 },
+    { name: "Bronze II", min: 900 }, { name: "Bronze I", min: 1000 },
+    { name: "Prata IV", min: 1100 }, { name: "Prata III", min: 1200 },
+    { name: "Prata II", min: 1300 }, { name: "Prata I", min: 1400 },
+    { name: "Ouro IV", min: 1500 }, { name: "Ouro III", min: 1600 },
+    { name: "Ouro II", min: 1700 }, { name: "Ouro I", min: 1800 },
+    { name: "Platina IV", min: 1900 }, { name: "Platina III", min: 2000 },
+    { name: "Platina II", min: 2100 }, { name: "Platina I", min: 2200 },
+    { name: "Diamante IV", min: 2300 }, { name: "Diamante III", min: 2400 },
+    { name: "Diamante II", min: 2500 }, { name: "Diamante I", min: 2600 },
+    { name: "Elite", min: 2700 }
+];
+let bmcRankedProfiles = [];
+let bmcRankedSeasons = [];
+let bmcSelectedSeasonDoc = "current";
+let bmcCurrentSeason = null;
+let bmcSeasonDataReady = false;
+let bmcRankedProfilesReady = false;
+let bmcRankingType = "tiers";
+
+const rankingTypeFilter = document.getElementById("ranking-type-filter");
+const seasonFilter = document.getElementById("season-filter");
+const seasonFilterWrap = document.getElementById("season-filter-wrap");
+const seasonStatus = document.getElementById("ranked-season-status");
+
+function bmcToDate(value) {
+    if (!value) return null;
+    if (typeof value.toDate === "function") return value.toDate();
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function bmcDivision(elo) {
+    const value = Number(elo) || 0;
+    return [...BMC_DIVISIONS].reverse().find(item => value >= item.min)?.name || "Bronze IV";
+}
+
+function bmcDevice(profile) {
+    const value = String(profile.dispositivo || profile.device || "mobile").toLowerCase();
+    if (["pc", "keyboard", "keyboard & mouse", "keyboard_mouse", "computer"].includes(value)) return "pc";
+    if (["controller", "controle", "gamepad"].includes(value)) return "controller";
+    return "mobile";
+}
+
+function bmcSeasonLabel(season) {
+    return season?.name || `Temporada ${season?.number || "?"}`;
+}
+
+function bmcRefreshSeasonStatus() {
+    if (!seasonStatus) return;
+    const season = bmcSelectedSeasonDoc === "current"
+        ? bmcCurrentSeason
+        : bmcRankedSeasons.find(item => item.docId === bmcSelectedSeasonDoc)?.data;
+    if (!season) {
+        seasonStatus.hidden = true;
+        return;
+    }
+    seasonStatus.hidden = false;
+    const start = bmcToDate(season.startedAt);
+    const end = bmcToDate(season.endsAt);
+    const completed = season.status === "completed";
+    let timing = completed ? "Temporada encerrada" : "Temporada ativa";
+    if (!completed && end) {
+        const remaining = Math.max(0, end.getTime() - Date.now());
+        const days = Math.floor(remaining / 86400000);
+        const hours = Math.floor((remaining % 86400000) / 3600000);
+        timing = remaining <= 0 ? "Encerramento pendente de processamento" : `Termina em ${days}d ${hours}h`;
+    }
+    seasonStatus.innerHTML = `<strong>${bmcSeasonLabel(season)}</strong><span>${timing}</span>${start ? `<span>Início: ${start.toLocaleDateString("pt-BR")}</span>` : ""}${end ? `<span>Fim: ${end.toLocaleDateString("pt-BR")}</span>` : ""}`;
+}
+
+function bmcPopulateSeasonFilter() {
+    if (!seasonFilter) return;
+    const previous = bmcSelectedSeasonDoc;
+    const seasons = [...bmcRankedSeasons].sort((a, b) => {
+        const na = Number(a.data?.number) || 0;
+        const nb = Number(b.data?.number) || 0;
+        return nb - na;
+    });
+    seasonFilter.innerHTML = "";
+    const currentOption = document.createElement("option");
+    currentOption.value = "current";
+    currentOption.textContent = bmcSeasonLabel(bmcCurrentSeason || { number: 1 });
+    seasonFilter.appendChild(currentOption);
+    seasons.forEach(item => {
+        if (item.docId === "current") return;
+        const option = document.createElement("option");
+        option.value = item.docId;
+        option.textContent = `${bmcSeasonLabel(item.data)}${item.data?.status === "completed" ? " (encerrada)" : ""}`;
+        seasonFilter.appendChild(option);
+    });
+    const valid = [...seasonFilter.options].some(option => option.value === previous);
+    bmcSelectedSeasonDoc = valid ? previous : "current";
+    seasonFilter.value = bmcSelectedSeasonDoc;
+}
+
+function bmcBuildEloRanking() {
+    const season = bmcSelectedSeasonDoc === "current"
+        ? bmcCurrentSeason
+        : bmcRankedSeasons.find(item => item.docId === bmcSelectedSeasonDoc)?.data;
+    if (!season) return [];
+    const modeSelect = document.getElementById("mode-filter");
+    const selectedMode = modeSelect?.value || "overall";
+    const selectedDevice = document.getElementById("device-filter")?.value || "todos";
+    const result = [];
+
+    bmcRankedProfiles.forEach(profileDoc => {
+        const profile = profileDoc.data || {};
+        const nick = String(profile.nick || profile.minecraftNick || "").trim();
+        if (!nick) return;
+        const device = bmcDevice(profile);
+        if (selectedDevice !== "todos" && device !== selectedDevice) return;
+        if (filtroBusca && !nick.toLowerCase().includes(filtroBusca.toLowerCase())) return;
+
+        const relevantModes = selectedMode === "overall" ? Object.keys(BMC_RANKED_MODES) : [selectedMode];
+        const values = [];
+        const modeScores = {};
+        relevantModes.forEach(mode => {
+            if (!BMC_RANKED_MODES[mode]) return;
+            const modeValues = [];
+            [1, 2, 3].forEach(format => {
+                const value = profile[`rankedElo_${season.id}_${mode}_${format}`];
+                if (value !== undefined && value !== null && Number.isFinite(Number(value))) {
+                    modeValues.push(Number(value));
+                    values.push(Number(value));
+                }
+            });
+            if (modeValues.length) modeScores[mode] = Math.round(modeValues.reduce((a, b) => a + b, 0) / modeValues.length);
+        });
+        if (!values.length) return;
+        const elo = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+        result.push({
+            id: profileDoc.id,
+            discordId: profileDoc.id,
+            nome: nick,
+            dispositivo: device,
+            elo,
+            score: elo,
+            division: bmcDivision(elo),
+            modeScores,
+            modos: new Set(Object.keys(modeScores)),
+            modoTiers: {},
+            status: "active"
+        });
+    });
+    return result.sort((a, b) => b.elo - a.elo || a.nome.localeCompare(b.nome, "pt-BR"));
+}
+
+function bmcRenderEloRanking(ranking) {
+    const topContainer = document.getElementById("top-three-container");
+    const listContainer = document.getElementById("leaderboard-list");
+    if (!topContainer || !listContainer) return;
+    topContainer.innerHTML = "";
+    listContainer.innerHTML = "";
+    const deviceIcon = device => device === "pc" ? '<i class="ri-keyboard-line"></i>' : device === "controller" ? '<i class="ri-gamepad-line"></i>' : '<i class="ri-smartphone-line"></i>';
+    ranking.slice(0, 3).forEach((player, index) => {
+        const card = document.createElement("div");
+        card.className = `top-card place-${index + 1}`;
+        card.innerHTML = `<div class="top-medal">#${index + 1}</div><img src="${getPlayerAvatar({ nome: player.nome }, 120)}" class="top-avatar" alt="${player.nome}"><h2>${player.nome}</h2><p>${deviceIcon(player.dispositivo)}</p><span>${player.elo} Elo · ${player.division}</span>`;
+        topContainer.appendChild(card);
+    });
+    if (!ranking.length) {
+        listContainer.innerHTML = '<p class="no-players">Nenhum jogador tem Elo registrado nesta temporada para os filtros selecionados.</p>';
+        return;
+    }
+    ranking.forEach((player, index) => {
+        const card = document.createElement("div");
+        card.className = `ranking-card rank-${index + 1}`;
+        const modeDetails = Object.entries(player.modeScores).map(([mode, elo]) => `<span class="ranked-mode-chip">${BMC_RANKED_MODES[mode]}: ${elo}</span>`).join("");
+        card.innerHTML = `<div class="ranking-position">#${index + 1}</div><img src="${getPlayerAvatar({ nome: player.nome }, 100)}" class="ranking-avatar" alt="${player.nome}"><div class="ranking-info"><div class="ranking-name">${player.nome}</div><div class="ranking-device">${deviceIcon(player.dispositivo)}<span>${player.dispositivo === "pc" ? "Keyboard & Mouse" : player.dispositivo === "controller" ? "Controller" : "Mobile"}</span></div><div class="ranking-modes">${player.division}</div><div class="ranked-mode-scores">${modeDetails}</div></div><div class="ranking-tier ranked-division">${player.division}</div><div class="ranking-points">${player.elo}<br><small>Elo</small></div>`;
+        const avatar = card.querySelector("img");
+        avatar.addEventListener("error", () => { avatar.onerror = null; avatar.src = `https://minotar.net/avatar/${encodeURIComponent(player.nome)}/100`; });
+        listContainer.appendChild(card);
+    });
+}
+
+function bmcRenderEloStats(ranking) {
+    const total = document.getElementById("total-players");
+    const mobile = document.getElementById("mobile-count");
+    const pc = document.getElementById("pc-count");
+    const controller = document.getElementById("controller-count");
+    if (total) total.textContent = ranking.length;
+    if (mobile) mobile.textContent = ranking.filter(p => p.dispositivo === "mobile").length;
+    if (pc) pc.textContent = ranking.filter(p => p.dispositivo === "pc").length;
+    if (controller) controller.textContent = ranking.filter(p => p.dispositivo === "controller").length;
+}
+
+function bmcUpdateModeOptions() {
+    const select = document.getElementById("mode-filter");
+    if (!select) return;
+    const selected = select.value;
+    if (bmcRankingType === "elo") {
+        select.innerHTML = '<option value="overall">Overall Ranked</option>' + Object.entries(BMC_RANKED_MODES).map(([value, label]) => `<option value="${value}">${label}</option>`).join("");
+        select.value = BMC_RANKED_MODES[selected] ? selected : "overall";
+        filtroModo = select.value;
+    } else {
+        select.innerHTML = '<option value="overall">Overall</option>' + BMC_TIER_MODE_OPTIONS.map(mode => `<option value="${mode}">${mode}</option>`).join("");
+        select.value = BMC_TIER_MODE_OPTIONS.includes(selected) || selected === "overall" ? selected : "overall";
+        filtroModo = select.value;
+    }
+}
+
+const bmcOriginalAplicarFiltros = aplicarFiltros;
+aplicarFiltros = function() {
+    if (rankingTypeFilter && rankingTypeFilter.value === "elo") {
+        bmcRankingType = "elo";
+        if (seasonFilterWrap) seasonFilterWrap.hidden = false;
+        bmcRefreshSeasonStatus();
+        if (!bmcSeasonDataReady || !bmcRankedProfilesReady) {
+            const list = document.getElementById("leaderboard-list");
+            if (list) list.innerHTML = '<p class="no-players">Carregando dados da BMC Ranked...</p>';
+            return;
+        }
+        const ranking = bmcBuildEloRanking();
+        bmcRenderEloStats(ranking);
+        bmcRenderEloRanking(ranking);
+        const title = document.querySelector(".top-three .section-title");
+        if (title) title.textContent = "Top 3 Ranked Elo";
+        const listTitle = document.querySelector(".players-list .section-title");
+        if (listTitle) listTitle.textContent = "Ranking Ranked Elo";
+        return;
+    }
+    bmcRankingType = "tiers";
+    if (seasonFilterWrap) seasonFilterWrap.hidden = true;
+    if (seasonStatus) seasonStatus.hidden = true;
+    const title = document.querySelector(".top-three .section-title");
+    if (title) title.textContent = "Top 3 Players";
+    const listTitle = document.querySelector(".players-list .section-title");
+    if (listTitle) listTitle.textContent = "Ranking";
+    return bmcOriginalAplicarFiltros();
+};
+
+if (rankingTypeFilter) {
+    rankingTypeFilter.addEventListener("change", () => {
+        bmcRankingType = rankingTypeFilter.value;
+        bmcUpdateModeOptions();
+        aplicarFiltros();
+    });
+}
+if (seasonFilter) {
+    seasonFilter.addEventListener("change", () => {
+        bmcSelectedSeasonDoc = seasonFilter.value;
+        bmcRefreshSeasonStatus();
+        aplicarFiltros();
+    });
+}
+
+onSnapshot(collection(db, "profiles"), snapshot => {
+    bmcRankedProfiles = snapshot.docs.map(item => ({ id: item.id, data: item.data() || {} }));
+    bmcRankedProfilesReady = true;
+    if (bmcRankingType === "elo") aplicarFiltros();
+}, error => console.error("Erro ao carregar perfis Ranked:", error));
+
+onSnapshot(collection(db, "rankedSeasons"), snapshot => {
+    bmcRankedSeasons = snapshot.docs.map(item => ({ docId: item.id, data: item.data() || {} }));
+    const currentDoc = bmcRankedSeasons.find(item => item.docId === "current");
+    bmcCurrentSeason = currentDoc?.data || null;
+    bmcSeasonDataReady = true;
+    bmcPopulateSeasonFilter();
+    bmcRefreshSeasonStatus();
+    if (bmcRankingType === "elo") aplicarFiltros();
+}, error => {
+    console.error("Erro ao carregar temporadas Ranked:", error);
+    bmcSeasonDataReady = true;
+    bmcRefreshSeasonStatus();
+});
+
+/* Estilos auxiliares da seção Ranked */
+const bmcRankedStyle = document.createElement("style");
+bmcRankedStyle.textContent = `
+.bmc-extra-filters{margin-top:14px;display:flex;gap:14px;flex-wrap:wrap}
+.ranked-season-status{margin:16px auto 0;padding:12px 16px;border:1px solid rgba(54,207,10,.25);border-radius:12px;background:rgba(54,207,10,.06);display:flex;gap:14px;flex-wrap:wrap;align-items:center;color:var(--text-color,#e5e7eb);font-size:13px}
+.ranked-season-status[hidden],#season-filter-wrap[hidden]{display:none!important}
+.ranked-season-status strong{color:#36cf0a}.ranked-mode-scores{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.ranked-mode-chip{font-size:11px;padding:4px 7px;border-radius:6px;background:rgba(255,255,255,.06);color:#d1d5db}.ranked-division{font-size:11px;max-width:90px;text-align:center}.ranking-points small{font-size:10px;opacity:.75}
+`;
+document.head.appendChild(bmcRankedStyle);
+console.log("BMC Ranked seasons connected to the leaderboard.");

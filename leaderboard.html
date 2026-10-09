@@ -167,10 +167,10 @@
 
         <select id="device-filter">
 
-            <option value="todos">🌎 All Devices</option>
-            <option value="mobile">📱 Mobile</option>
-            <option value="pc">⌨️ Keyboard & Mouse</option>
-            <option value="controller">🎮 Controller</option>
+            <option value="todos">All Devices</option>
+            <option value="mobile">Mobile</option>
+            <option value="pc">Keyboard & Mouse</option>
+            <option value="controller">Controller</option>
 
         </select>
 
@@ -182,7 +182,7 @@
 
         <select id="mode-filter">
 
-            <option value="overall">🏆 Overall</option>
+            <option value="overall">Overall</option>
 
             <option value="BedFight">BedFight</option>
             <option value="Boxing">Boxing</option>
@@ -191,16 +191,30 @@
             <option value="NodeBuff">NodeBuff</option>
             <option value="SkyWars">SkyWars</option>
             <option value="Sumo">Sumo</option>
-          <option value="Survival Games">Survival Games</option>
 
         </select>
 
     </div>
 
                 </div>
-</div>
-              
-        
+
+                <div class="filters-row bmc-extra-filters">
+                    <div class="filter-item">
+                        <label for="ranking-type-filter">Ranking</label>
+                        <select id="ranking-type-filter">
+                            <option value="tiers">Tiers</option>
+                            <option value="elo">Ranked Elo</option>
+                        </select>
+                    </div>
+                    <div class="filter-item" id="season-filter-wrap" hidden>
+                        <label for="season-filter">Temporada</label>
+                        <select id="season-filter">
+                            <option value="current">Temporada atual</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="ranked-season-status" class="ranked-season-status" hidden></div>
+            </div>
 
         </section>
 
@@ -236,8 +250,7 @@
 
         <div id="leaderboard-list" class="leaderboard-grid">
 
-            <!-- JavaScript -->
-<script type="module" src="leaderboard.js"></script>
+            <!-- Conteúdo carregado pelo JavaScript -->
         </div>
 
     </div>
@@ -271,5 +284,6 @@
 </div>
       
     </main>
+    <script type="module" src="leaderboard.js"></script>
 </body>
 </html>
