@@ -3704,7 +3704,8 @@ function fecharPlayerModal() {
 
 
     modal.classList.remove(
-        "active"
+        "active",
+        "modal-ranked-open"
     );
 
 
@@ -3955,7 +3956,9 @@ function bmcBuildEloRanking() {
             modeScores,
             modos: new Set(Object.keys(modeScores)),
             modoTiers: {},
-            status: "active"
+            status: "active",
+            rankedProfile: profile,
+            rankedSeason: season
         });
     });
     return result.sort((a, b) => b.elo - a.elo || a.nome.localeCompare(b.nome, "pt-BR"));
@@ -3972,6 +3975,12 @@ function bmcRenderEloRanking(ranking) {
         const card = document.createElement("div");
         card.className = `top-card place-${index + 1}`;
         card.innerHTML = `<div class="top-medal">#${index + 1}</div><img src="${getPlayerAvatar({ nome: player.nome }, 120)}" class="top-avatar" alt="${player.nome}"><h2>${player.nome}</h2><p>${deviceIcon(player.dispositivo)}</p><span>${player.elo} Elo · ${player.division}</span>`;
+        card.classList.add("ranked-player-clickable", `division-${bmcDivisionClass(player.division)}`);
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", `Ver perfil Ranked de ${player.nome}`);
+        card.addEventListener("click", () => bmcOpenRankedPlayer(player));
+        card.addEventListener("keydown", event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); bmcOpenRankedPlayer(player); } });
         topContainer.appendChild(card);
     });
     if (!ranking.length) {
@@ -3980,13 +3989,61 @@ function bmcRenderEloRanking(ranking) {
     }
     ranking.forEach((player, index) => {
         const card = document.createElement("div");
-        card.className = `ranking-card rank-${index + 1}`;
+        card.className = `ranking-card rank-${index + 1} ranked-player-clickable division-${bmcDivisionClass(player.division)}`;
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", `Ver perfil Ranked de ${player.nome}`);
         const modeDetails = Object.entries(player.modeScores).map(([mode, elo]) => `<span class="ranked-mode-chip">${BMC_RANKED_MODES[mode]}: ${elo}</span>`).join("");
         card.innerHTML = `<div class="ranking-position">#${index + 1}</div><img src="${getPlayerAvatar({ nome: player.nome }, 100)}" class="ranking-avatar" alt="${player.nome}"><div class="ranking-info"><div class="ranking-name">${player.nome}</div><div class="ranking-device">${deviceIcon(player.dispositivo)}<span>${player.dispositivo === "pc" ? "Keyboard & Mouse" : player.dispositivo === "controller" ? "Controller" : "Mobile"}</span></div><div class="ranking-modes">${player.division}</div><div class="ranked-mode-scores">${modeDetails}</div></div><div class="ranking-tier ranked-division">${player.division}</div><div class="ranking-points">${player.elo}<br><small>Elo</small></div>`;
         const avatar = card.querySelector("img");
         avatar.addEventListener("error", () => { avatar.onerror = null; avatar.src = `https://minotar.net/avatar/${encodeURIComponent(player.nome)}/100`; });
+        card.addEventListener("click", () => bmcOpenRankedPlayer(player));
+        card.addEventListener("keydown", event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); bmcOpenRankedPlayer(player); } });
         listContainer.appendChild(card);
     });
+}
+
+function bmcDivisionClass(division) {
+    return String(division || "bronze-iv").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function bmcOpenRankedPlayer(player) {
+    const modal = document.getElementById("player-modal");
+    const body = document.getElementById("player-modal-body");
+    if (!modal || !body) return;
+    const profile = player.rankedProfile || {};
+    const season = player.rankedSeason || bmcCurrentSeason || {};
+    const avatar = getPlayerAvatar({ nome: player.nome }, 150);
+    const deviceLabel = player.dispositivo === "pc" ? "Keyboard & Mouse" : player.dispositivo === "controller" ? "Controller" : "Mobile";
+    const formatNames = { 1: "1v1", 2: "2v2", 3: "3v3" };
+    const modeSections = Object.entries(BMC_RANKED_MODES).map(([mode, label]) => {
+        const formats = [1, 2, 3].map(format => {
+            const raw = profile[`rankedElo_${season.id}_${mode}_${format}`];
+            const elo = raw === undefined || raw === null || !Number.isFinite(Number(raw)) ? null : Math.round(Number(raw));
+            const division = elo === null ? "Sem ranking" : bmcDivision(elo);
+            return `<div class="ranked-format-card ${elo === null ? "is-unranked" : `division-${bmcDivisionClass(division)}`}" >
+                <span class="ranked-format-name">${formatNames[format]}</span>
+                <strong>${elo === null ? "—" : `${elo} Elo`}</strong>
+                <span class="ranked-format-division">${division}</span>
+            </div>`;
+        }).join("");
+        const modeValues = [1,2,3].map(format => profile[`rankedElo_${season.id}_${mode}_${format}`]).filter(v => v !== undefined && v !== null && Number.isFinite(Number(v))).map(Number);
+        const modeAverage = modeValues.length ? Math.round(modeValues.reduce((a,b)=>a+b,0)/modeValues.length) : null;
+        return `<section class="ranked-profile-mode">
+            <div class="ranked-profile-mode-heading"><h3>${label}</h3><span class="ranked-mode-average ${modeAverage === null ? "is-unranked" : `division-${bmcDivisionClass(bmcDivision(modeAverage))}`}">${modeAverage === null ? "Sem Elo" : `${modeAverage} Elo · ${bmcDivision(modeAverage)}`}</span></div>
+            <div class="ranked-format-grid">${formats}</div>
+        </section>`;
+    }).join("");
+    body.innerHTML = `<div class="ranked-profile-modal division-${bmcDivisionClass(player.division)}">
+        <div class="ranked-profile-header"><img class="modal-player-avatar" src="${avatar}" alt="Skin de ${player.nome}"><div class="ranked-profile-title"><span class="ranked-profile-eyebrow">BMC RANKED · ${bmcSeasonLabel(season)}</span><h2>${player.nome}</h2><span class="ranked-device-label">${deviceLabel}</span></div></div>
+        <div class="ranked-profile-overall"><span>Elo geral</span><strong>${player.elo}</strong><span class="ranked-division-badge division-${bmcDivisionClass(player.division)}">${player.division}</span></div>
+        <div class="ranked-profile-modes"><h3>Desempenho por modo</h3>${modeSections}</div>
+        <p class="ranked-profile-footnote">Os valores mostram o Elo salvo em cada formato nesta temporada.</p>
+    </div>`;
+    const img = body.querySelector(".modal-player-avatar");
+    img?.addEventListener("error", () => { img.onerror = null; img.src = `https://minotar.net/avatar/${encodeURIComponent(player.nome)}/150`; });
+    modal.classList.add("active", "modal-ranked-open");
+    document.body.classList.add("modal-open");
 }
 
 function bmcRenderEloStats(ranking) {
@@ -4090,3 +4147,14 @@ bmcRankedStyle.textContent = `
 `;
 document.head.appendChild(bmcRankedStyle);
 console.log("BMC Ranked seasons connected to the leaderboard.");
+
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+        const modal = document.getElementById("player-modal");
+        if (modal?.classList.contains("active")) {
+            modal.classList.remove("active", "modal-ranked-open");
+            document.body.classList.remove("modal-open");
+        }
+    }
+});
