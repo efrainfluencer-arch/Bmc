@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Notícias e atualizações oficiais da Brazil MCBE Community.">
+    <title>BMC • News</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <img src="logo.png" alt="BMC Logo">
+                <div class="logo-text"><h2>BMC</h2><span>Brazil MCBE Community</span></div>
+            </a>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="leaderboard.html">Leaderboard</a>
+                <a class="" href="torneios.html">Tournaments</a>
+                <a class="active" href="noticias.html">News</a>
+                <a href="sociais.html">Social</a>
+                <a href="staff.html">Staff</a>
+            </nav>
+            <div class="nav-buttons">
+                <a href="https://discord.gg/FF2jSv7P2C" target="_blank" rel="noopener noreferrer" class="discord-btn">
+                    <i class="ri-discord-fill"></i> Discord
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="bmc-page-section">
+            <div class="container">
+                <div class="bmc-page-intro">
+                    <span class="badge">BMC • Updates</span>
+                    <h1>News &amp; Updates</h1>
+                    <p>Fique por dentro das novidades, anúncios e atualizações oficiais da Brazil MCBE Community.</p>
+                </div>
+                <div class="bmc-page-toolbar">
+                    <a href="index.html" class="secondary-btn"><i class="ri-arrow-left-line"></i> Home</a>
+                </div>
+                <div id="news-list" class="bmc-page-list" aria-live="polite">
+                    <div class="bmc-page-state">Carregando notícias...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div>
+                <h3>Brazil MCBE Community</h3>
+                <p>Official Brazilian Bedrock PvP Tier List.</p>
+            </div>
+            <div>
+                <a href="leaderboard.html">Leaderboard</a>
+                <a href="torneios.html">Tournaments</a>
+                <a href="noticias.html">News</a>
+                <a href="staff.html">Staff</a>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        const firebaseConfig = {
+    apiKey: "AIzaSyDhsV1GJeEvBGBAQmcUXQ8FDcAOXus4DP0",
+    authDomain: "bmc-ranking.firebaseapp.com",
+    projectId: "bmc-ranking",
+    storageBucket: "bmc-ranking.firebasestorage.app",
+    messagingSenderId: "81111080222",
+    appId: "1:81111080222:web:3370c3289ab07b83493d0f"
+};
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const list = document.getElementById("news-list");
+        const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+            "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+        }[char]));
+        const asDate = value => {
+            if (!value) return null;
+            const date = typeof value.toDate === "function" ? value.toDate() : new Date(value);
+            return Number.isNaN(date.getTime()) ? null : date;
+        };
+        const dateLabel = value => {
+            const date = asDate(value);
+            return date ? date.toLocaleDateString("pt-BR", { day:"2-digit", month:"short", year:"numeric", timeZone:"America/Sao_Paulo" }) : "Data não informada";
+        };
+        const validImage = value => {
+            try {
+                const url = new URL(String(value || ""));
+                return ["https:", "http:"].includes(url.protocol) ? url.href : "";
+            } catch { return ""; }
+        };
+        try {
+            const snapshot = await getDocs(collection(db, "bmcNews"));
+            const news = snapshot.docs
+                .map(item => ({ id:item.id, ...item.data() }))
+                .filter(item => item.published !== false)
+                .sort((a,b) => {
+                    const da = asDate(a.updatedAt || a.createdAt)?.getTime() || 0;
+                    const db = asDate(b.updatedAt || b.createdAt)?.getTime() || 0;
+                    return db - da;
+                });
+            if (!news.length) {
+                list.innerHTML = '<div class="bmc-page-state">Ainda não há notícias publicadas. Volte em breve!</div>';
+            } else {
+                list.innerHTML = news.map(item => {
+                    const image = validImage(item.imageUrl);
+                    return `<article class="quick-card bmc-page-item">
+                        <div class="bmc-page-item-body">
+                            ${image ? `<img class="bmc-page-item-image" src="${escapeHTML(image)}" alt="" loading="lazy">` : ""}
+                            <div class="bmc-page-meta"><span class="bmc-page-chip"><i class="ri-calendar-line"></i> ${escapeHTML(dateLabel(item.updatedAt || item.createdAt))}</span></div>
+                            <h2>${escapeHTML(item.title || "Notícia BMC")}</h2>
+                            ${item.summary ? `<p style="margin-top:10px"><strong>${escapeHTML(item.summary)}</strong></p>` : ""}
+                            <div class="bmc-page-content">${escapeHTML(item.content || "")}</div>
+                        </div>
+                    </article>`;
+                }).join("");
+            }
+        } catch (error) {
+            console.error("Erro ao carregar notícias BMC:", error);
+            list.innerHTML = '<div class="bmc-page-state">Não foi possível carregar as notícias. Verifique as regras de leitura da coleção bmcNews no Firestore.</div>';
+        }
+    </script>
+</body>
+</html>

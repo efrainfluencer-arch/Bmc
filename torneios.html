@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Torneios oficiais da Brazil MCBE Community.">
+    <title>BMC • Tournaments</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <img src="logo.png" alt="BMC Logo">
+                <div class="logo-text"><h2>BMC</h2><span>Brazil MCBE Community</span></div>
+            </a>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="leaderboard.html">Leaderboard</a>
+                <a class="active" href="torneios.html">Tournaments</a>
+                <a class="" href="noticias.html">News</a>
+                <a href="sociais.html">Social</a>
+                <a href="staff.html">Staff</a>
+            </nav>
+            <div class="nav-buttons">
+                <a href="https://discord.gg/FF2jSv7P2C" target="_blank" rel="noopener noreferrer" class="discord-btn">
+                    <i class="ri-discord-fill"></i> Discord
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="bmc-page-section">
+            <div class="container">
+                <div class="bmc-page-intro">
+                    <span class="badge">BMC • Competitive</span>
+                    <h1>Tournaments</h1>
+                    <p>Acompanhe os torneios oficiais, participantes, confrontos e campeões da BMC.</p>
+                </div>
+                <div class="bmc-page-toolbar">
+                    <select id="tournament-filter" class="bmc-page-select" aria-label="Filtrar torneios">
+                        <option value="all">Todos os torneios</option>
+                        <option value="registration">Inscrições abertas</option>
+                        <option value="in_progress">Em andamento</option>
+                        <option value="completed">Concluídos</option>
+                        <option value="cancelled">Cancelados</option>
+                    </select>
+                    <a href="index.html" class="secondary-btn"><i class="ri-arrow-left-line"></i> Home</a>
+                </div>
+                <div id="tournament-list" aria-live="polite">
+                    <div class="bmc-page-state">Carregando torneios...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div>
+                <h3>Brazil MCBE Community</h3>
+                <p>Official Brazilian Bedrock PvP Tier List.</p>
+            </div>
+            <div>
+                <a href="leaderboard.html">Leaderboard</a>
+                <a href="torneios.html">Tournaments</a>
+                <a href="noticias.html">News</a>
+                <a href="staff.html">Staff</a>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        const firebaseConfig = {
+    apiKey: "AIzaSyDhsV1GJeEvBGBAQmcUXQ8FDcAOXus4DP0",
+    authDomain: "bmc-ranking.firebaseapp.com",
+    projectId: "bmc-ranking",
+    storageBucket: "bmc-ranking.firebasestorage.app",
+    messagingSenderId: "81111080222",
+    appId: "1:81111080222:web:3370c3289ab07b83493d0f"
+};
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const list = document.getElementById("tournament-list");
+        const filter = document.getElementById("tournament-filter");
+        let tournaments = [];
+        const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+            "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+        }[char]));
+        const asDate = value => {
+            if (!value) return null;
+            const date = typeof value.toDate === "function" ? value.toDate() : new Date(value);
+            return Number.isNaN(date.getTime()) ? null : date;
+        };
+        const dateLabel = value => {
+            const date = asDate(value);
+            return date ? date.toLocaleDateString("pt-BR", { day:"2-digit", month:"short", year:"numeric", timeZone:"America/Sao_Paulo" }) : "Data não informada";
+        };
+        const tierLabel = value => {
+            const raw = String(value || "").toLowerCase();
+            const labels = {dminus:"D-", d:"D", dplus:"D+", cminus:"C-", c:"C", cplus:"C+", bminus:"B-", b:"B", bplus:"B+", aminus:"A-", a:"A", aplus:"A+", sminus:"S-", s:"S", splus:"S+"};
+            return labels[raw] || String(value || "—");
+        };
+        const statusLabels = {
+            registration:"Inscrições abertas",
+            in_progress:"Em andamento",
+            completed:"Concluído",
+            cancelled:"Cancelado"
+        };
+        const timeValue = value => asDate(value)?.getTime() || 0;
+        const playerName = player => player && player.nick ? player.nick : "BYE";
+        function renderTournament(item) {
+            const participants = Array.isArray(item.participants) ? item.participants : [];
+            const rounds = Array.isArray(item.rounds) ? item.rounds : [];
+            const status = item.status || "";
+            const participantSection = status === "registration" ? `
+                <section class="bmc-page-round">
+                    <h3>Participantes</h3>
+                    ${participants.length
+                        ? participants.map((player, i) => `<div class="bmc-page-match">${i+1}. ${escapeHTML(playerName(player))}</div>`).join("")
+                        : `<p>A lista de participantes ainda está vazia.</p>`}
+                    <p class="bmc-page-muted">As inscrições diretamente pelo site serão adicionadas em uma próxima etapa.</p>
+                </section>` : "";
+            const roundsHTML = rounds.length ? rounds.map(round => `
+                <section class="bmc-page-round">
+                    <h3>Rodada ${escapeHTML(round.roundNumber || "")}</h3>
+                    ${(Array.isArray(round.matches) ? round.matches : []).map(match => {
+                        const winner = match.winnerNick || match.winnerId || "";
+                        return `<div class="bmc-page-match">
+                            <strong>${escapeHTML(match.id || "Confronto")}</strong>
+                            <div>${escapeHTML(playerName(match.player1))} vs ${escapeHTML(playerName(match.player2))}</div>
+                            <div>${match.status === "completed" ? `Vencedor: <strong>${escapeHTML(winner || "Não informado")}</strong>` : "Resultado pendente"}</div>
+                        </div>`;
+                    }).join("")}
+                </section>`).join("") : "";
+            const champion = status === "completed" ? `
+                <section class="bmc-page-round">
+                    <h3><i class="ri-trophy-line"></i> Campeão</h3>
+                    <p><strong>${escapeHTML(item.championNick || item.championId || "Não informado")}</strong></p>
+                </section>` : "";
+            return `<article class="quick-card bmc-page-item" style="margin-bottom:24px">
+                <div class="bmc-page-item-body">
+                    <div class="bmc-page-meta">
+                        <span class="bmc-page-chip bmc-status-${escapeHTML(status)}">${escapeHTML(statusLabels[status] || "Status não informado")}</span>
+                        <span class="bmc-page-chip"><i class="ri-gamepad-line"></i> ${escapeHTML(item.mode || "Modo não informado")}</span>
+                        <span class="bmc-page-chip"><i class="ri-bar-chart-line"></i> Tier ${escapeHTML(tierLabel(item.minTier || "dminus"))} – ${escapeHTML(tierLabel(item.maxTier || "splus"))}</span>
+                        <span class="bmc-page-chip"><i class="ri-user-line"></i> ${participants.length}/${escapeHTML(item.maxParticipants || "—")} jogadores</span>
+                    </div>
+                    <h2>${escapeHTML(item.name || "Torneio BMC")}</h2>
+                    ${item.description ? `<p style="margin-top:10px">${escapeHTML(item.description)}</p>` : ""}
+                    <p class="bmc-page-muted">Criado em ${escapeHTML(dateLabel(item.createdAt))} • Formato ${escapeHTML(item.format || "1v1")}</p>
+                    ${participantSection}${roundsHTML}${champion}
+                </div>
+            </article>`;
+        }
+        function render() {
+            const selected = filter.value;
+            const filtered = tournaments.filter(item => selected === "all" || item.status === selected);
+            if (!filtered.length) {
+                list.innerHTML = '<div class="bmc-page-state">Nenhum torneio encontrado para este filtro.</div>';
+                return;
+            }
+            list.innerHTML = filtered.map(renderTournament).join("");
+        }
+        filter.addEventListener("change", render);
+        try {
+            const snapshot = await getDocs(collection(db, "bmcTournaments"));
+            tournaments = snapshot.docs
+                .map(item => ({ id:item.id, ...item.data() }))
+                .sort((a,b) => timeValue(b.createdAt) - timeValue(a.createdAt));
+            render();
+        } catch (error) {
+            console.error("Erro ao carregar torneios BMC:", error);
+            list.innerHTML = '<div class="bmc-page-state">Não foi possível carregar os torneios. Verifique as regras de leitura da coleção bmcTournaments no Firestore.</div>';
+        }
+    </script>
+</body>
+</html>
