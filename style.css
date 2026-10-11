@@ -2469,3 +2469,33 @@ footer{background:rgba(2,8,16,.32);border-top:1px solid var(--border)}
 .footer-content{align-items:flex-start;flex-direction:column}
 }
 @media(max-width:390px){.quick-grid,.players-grid,.testers-grid{grid-template-columns:1fr}.navbar nav,.navbar .container>nav{gap:17px}.ranking-card{gap:7px;padding:10px}.ranking-avatar{width:38px;height:38px}.ranking-name{font-size:.88rem}}
+
+/* BMC CLEAN REMAKE */
+:root{--background:#050f1d;--surface:#0d1b2d;--surface-hover:#13253b;--primary:#20c978;--primary-hover:#36dc8a;--text:#f4f7fb;--text-secondary:#a8b6c8;--border:rgba(151,177,207,.14);--radius:18px;color-scheme:dark}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{background:radial-gradient(ellipse at 12% 0%,rgba(17,91,111,.15),transparent 38%),radial-gradient(ellipse at 92% 35%,rgba(15,75,83,.12),transparent 34%),linear-gradient(160deg,#050d19 0%,#07182a 52%,#061321 100%);color:var(--text)}
+.navbar{background:rgba(5,15,29,.94);border-bottom:1px solid rgba(151,177,207,.12);backdrop-filter:blur(12px);box-shadow:0 6px 22px rgba(0,0,0,.1)}
+.navbar nav{display:flex;gap:clamp(12px,2.1vw,26px);max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.navbar nav::-webkit-scrollbar{display:none}.navbar nav a{white-space:nowrap;flex:0 0 auto;position:relative}
+.navbar nav a.active{color:var(--primary)}
+.navbar nav a::after{content:"";position:absolute;left:0;right:0;bottom:3px;height:2px;background:var(--primary);border-radius:2px;transform:scaleX(0);transform-origin:left;transition:transform .2s ease}
+.navbar nav a:hover::after,.navbar nav a.active::after{transform:scaleX(1)}
+.logo img{border-radius:12px}
+.card,.stat-card,.quick-card,.player-card,.tournament-card,.news-card,.ranking-card,.social-card,.dashboard-card{border-color:var(--border);box-shadow:0 8px 24px rgba(0,0,0,.12);transition:transform .2s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease}
+.card:hover,.stat-card:hover,.quick-card:hover,.player-card:hover,.tournament-card:hover,.news-card:hover,.ranking-card:hover,.social-card:hover{transform:translateY(-3px);border-color:rgba(32,201,120,.32);box-shadow:0 12px 28px rgba(0,0,0,.18)}
+input,select,textarea{background:#0b192a!important;color:var(--text)!important;border:1px solid var(--border)!important;border-radius:14px;max-width:100%;transition:border-color .18s ease,box-shadow .18s ease}
+input:focus,select:focus,textarea:focus{border-color:rgba(32,201,120,.7)!important;box-shadow:0 0 0 3px rgba(32,201,120,.09)!important;outline:none}
+.container,main,section,.content,.page-content{min-width:0}
+p,h1,h2,h3,a,span,small{overflow-wrap:anywhere}
+@media(prefers-reduced-motion:no-preference){main,.page-content,.hero,.leaderboard-header,.news-hero,.tournaments-hero{animation:bmcFadeUp .38s ease both}@keyframes bmcFadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+.news-grid,.news-list,.tournaments-grid,.tournament-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:18px;align-items:stretch}
+.news-card,.tournament-card{min-width:0;overflow:hidden;border-radius:18px;background:rgba(13,27,45,.88)}
+.news-card img,.tournament-card img{width:100%;max-height:280px;object-fit:cover}
+.news-card p,.tournament-card p{line-height:1.65;color:var(--text-secondary)}
+.news-content,.tournament-content{min-width:0;overflow-wrap:anywhere}.news-content img{border-radius:12px;max-width:100%;height:auto}
+.tournament-card table,.bracket,.match-list{width:100%;max-width:100%;overflow-x:auto}
+footer{border-top:1px solid var(--border);background:rgba(4,12,22,.38)}
+.stat-number,.stat-card strong,.stat-value,.counter-number{font-variant-numeric:tabular-nums}
+@media(max-width:760px){.container{width:min(100% - 32px,1200px)}.navbar nav{gap:18px;padding-bottom:2px}.navbar nav a{font-size:.94rem}.logo-text span{display:none}h1{font-size:clamp(2rem,8vw,3rem);line-height:1.12}.news-grid,.news-list,.tournaments-grid,.tournament-list{grid-template-columns:minmax(0,1fr);gap:14px}.hero,.page-hero{padding-top:30px;padding-bottom:28px}}
+@media(max-width:420px){.container{width:calc(100% - 24px)}.navbar nav{gap:15px}.navbar nav a{font-size:.88rem}}
