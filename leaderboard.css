@@ -2203,3 +2203,7 @@ body.modal-open { overflow:hidden; }
   .ranked-profile-mode-heading { align-items:flex-start; flex-direction:column; }
   .ranked-mode-average { text-align:left; }
 }
+
+/* Responsive finishing touches */
+@media(max-width:700px){.leaderboard-stats .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bmc-extra-filters{grid-template-columns:1fr}.top-card.place-1{transform:none}.ranking-card{min-width:0}.ranking-name{overflow-wrap:anywhere}}
+@media(max-width:390px){.ranking-card{gap:7px;padding:9px}.ranking-avatar{width:38px;height:38px}.ranking-tier{min-width:36px;padding:5px 6px}}
