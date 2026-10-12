@@ -2311,3 +2311,12 @@ body.modal-open { overflow:hidden; }
 .player-mode-row:nth-child(8) { animation-delay:.28s; }
 @media(max-width:460px) { .player-mode-tier-group { gap:7px; } .player-mode-description { font-size:.72rem; } }
 @media(prefers-reduced-motion:reduce) { .player-mode-row { transition:none !important; animation:none !important; } }
+
+
+/* BMC profile + leaderboard responsive fixes */
+html,body { min-height:100%; background-color:#081626; }
+body { background-image:linear-gradient(180deg,#0a1a2b 0%,#0b1d30 55%,#081626 100%); background-attachment:scroll; }
+.player-modal,.player-modal-content,.modal-content,.player-profile-modal { max-width:calc(100vw - 24px); box-sizing:border-box; }
+.player-mode-tier-group { min-width:0; overflow-wrap:anywhere; }
+@media (min-width:1000px) { .player-modal,.player-modal-content,.modal-content,.player-profile-modal { max-height:calc(100vh - 48px); overflow-y:auto; } }
+@media (max-width:600px) { .player-mode-tier-group { gap:8px; } }
