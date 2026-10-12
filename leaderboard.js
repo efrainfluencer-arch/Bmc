@@ -324,6 +324,27 @@ function formatTier(t) {
 
 
 /* =========================================
+   DESCRIÇÃO DOS TIERS — PERFIL BMC
+   Apenas visual: não altera os dados do Firebase.
+========================================= */
+
+function descricaoTier(tier) {
+    const normalizado = normalizarTier(tier);
+    const tierVisivel = formatTier(tier);
+    const base = normalizado.replace(/plus|minus/g, "");
+
+    if (base === "s") return "Elite";
+    if (normalizado === "aplus") return "Jogador profissional";
+    if (normalizado === "a" || normalizado === "aminus") return "Excelente jogador";
+    if (normalizado === "bplus") return "Bom jogador";
+    if (base === "b") return "Decente";
+    if (base === "c") return "Mediano";
+    if (base === "d") return "Iniciante";
+    return tierVisivel ? "Classificação BMC" : "Sem classificação";
+}
+
+
+/* =========================================
    NORMALIZAR TIER
 ========================================= */
 
@@ -3472,20 +3493,18 @@ function abrirPlayerModal(
                             </span>
 
 
-                            <span
-                                class="
-                                    player-tier
-                                    tier-${normalizarTier(
-                                        tier
-                                    )}
-                                "
-                            >
-
-                                ${formatTier(
-                                    tier
-                                )}
-
-                            </span>
+                            <div class="player-mode-tier-group">
+                                <span
+                                    class="player-mode-description"
+                                >
+                                    ${descricaoTier(tier)}
+                                </span>
+                                <span
+                                    class="player-tier tier-${normalizarTier(tier)}"
+                                >
+                                    ${formatTier(tier)}
+                                </span>
+                            </div>
 
                         </div>
 
