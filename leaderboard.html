@@ -277,39 +277,5 @@
     </main>
     <script type="module" src="leaderboard.js"></script>
 
-<script>
-(() => {
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function animateNumber(el) {
-    if (!el || el.dataset.countAnimating === 'true') return;
-    const raw = (el.textContent || '').trim();
-    if (!/^\d+(?:[.,]\d+)?$/.test(raw)) return;
-    const target = Number(raw.replace(',', '.'));
-    if (!Number.isFinite(target)) return;
-    if (reducedMotion) return;
-    el.dataset.countAnimating = 'true';
-    const start = performance.now(), duration = 850;
-    const tick = now => {
-      const p = Math.min((now - start) / duration, 1);
-      el.textContent = Math.round(target * (1 - Math.pow(1-p,3))).toLocaleString();
-      if (p < 1) requestAnimationFrame(tick);
-      else { el.textContent = raw; el.dataset.countAnimating = 'false'; }
-    };
-    requestAnimationFrame(tick);
-  }
-  function scan(root=document) { root.querySelectorAll?.('.stat-card h2, .stats-grid h2').forEach(animateNumber); }
-  document.addEventListener('DOMContentLoaded', () => {
-    scan();
-    const observer = new MutationObserver(records => records.forEach(r => {
-      const el = r.target.nodeType === 1 ? r.target : r.target.parentElement;
-      if (el?.matches?.('.stat-card h2, .stats-grid h2')) {
-        el.dataset.countAnimating = 'false'; animateNumber(el);
-      } else scan(el?.parentElement || document);
-    }));
-    document.querySelectorAll('.stats-grid, .stat-card').forEach(el => observer.observe(el,{childList:true,characterData:true,subtree:true}));
-  });
-})();
-</script>
-
 </body>
 </html>
