@@ -76,7 +76,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         const firebaseConfig = {
     apiKey: "AIzaSyDhsV1GJeEvBGBAQmcUXQ8FDcAOXus4DP0",
     authDomain: "bmc-ranking.firebaseapp.com",
@@ -126,7 +126,14 @@
                     ${participants.length
                         ? participants.map((player, i) => `<div class="bmc-page-match">${i+1}. ${escapeHTML(playerName(player))}</div>`).join("")
                         : `<p>A lista de participantes ainda está vazia.</p>`}
-                    <p class="bmc-page-muted">As inscrições diretamente pelo site serão adicionadas em uma próxima etapa.</p>
+                    <h3 style="margin-top:18px">Inscrever-se</h3>
+                    <form class="bmc-signup-form" data-tournament-id="${escapeHTML(item.id)}" style="display:grid;gap:10px;max-width:480px">
+                        <label>Nick do Minecraft<input name="nick" maxlength="32" required autocomplete="off" style="display:block;width:100%;padding:10px;border-radius:8px;margin-top:5px"></label>
+                        <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="noDiscord"> Não tenho Discord</label>
+                        <label class="discord-id-label">ID do Discord<input name="discordId" maxlength="20" inputmode="numeric" placeholder="ID numérico da conta" style="display:block;width:100%;padding:10px;border-radius:8px;margin-top:5px"></label>
+                        <button type="submit" class="primary-btn">Enviar inscrição</button>
+                        <p class="bmc-page-muted" data-signup-message role="status">Inscrições sem Discord ficam pendentes para a staff verificar.</p>
+                    </form>
                 </section>` : "";
             const roundsHTML = rounds.length ? rounds.map(round => `
                 <section class="bmc-page-round">
@@ -168,6 +175,35 @@
                 return;
             }
             list.innerHTML = filtered.map(renderTournament).join("");
+            list.querySelectorAll(".bmc-signup-form").forEach(form => {
+                const noDiscord = form.elements.noDiscord;
+                const discordInput = form.elements.discordId;
+                const syncDiscord = () => { discordInput.disabled = noDiscord.checked; discordInput.required = !noDiscord.checked; if (noDiscord.checked) discordInput.value = ""; };
+                noDiscord.addEventListener("change", syncDiscord); syncDiscord();
+                form.addEventListener("submit", async event => {
+                    event.preventDefault();
+                    const button = form.querySelector('button[type="submit"]');
+                    const message = form.querySelector("[data-signup-message]");
+                    const nick = form.elements.nick.value.trim();
+                    const hasDiscord = !noDiscord.checked;
+                    const discordId = form.elements.discordId.value.trim();
+                    if (nick.length < 2) { message.textContent = "Informe um Nick válido."; return; }
+                    if (hasDiscord && !/^\d{17,20}$/.test(discordId)) { message.textContent = "Informe um ID Discord válido (17 a 20 dígitos), ou marque que não tem Discord."; return; }
+                    button.disabled = true; message.textContent = "Enviando inscrição...";
+                    try {
+                        await addDoc(collection(db, "bmcTournamentSignupRequests"), {
+                            tournamentId: form.dataset.tournamentId, nick, hasDiscord,
+                            discordId: hasDiscord ? discordId : null,
+                            status: "pending", createdAt: serverTimestamp()
+                        });
+                        form.reset(); syncDiscord();
+                        message.textContent = hasDiscord ? "Pedido enviado! A inscrição será validada pelo sistema/staff antes de entrar na lista oficial." : "Pedido enviado para análise da staff. Você ainda não está confirmado no torneio.";
+                    } catch (error) {
+                        console.error("Erro ao enviar inscrição:", error);
+                        message.textContent = "Não foi possível enviar. Verifique as regras da coleção bmcTournamentSignupRequests no Firestore.";
+                    } finally { button.disabled = false; }
+                });
+            });
         }
         filter.addEventListener("change", render);
         try {
