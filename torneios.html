@@ -192,15 +192,17 @@
                     button.disabled = true; message.textContent = "Enviando inscrição...";
                     try {
                         await addDoc(collection(db, "bmcTournamentSignupRequests"), {
-                            tournamentId: form.dataset.tournamentId, nick, hasDiscord,
-                            discordId: hasDiscord ? discordId : null,
-                            status: "pending", createdAt: serverTimestamp()
+                            tournamentId: form.dataset.tournamentId,
+                            minecraftNick: nick,
+                            discordId: hasDiscord ? discordId : "",
+                            status: "pending",
+                            createdAt: serverTimestamp()
                         });
                         form.reset(); syncDiscord();
                         message.textContent = hasDiscord ? "Pedido enviado! A inscrição será validada pelo sistema/staff antes de entrar na lista oficial." : "Pedido enviado para análise da staff. Você ainda não está confirmado no torneio.";
                     } catch (error) {
                         console.error("Erro ao enviar inscrição:", error);
-                        message.textContent = "Não foi possível enviar. Verifique as regras da coleção bmcTournamentSignupRequests no Firestore.";
+                        message.textContent = `Erro ao enviar: ${error.code || "desconhecido"} — ${error.message || "Sem detalhes"}`;
                     } finally { button.disabled = false; }
                 });
             });
