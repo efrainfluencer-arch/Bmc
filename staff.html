@@ -6,9 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Staff Panel • BMC</title>
+    <title>Painel da Equipe • BMC</title>
 
-    <meta name="description" content="Brazil MCBE Community Staff Panel">
+    <meta name="description" content="Painel da equipe da Brazil MCBE Community">
 
     <!-- Se o staff.html estiver dentro da pasta pages -->
     <link rel="stylesheet" href="style.css">
@@ -47,21 +47,21 @@
             </a>
 
             <nav>
-                <a href="index.html">Home</a>
-                <a href="leaderboard.html">Leaderboard</a>
-                <a href="torneios.html">Tournaments</a>
-                <a href="noticias.html">News</a>
-                <a href="sociais.html">Social</a>
-                <a href="staff.html" class="active">Staff</a>
+                <a href="index.html">Início</a>
+                <a href="leaderboard.html">Ranking</a>
+                <a href="torneios.html">Torneios</a>
+                <a href="noticias.html">Notícias</a>
+                <a href="sociais.html">Sociais</a>
+                <a href="staff.html" class="active">Equipe</a>
             </nav>
 
             <a href="https://discord.gg/FF2jSv7P2C"
                 target="_blank"
+                rel="noopener noreferrer"
                 class="discord-btn">
 
-                <i class="ri-discord-fill"></i>
-
-                Discord
+                <i class="ri-discord-fill" aria-hidden="true"></i>
+                <span class="discord-label">Discord</span>
 
             </a>
 
@@ -81,7 +81,7 @@
                 <i class="ri-shield-keyhole-line"></i>
             </div>
 
-            <h1>Staff Login</h1>
+            <h1>Login da Equipe</h1>
 
             <p>
                 Faça login para acessar o painel administrativo da BMC.
@@ -126,11 +126,11 @@
             <div class="container">
 
                 <span class="badge">
-                    Staff Panel
+                    Painel da Equipe
                 </span>
 
                 <h1>
-                    Staff Dashboard
+                    Painel da Equipe
                 </h1>
 
                 <p>
@@ -154,7 +154,7 @@
 
                         <h2 id="players-count">0</h2>
 
-                        <span>Players</span>
+                        <span>Jogadores</span>
 
                     </div>
 
@@ -175,7 +175,7 @@
 
                         <h2>8</h2>
 
-                        <span>Modes</span>
+                        <span>Modos</span>
 
                     </div>
 
@@ -194,7 +194,7 @@
 
                 <div class="panel-card">
 
-                    <h2>Add Player</h2>
+                    <h2>Adicionar jogador</h2>
 
                     <form id="player-form">
 
@@ -211,7 +211,7 @@
                             </option>
 
                             <option value="pc">
-                                ⌨️ Keyboard & Mouse
+                                ⌨️ Teclado e Mouse
                             </option>
 
                             <option value="controller">
@@ -260,7 +260,7 @@
                         <input
                             id="posicao"
                             type="number"
-                            placeholder="Position"
+                            placeholder="Posição"
                         >
 
                         <select id="status">
@@ -284,7 +284,7 @@
                             class="primary-btn"
                             onclick="addPlayer()"
                         >
-                            Add Player
+                            Adicionar jogador
                         </button>
 
                     </form>
@@ -304,7 +304,7 @@
 
                 <div class="players-header">
 
-                    <h2>Players</h2>
+                    <h2>Jogadores</h2>
 
                     <div class="search-box">
 
@@ -313,7 +313,7 @@
                         <input
                             type="text"
                             id="busca"
-                            placeholder="Search player..."
+                            placeholder="Buscar jogador..."
                             oninput="filtrarPlayers()"
                         >
 
