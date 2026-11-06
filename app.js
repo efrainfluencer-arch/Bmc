@@ -66,6 +66,60 @@ const db = getFirestore(app);
 let players = [];
 
 let editandoPlayerId = null;
+let playersUnsubscribe = null;
+
+const CARGOS = [
+    { value: "owner", label: "Dono", color: "#facc15" },
+    { value: "admin", label: "Adm", color: "#ef4444" },
+    { value: "mod", label: "Moderador", color: "#A855F7" },
+    { value: "tester", label: "Tester", color: "#e91e63" },
+    { value: "famous", label: "Famoso", color: "#ec4899" },
+    { value: "media", label: "Média", color: "#a855f7" },
+    { value: "helper", label: "Ajudante", color: "#22c55e" },
+    { value: "vip", label: "VIP", color: "#facc15" }
+];
+
+function normalizarNick(valor) {
+    return String(valor || "").trim().toLocaleLowerCase("pt-BR");
+}
+
+function normalizarCargos(player) {
+    const lista = Array.isArray(player?.cargos) ? player.cargos : [];
+    const legado = player?.discordTag && player.discordTag !== "none" ? [player.discordTag] : [];
+    return [...new Set([...lista, ...legado].map(c => String(c).trim().toLowerCase()).filter(c => c && c !== "none"))];
+}
+
+function escaparHTML(valor) {
+    return String(valor ?? "").replace(/[&<>"']/g, caractere => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[caractere]);
+}
+
+function prepararSeletorCargos() {
+    const seletor = document.getElementById("discordTag");
+    if (!seletor || seletor.dataset.multipleReady === "true") return;
+    seletor.multiple = true;
+    seletor.dataset.multipleReady = "true";
+    seletor.setAttribute("aria-label", "Cargos do jogador (selecione vários)");
+    seletor.title = "Use Ctrl ou toque para selecionar vários cargos";
+    seletor.innerHTML = CARGOS.map(c => `<option value="${c.value}">${c.label}</option>`).join("");
+    seletor.size = Math.min(CARGOS.length, 4);
+}
+
+function lerCargosFormulario() {
+    const seletor = document.getElementById("discordTag");
+    if (!seletor) return [];
+    if (seletor.multiple) return [...seletor.selectedOptions].map(o => o.value);
+    return seletor.value && seletor.value !== "none" ? [seletor.value] : [];
+}
+
+function definirCargosFormulario(cargos) {
+    const seletor = document.getElementById("discordTag");
+    if (!seletor) return;
+    const valores = new Set(cargos || []);
+    [...seletor.options].forEach(o => o.selected = valores.has(o.value));
+    if (!seletor.multiple) seletor.value = cargos?.[0] || "none";
+}
 
 
 
@@ -185,6 +239,9 @@ onAuthStateChanged(auth, user => {
 
     } else {
 
+        if (playersUnsubscribe) { playersUnsubscribe(); playersUnsubscribe = null; }
+        players = [];
+
         console.log(
             "Nenhum usuário autenticado."
         );
@@ -220,7 +277,9 @@ function iniciarPlayers(){
         collection(db, "players");
 
 
-    onSnapshot(
+    if (playersUnsubscribe) playersUnsubscribe();
+
+    playersUnsubscribe = onSnapshot(
         playersRef,
 
         snapshot => {
@@ -325,10 +384,8 @@ window.addPlayer = async function(){
             ? statusInput.value
             : "active";
 
-    const discordTag =
-        tagInput
-            ? tagInput.value
-            : "none";
+    const cargos = lerCargosFormulario();
+    const discordTag = cargos[0] || "none";
 
 
     if(!nome){
@@ -389,6 +446,8 @@ window.addPlayer = async function(){
 
                     discordTag: discordTag,
 
+                    cargos: cargos,
+
                     criadoEm:
                         new Date()
 
@@ -408,7 +467,8 @@ window.addPlayer = async function(){
             nome,
             {
                 status: status,
-                discordTag: discordTag
+                discordTag: discordTag,
+                cargos: cargos
             }
         );
 
@@ -452,11 +512,9 @@ function limparFormulario(){
 
 
     if(form){
-
         form.reset();
-
+        definirCargosFormulario([]);
     }
-
 
     editandoPlayerId =
         null;
@@ -502,7 +560,7 @@ async function sincronizarDadosDoPlayer(nome, dados){
 
         if(
             player.nome &&
-            player.nome.toLowerCase() === nome.toLowerCase()
+            normalizarNick(player.nome) === normalizarNick(nome)
         ){
 
             atualizacoes.push(
@@ -525,18 +583,9 @@ async function sincronizarDadosDoPlayer(nome, dados){
 // =========================================
 
 function formatDiscordTag(tag){
-
-    const nomes = {
-        member: "Member",
-        tester: "Tester",
-        media: "Media",
-        famous: "Famous",
-        mod: "Mod",
-        admin: "Admin",
-        owner: "Owner"
-    };
-
-    return nomes[tag] || tag;
+    const cargo = CARGOS.find(c => c.value === String(tag).toLowerCase());
+    const legados = { member: "Member", famous: "Famoso", media: "Média", mod: "Moderador", admin: "Adm", owner: "Dono" };
+    return cargo?.label || legados[tag] || tag;
 }
 
 
@@ -591,10 +640,12 @@ function garantirEstilosMetaStaff(){
 
         .player-discord-tag.tag-admin { color:#ef4444; background:rgba(239,68,68,.12); }
         .player-discord-tag.tag-owner { color:#facc15; background:rgba(250,204,21,.12); }
-        .player-discord-tag.tag-tester { color:#f97316; background:rgba(249,115,22,.12); }
+        .player-discord-tag.tag-tester { color:#e91e63; background:rgba(233,30,99,.12); }
         .player-discord-tag.tag-media { color:#a855f7; background:rgba(168,85,247,.12); }
         .player-discord-tag.tag-famous { color:#ec4899; background:rgba(236,72,153,.12); }
-        .player-discord-tag.tag-mod { color:#3b82f6; background:rgba(59,130,246,.12); }
+        .player-discord-tag.tag-mod { color:#A855F7; background:rgba(168,85,247,.12); }
+        .player-discord-tag.tag-helper { color:#22c55e; background:rgba(34,197,94,.12); }
+        .player-discord-tag.tag-vip { color:#facc15; background:rgba(250,204,21,.12); }
         .player-discord-tag.tag-member { color:#9ca3af; background:rgba(156,163,175,.12); }
     `;
 
@@ -661,8 +712,10 @@ function renderPlayers(lista){
         // AVATAR
         // =====================================
       
-        const avatar =
-            `https://tabavatars.net/avatar/?username=${encodeURIComponent(player.nome)}&platform=bedrock&size=150&type=helm`;
+        const nomeSeguro = escaparHTML(player.nome);
+        const avatar = player.avatarUrl || `https://tabavatars.net/avatar/?username=${encodeURIComponent(player.nome)}&platform=bedrock&size=150&type=helm`;
+        const cargos = normalizarCargos(player);
+        const tagsHTML = cargos.map(c => `<span class="player-discord-tag tag-${escaparHTML(c)}">${escaparHTML(formatDiscordTag(c))}</span>`).join("");
 
 
         // =====================================
@@ -694,7 +747,7 @@ function renderPlayers(lista){
                     class="player-tier tier-${player.tier}"
                 >
 
-                    ${formatTier(player.tier)}
+                    ${escaparHTML(formatTier(player.tier))}
 
                 </span>
 
@@ -711,8 +764,8 @@ function renderPlayers(lista){
             <div class="player-head">
 
                 <img
-                    src="${avatar}"
-                    alt="${player.nome}"
+                    src="${escaparHTML(avatar)}"
+                    alt="${nomeSeguro}"
                 >
 
             </div>
@@ -720,14 +773,14 @@ function renderPlayers(lista){
 
             <h3 class="player-name">
 
-                ${player.nome}
+                ${nomeSeguro}
 
             </h3>
 
 
             <p class="player-mode">
 
-                ${player.modo}
+                ${escaparHTML(player.modo)}
 
             </p>
 
@@ -735,11 +788,7 @@ function renderPlayers(lista){
                 <span class="player-status ${player.status === "inactive" ? "inactive" : "active"}">
                     ${player.status === "inactive" ? "● Inativo" : "● Ativo"}
                 </span>
-                ${player.discordTag && player.discordTag !== "none" ? `
-                    <span class="player-discord-tag tag-${player.discordTag}">
-                        ${formatDiscordTag(player.discordTag)}
-                    </span>
-                ` : ""}
+${tagsHTML}
             </div>
 
 
@@ -805,16 +854,9 @@ window.filtrarPlayers = function(){
             .toLowerCase();
 
 
-    const filtrados =
-        players.filter(player =>
-
-            player.nome
-                .toLowerCase()
-                .includes(
-                    termo
-                )
-
-        );
+    const filtrados = players.filter(player =>
+        normalizarNick(player.nome).includes(normalizarNick(termo))
+    );
 
 
     renderPlayers(
@@ -896,13 +938,7 @@ window.editarPlayer = function(id){
             player.status || "active";
     }
 
-    const discordTag =
-        document.getElementById("discordTag");
-
-    if(discordTag){
-        discordTag.value =
-            player.discordTag || "none";
-    }
+    definirCargosFormulario(normalizarCargos(player));
 
 
     const button =
@@ -971,6 +1007,7 @@ window.salvarEdicao = async function(){
             "tier"
         ).value;
 
+    if (!nome) { alert("Digite o nickname do player."); return; }
 
     const posicaoInput =
         document.getElementById(
@@ -994,10 +1031,8 @@ window.salvarEdicao = async function(){
             ? statusInput.value
             : "active";
 
-    const discordTag =
-        tagInput
-            ? tagInput.value
-            : "none";
+    const cargos = lerCargosFormulario();
+    const discordTag = cargos[0] || "none";
 
 
     try {
@@ -1006,35 +1041,20 @@ window.salvarEdicao = async function(){
         // =====================================
 
         await updateDoc(
-
-            doc(
-                db,
-                "players",
-                editandoPlayerId
-            ),
-
+            doc(db, "players", editandoPlayerId),
             {
-
-                nome: nome,
-
-                dispositivo:
-                    dispositivo,
-
-                modo: modo,
-
-                tier: tier,
-
-                posicao:
-                    posicao,
-
-                status: status,
-
-                discordTag: discordTag
-
+                nome,
+                dispositivo,
+                modo,
+                tier,
+                posicao,
+                status,
+                discordTag,
+                cargos
             }
-
         );
 
+        await sincronizarDadosDoPlayer(nome, { status, discordTag, cargos });
 
         alert(
             "Player atualizado com sucesso!"
@@ -1157,10 +1177,7 @@ function atualizarStats(players){
     const nomes =
         new Set(
 
-            players.map(
-                player =>
-                    player.nome
-            )
+            players.map(player => normalizarNick(player.nome)).filter(Boolean)
 
         );
 
@@ -1221,6 +1238,6 @@ function formatTier(tier){
 // 🛡️ LOG
 // =========================================
 
-console.log(
-    "BMC Staff App iniciado."
-);
+prepararSeletorCargos();
+
+console.log("BMC Staff App iniciado.");

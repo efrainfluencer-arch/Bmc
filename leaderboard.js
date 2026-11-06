@@ -63,7 +63,9 @@ let players = [];
 
 let filtroBusca = "";
 
-let filtroDispositivo = "todos";
+let filtroDispositivo = "mobile";
+let filtroCargo = "todos";
+let filtroStatus = "todos";
 
 let filtroModo = "overall";
 
@@ -101,7 +103,7 @@ const MODOS = [
     "NodeBuff",
     "SkyWars",
     "Sumo",
-    "The Bridge"
+    "Survival Games"
 
 ];
 
@@ -320,27 +322,6 @@ function formatTier(t) {
         )
         .toUpperCase();
 
-}
-
-
-/* =========================================
-   DESCRIÇÃO DOS TIERS — PERFIL BMC
-   Apenas visual: não altera os dados do Firebase.
-========================================= */
-
-function descricaoTier(tier) {
-    const normalizado = normalizarTier(tier);
-    const tierVisivel = formatTier(tier);
-    const base = normalizado.replace(/plus|minus/g, "");
-
-    if (base === "s") return "Elite";
-    if (normalizado === "aplus") return "Jogador profissional";
-    if (normalizado === "a" || normalizado === "aminus") return "Excelente jogador";
-    if (normalizado === "bplus") return "Bom jogador";
-    if (base === "b") return "Decente";
-    if (base === "c") return "Mediano";
-    if (base === "d") return "Iniciante";
-    return tierVisivel ? "Classificação BMC" : "Sem classificação";
 }
 
 
@@ -1015,46 +996,48 @@ function calcularPosicoesOverall(lista) {
    STATUS / TAG DISCORD
 ========================================= */
 
+const CARGOS_HIERARQUIA = ["owner", "admin", "mod", "tester", "famous", "media", "helper", "vip"];
+const NOMES_CARGOS = {
+    owner: "Dono", admin: "Adm", mod: "Moderador", moderador: "Moderador",
+    tester: "Tester", famous: "Famoso", famoso: "Famoso", media: "Média",
+    "média": "Média", helper: "Ajudante", ajudante: "Ajudante", vip: "VIP",
+    member: "Member"
+};
+
+function normalizarNick(valor) {
+    return String(valor || "").trim().toLocaleLowerCase("pt-BR");
+}
+
+function getPlayerCargos(player) {
+    const antigos = player?.discordTag && player.discordTag !== "none" ? [player.discordTag] : [];
+    const atuais = Array.isArray(player?.cargos) ? player.cargos : [];
+    const normalizados = [...new Set([...atuais, ...antigos].map(c => String(c).trim().toLowerCase()).filter(Boolean))];
+    return normalizados.sort((a, b) => {
+        const ia = CARGOS_HIERARQUIA.indexOf(a);
+        const ib = CARGOS_HIERARQUIA.indexOf(b);
+        return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib);
+    });
+}
+
+function getCargoPrincipal(player) {
+    return getPlayerCargos(player).find(c => CARGOS_HIERARQUIA.includes(c)) || getPlayerCargos(player)[0] || "";
+}
+
 function getStatus(player) {
-    return player.status === "inactive"
-        ? "inactive"
-        : "active";
+    return player.status === "inactive" ? "inactive" : "active";
 }
 
 function formatDiscordTag(tag) {
-    const nomes = {
-        member: "Member",
-        tester: "Tester",
-        media: "Media",
-        famous: "Famous",
-        mod: "Mod",
-        admin: "Admin",
-        owner: "Owner"
-    };
-
-    return nomes[tag] || "";
+    return NOMES_CARGOS[String(tag || "").toLowerCase()] || String(tag || "");
 }
 
 function getDiscordTagClass(tag) {
-    return tag && tag !== "none"
-        ? `tag-${tag}`
-        : "";
+    return tag ? `tag-${String(tag).toLowerCase().replace(/[^a-z0-9_-]/g, "")}` : "";
 }
 
-function getDiscordTagHTML(player) {
-    if (!player.discordTag || player.discordTag === "none") {
-        return "";
-    }
-
-    const label = formatDiscordTag(player.discordTag);
-
-    if (!label) return "";
-
-    return `
-        <span class="leaderboard-discord-tag ${getDiscordTagClass(player.discordTag)}">
-            ${label}
-        </span>
-    `;
+function getDiscordTagHTML(player, todos = false) {
+    const cargos = todos ? getPlayerCargos(player) : [getCargoPrincipal(player)].filter(Boolean);
+    return cargos.map(tag => `<span class="leaderboard-discord-tag ${getDiscordTagClass(tag)}">${formatDiscordTag(tag)}</span>`).join("");
 }
 
 function garantirEstilosTags() {
@@ -1095,11 +1078,15 @@ function garantirEstilosTags() {
         }
         .leaderboard-discord-tag.tag-admin { color:#ef4444; background:rgba(239,68,68,.12); }
         .leaderboard-discord-tag.tag-owner { color:#facc15; background:rgba(250,204,21,.12); }
-        .leaderboard-discord-tag.tag-tester { color:#f97316; background:rgba(249,115,22,.12); }
+        .leaderboard-discord-tag.tag-tester { color:#e91e63; background:rgba(233,30,99,.12); }
         .leaderboard-discord-tag.tag-media { color:#a855f7; background:rgba(168,85,247,.12); }
         .leaderboard-discord-tag.tag-famous { color:#ec4899; background:rgba(236,72,153,.12); }
-        .leaderboard-discord-tag.tag-mod { color:#3b82f6; background:rgba(59,130,246,.12); }
+        .leaderboard-discord-tag.tag-mod { color:#A855F7; background:rgba(168,85,247,.12); }
+        .leaderboard-discord-tag.tag-helper { color:#22c55e; background:rgba(34,197,94,.12); }
+        .leaderboard-discord-tag.tag-vip { color:#facc15; background:rgba(250,204,21,.12); }
         .leaderboard-discord-tag.tag-member { color:#9ca3af; background:rgba(156,163,175,.12); }
+        .leaderboard-discord-tag.tag-helper { color:#22c55e; background:rgba(34,197,94,.12); }
+        .leaderboard-discord-tag.tag-vip { color:#facc15; background:rgba(250,204,21,.12); }
         .ranking-card.player-inactive { opacity:.62; }
     `;
     document.head.appendChild(style);
@@ -1125,21 +1112,27 @@ function calcularRanking(
         filtroModo !== "overall"
     ) {
 
+        const unicosModo = new Map();
+        lista.filter(player => player.nome && player.modo && player.tier)
+            .forEach(player => {
+                const chave = normalizarNick(player.nome);
+                const existente = unicosModo.get(chave);
+                if (!existente) unicosModo.set(chave, { ...player, cargos: getPlayerCargos(player) });
+                else {
+                    existente.cargos = [...new Set([...getPlayerCargos(existente), ...getPlayerCargos(player)])];
+                    if (player.status === "inactive") existente.status = "inactive";
+                    if (!existente.avatarUrl && player.avatarUrl) existente.avatarUrl = player.avatarUrl;
+                }
+            });
+
         const rankingModo =
-
-            lista
-
-                .filter(
-                    player =>
-                        player.nome &&
-                        player.modo &&
-                        player.tier
-                )
-
+            [...unicosModo.values()]
                 .map(
                     player => ({
 
                         ...player,
+
+                        posicoes: player.posicoes || {},
 
                         tier:
                             normalizarTier(
@@ -1311,16 +1304,17 @@ function calcularRanking(
                Criar player.
             */
 
-            if (
-                !mapa[p.nome]
-            ) {
+            const chaveNick = normalizarNick(p.nome);
+            if (!mapa[chaveNick]) {
 
-                mapa[p.nome] = {
+                mapa[chaveNick] = {
     id:
         p.id,
 
     nome:
         p.nome,
+
+    cargos: getPlayerCargos(p),
 
     dispositivo:
         p.dispositivo ||
@@ -1344,7 +1338,7 @@ function calcularRanking(
 
 
             const player =
-                mapa[p.nome];
+                mapa[chaveNick];
 
 
             /*
@@ -1360,9 +1354,8 @@ function calcularRanking(
 
             }
 
-            if (p.status === "inactive") {
-                player.status = "inactive";
-            }
+            player.cargos = [...new Set([...(player.cargos || []), ...getPlayerCargos(p)])];
+            if (p.status === "inactive") player.status = "inactive";
 
             if (
                 (!player.discordTag || player.discordTag === "none") &&
@@ -1420,11 +1413,31 @@ function calcularRanking(
     );
 
 
-    const ranking =
-        Object.values(
-            mapa
-        );
+    const ranking = Object.values(mapa);
 
+    // Posição individual em cada modo, calculada dentro do dispositivo filtrado.
+    const posicoesPorModo = {};
+    MODOS.forEach(modo => {
+        const grupoModo = ranking
+            .filter(player => player.modoTiers?.[modo])
+            .map(player => ({
+                id: player.id,
+                nome: player.nome,
+                tier: player.modoTiers[modo],
+                posicoes: player.posicoes || {},
+                posicao: player.posicao,
+                modo
+            }));
+        if (!grupoModo.length) return;
+        calcularPosicoesPorTier(grupoModo, modo);
+        grupoModo.forEach(player => {
+            if (!posicoesPorModo[normalizarNick(player.nome)]) posicoesPorModo[normalizarNick(player.nome)] = {};
+            posicoesPorModo[normalizarNick(player.nome)][modo] = player.posicaoTier || null;
+        });
+    });
+    ranking.forEach(player => {
+        player.modoPosicoes = posicoesPorModo[normalizarNick(player.nome)] || {};
+    });
 
     /*
        Calcular score global.
@@ -1590,12 +1603,7 @@ function aplicarFiltros() {
                         "";
 
 
-                    return nome
-                        .toLowerCase()
-                        .includes(
-                            filtroBusca
-                                .toLowerCase()
-                        );
+                    return normalizarNick(nome).includes(normalizarNick(filtroBusca));
 
                 }
             );
@@ -1607,20 +1615,14 @@ function aplicarFiltros() {
        DISPOSITIVO
     */
 
-    if (
-        filtroDispositivo !==
-        "todos"
-    ) {
+    filtrados = filtrados.filter(player => player.dispositivo === filtroDispositivo);
 
-        filtrados =
-            filtrados.filter(
-                player =>
+    if (filtroCargo !== "todos") {
+        filtrados = filtrados.filter(player => getPlayerCargos(player).includes(filtroCargo));
+    }
 
-                    player.dispositivo ===
-                    filtroDispositivo
-
-            );
-
+    if (filtroStatus !== "todos") {
+        filtrados = filtrados.filter(player => getStatus(player) === filtroStatus);
     }
 
 
@@ -2202,11 +2204,10 @@ async function editarPosicaoOverall(id) {
         }
 
 
-        if (
-            !mapa[p.nome]
-        ) {
+        const chaveNick = normalizarNick(p.nome);
+        if (!mapa[chaveNick]) {
 
-            mapa[p.nome] = {
+            mapa[chaveNick] = {
 
                 id: p.id,
 
@@ -2228,6 +2229,8 @@ async function editarPosicaoOverall(id) {
                     p.discordTag ||
                     "none",
 
+                cargos: getPlayerCargos(p),
+
                 tiers: [],
 
                 modos:
@@ -2243,7 +2246,7 @@ async function editarPosicaoOverall(id) {
 
 
         const jogador =
-            mapa[p.nome];
+            mapa[chaveNick];
 
 
         if (
@@ -3200,7 +3203,7 @@ if (
         () => {
 
             filtroBusca =
-                searchInput.value.trim();
+                normalizarNick(searchInput.value);
 
 
             aplicarFiltros();
@@ -3272,6 +3275,44 @@ if (
 
 
 /* =========================================
+   FILTROS DE CARGO E STATUS + DISPOSITIVO
+========================================= */
+
+function prepararFiltrosExtras() {
+    const device = document.getElementById("device-filter");
+    if (device) {
+        [...device.options].forEach(option => { if (option.value === "todos") option.remove(); });
+        if (!device.querySelector(`option[value="${filtroDispositivo}"]`)) filtroDispositivo = device.options[0]?.value || "mobile";
+        device.value = filtroDispositivo;
+    }
+
+    const row = document.querySelector(".filters-row");
+    if (!row) return;
+    const cargos = [
+        ["owner", "Dono"], ["admin", "Adm"], ["mod", "Moderador"], ["tester", "Tester"],
+        ["famous", "Famoso"], ["media", "Média"], ["helper", "Ajudante"], ["vip", "VIP"]
+    ];
+    if (!document.getElementById("cargo-filter")) {
+        const wrap = document.createElement("div"); wrap.className = "filter-item";
+        const label = document.createElement("label"); label.htmlFor = "cargo-filter"; label.textContent = "Cargo";
+        const select = document.createElement("select"); select.id = "cargo-filter";
+        select.innerHTML = `<option value="todos">Todos os cargos</option>` + cargos.map(([v,n]) => `<option value="${v}">${n}</option>`).join("");
+        select.addEventListener("change", () => { filtroCargo = select.value; aplicarFiltros(); });
+        wrap.append(label, select); row.appendChild(wrap);
+    }
+    if (!document.getElementById("status-filter")) {
+        const wrap = document.createElement("div"); wrap.className = "filter-item";
+        const label = document.createElement("label"); label.htmlFor = "status-filter"; label.textContent = "Status";
+        const select = document.createElement("select"); select.id = "status-filter";
+        select.innerHTML = `<option value="todos">Todos os status</option><option value="active">Ativo</option><option value="inactive">Inativo</option>`;
+        select.addEventListener("change", () => { filtroStatus = select.value; aplicarFiltros(); });
+        wrap.append(label, select); row.appendChild(wrap);
+    }
+}
+
+prepararFiltrosExtras();
+
+/* =========================================
    ESTATÍSTICAS
 ========================================= */
 
@@ -3310,10 +3351,7 @@ function atualizarStats(
     const nomes =
         new Set(
 
-            ranking.map(
-                player =>
-                    player.nome
-            )
+            ranking.map(player => normalizarNick(player.nome)).filter(Boolean)
 
         );
 
@@ -3484,26 +3522,11 @@ function abrirPlayerModal(
                             class="player-mode-row"
                         >
 
-                            <span
-                                class="mode-name"
-                            >
-
-                                ${modo}
-
-                            </span>
+                            <span class="mode-name">${modo}</span>
 
 
                             <div class="player-mode-tier-group">
-                                <span
-                                    class="player-mode-description"
-                                >
-                                    ${descricaoTier(tier)}
-                                </span>
-                                <span
-                                    class="player-tier tier-${normalizarTier(tier)}"
-                                >
-                                    ${formatTier(tier)}
-                                </span>
+                                <span class="player-tier tier-${normalizarTier(tier)}">${formatTier(tier)}${player.modoPosicoes?.[modo] ? ` #${player.modoPosicoes[modo]}` : (filtroModo === modo && player.posicaoTier ? ` #${player.posicaoTier}` : "")}</span>
                             </div>
 
                         </div>
@@ -3632,7 +3655,7 @@ function abrirPlayerModal(
                     <span class="leaderboard-status ${getStatus(player)}">
                         ● ${getStatus(player) === "inactive" ? "Inativo" : "Ativo"}
                     </span>
-                    ${getDiscordTagHTML(player)}
+                    ${getDiscordTagHTML(player, true)}
                 </div>
 
             </div>
@@ -3936,7 +3959,7 @@ function bmcBuildEloRanking() {
     if (!season) return [];
     const modeSelect = document.getElementById("mode-filter");
     const selectedMode = modeSelect?.value || "overall";
-    const selectedDevice = document.getElementById("device-filter")?.value || "todos";
+    const selectedDevice = document.getElementById("device-filter")?.value || filtroDispositivo;
     const result = [];
 
     bmcRankedProfiles.forEach(profileDoc => {
