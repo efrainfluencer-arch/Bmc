@@ -1255,24 +1255,17 @@ function calcularRanking(
         */
 
         rankingModo.forEach(
-            player => {
+            (player, index) => {
 
                 player.score =
+                    getPoints(player.tier) +
+                    (player.bonusPosicao || 0);
 
-                    getPoints(
-                        player.tier
-                    )
-
-                    +
-
-                    (
-                        player.bonusPosicao ||
-                        0
-                    );
+                // Posição real no ranking do modo, atravessando todas as tiers.
+                player.posicaoModo = index + 1;
 
             }
         );
-
 
         return rankingModo;
 
@@ -1415,7 +1408,8 @@ function calcularRanking(
 
     const ranking = Object.values(mapa);
 
-    // Posição individual em cada modo, calculada dentro do dispositivo filtrado.
+    // Posição real em cada modo: ordena por tier e desempate da tier,
+    // depois numera a lista inteira (não reinicia em #1 a cada tier).
     const posicoesPorModo = {};
     MODOS.forEach(modo => {
         const grupoModo = ranking
@@ -1430,9 +1424,16 @@ function calcularRanking(
             }));
         if (!grupoModo.length) return;
         calcularPosicoesPorTier(grupoModo, modo);
-        grupoModo.forEach(player => {
-            if (!posicoesPorModo[normalizarNick(player.nome)]) posicoesPorModo[normalizarNick(player.nome)] = {};
-            posicoesPorModo[normalizarNick(player.nome)][modo] = player.posicaoTier || null;
+        grupoModo.sort((a, b) => {
+            const tierA = ORDEM_TIER[normalizarTier(a.tier)] ?? 999;
+            const tierB = ORDEM_TIER[normalizarTier(b.tier)] ?? 999;
+            if (tierA !== tierB) return tierA - tierB;
+            return (a.posicaoTier || 999999) - (b.posicaoTier || 999999);
+        });
+        grupoModo.forEach((player, index) => {
+            const nick = normalizarNick(player.nome);
+            if (!posicoesPorModo[nick]) posicoesPorModo[nick] = {};
+            posicoesPorModo[nick][modo] = index + 1;
         });
     });
     ranking.forEach(player => {
@@ -3569,7 +3570,7 @@ function abrirPlayerModal(
         filtroModo !==
         "overall" &&
 
-        player.posicaoTier
+        player.posicaoModo
     ) {
 
         posicaoHTML = `
@@ -3580,14 +3581,14 @@ function abrirPlayerModal(
 
                 <span>
 
-                    Posição na tier
+                    Posição no modo ${filtroModo}
 
                 </span>
 
 
                 <strong>
 
-                    #${player.posicaoTier}
+                    #${player.posicaoModo}
 
                 </strong>
 
@@ -3597,6 +3598,19 @@ function abrirPlayerModal(
 
     }
 
+
+    const totalModos = Object.keys(player.modoTiers || {}).length;
+    const tiersContagem = Object.values(player.modoTiers || {}).reduce((acc, tier) => {
+        const chave = formatTier(tier);
+        acc[chave] = (acc[chave] || 0) + 1;
+        return acc;
+    }, {});
+    const resumoTiersHTML = Object.entries(tiersContagem)
+        .map(([tier, quantidade]) => `<span class="profile-tier-summary">${tier} <strong>×${quantidade}</strong></span>`)
+        .join("");
+    const posicaoGeralHTML = filtroModo === "overall" && player.posicaoOverall
+        ? `<div class="modal-tier-position"><span>Posição no Overall</span><strong>#${player.posicaoOverall}</strong></div>`
+        : "";
 
     /*
        Modal
@@ -3688,7 +3702,17 @@ function abrirPlayerModal(
 
 
         ${posicaoHTML}
+        ${posicaoGeralHTML}
 
+        <section class="profile-overview">
+            <div class="profile-overview-heading">
+                <h3>Resumo do jogador</h3>
+                <span>${totalModos} ${totalModos === 1 ? "modo" : "modos"}</span>
+            </div>
+            <div class="profile-tier-summary-list">
+                ${resumoTiersHTML || '<span class="profile-tier-summary">Sem tiers cadastradas</span>'}
+            </div>
+        </section>
 
         <div
             class="modal-modes"

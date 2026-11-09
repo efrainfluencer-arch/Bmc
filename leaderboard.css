@@ -3720,3 +3720,97 @@ button, .filter-btn, .filter-button, .device-filter, .mode-filter {
 
 /* Movimento discreto: sem animações de entrada nos cards */
 .ranking-card,.top-card,.stat-card { animation: none !important; }
+
+/* =========================================================
+   BMC UPDATE — PERFIL, FUNDO DO MODAL E DESKTOP/MOBILE
+   Última camada de compatibilidade para neutralizar regras antigas.
+========================================================= */
+#player-modal.player-modal {
+    box-sizing: border-box !important;
+    background: transparent !important;
+    padding: clamp(8px, 2.5vw, 24px) !important;
+    overflow: hidden !important;
+}
+#player-modal .player-modal-overlay {
+    background: rgba(4, 13, 25, .78) !important;
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+}
+#player-modal .player-modal-content {
+    box-sizing: border-box !important;
+    width: min(600px, 100%) !important;
+    max-width: 100% !important;
+    max-height: min(90vh, 900px) !important;
+    max-height: min(90dvh, 900px) !important;
+    margin: auto !important;
+    background: #102238 !important;
+    color: #f3f6fc !important;
+    border: 1px solid rgba(148, 163, 184, .22) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .42) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+#player-modal #player-modal-body { min-width: 0; width: 100%; }
+#player-modal .modal-player-info { min-width: 0; }
+#player-modal .modal-player-header h2 { overflow-wrap: anywhere; }
+#player-modal .profile-overview {
+    margin: 0 0 24px;
+    padding: 16px;
+    border: 1px solid rgba(148, 163, 184, .16);
+    border-radius: 13px;
+    background: rgba(255, 255, 255, .035);
+}
+#player-modal .profile-overview-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+#player-modal .profile-overview-heading h3 { margin: 0; font-size: 16px; }
+#player-modal .profile-overview-heading > span { color: #9fb0c5; font-size: 12px; }
+#player-modal .profile-tier-summary-list { display: flex; flex-wrap: wrap; gap: 8px; }
+#player-modal .profile-tier-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    color: #dce7f5;
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(148, 163, 184, .13);
+    font-size: 12px;
+}
+#player-modal .profile-tier-summary strong { color: #7ce6a2; }
+#player-modal .modal-tier-position {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 18px;
+    padding: 12px 15px;
+    border: 1px solid rgba(34, 197, 94, .22);
+    border-radius: 11px;
+    background: rgba(34, 197, 94, .07);
+}
+#player-modal .modal-tier-position span { color: #aab9ca; font-size: 13px; }
+#player-modal .modal-tier-position strong { color: #6ee7a0; font-size: 19px; }
+@media (max-width: 600px) {
+    #player-modal.player-modal { padding: 8px !important; }
+    #player-modal .player-modal-content {
+        width: 100% !important;
+        max-height: 92vh !important;
+        max-height: 92dvh !important;
+        padding: 20px 14px !important;
+        border-radius: 15px !important;
+    }
+    #player-modal .modal-player-header { align-items: flex-start; gap: 12px; }
+    #player-modal .modal-player-avatar { width: 70px; height: 70px; }
+    #player-modal .modal-player-header h2 { font-size: 19px; }
+    #player-modal .profile-overview { padding: 13px; }
+}
+@media (min-width: 1000px) {
+    #player-modal .player-modal-content { width: min(620px, calc(100vw - 48px)) !important; }
+}
