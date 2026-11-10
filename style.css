@@ -3313,7 +3313,8 @@ input[type="file"]{
 .bmc-page-intro{text-align:center;margin:0 auto 40px;max-width:780px}
 .bmc-page-intro h1{font-size:clamp(2.35rem,5.8vw,4rem);line-height:1.08}
 .bmc-page-intro p{color:var(--text-secondary);line-height:1.75}
-.bmc-page-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch}
+.bmc-page-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:24px;align-items:stretch;width:100%;min-width:0}
+@media (max-width: 700px){.bmc-page-list{grid-template-columns:minmax(0,1fr);gap:16px}.bmc-page-item-body{padding:20px}.bmc-page-section{padding:42px 0 64px}.bmc-page-intro{margin-bottom:28px}.bmc-page-toolbar{justify-content:stretch}.bmc-page-toolbar .secondary-btn{width:100%;justify-content:center}}
 .bmc-page-item{display:flex;flex-direction:column;min-width:0;border-radius:20px;overflow:hidden;padding:0}
 .bmc-page-item-image{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#091626}
 .bmc-page-item-body{display:flex;flex-direction:column;gap:12px;padding:clamp(18px,2.2vw,26px);min-width:0;overflow-wrap:anywhere;flex:1}
@@ -3333,3 +3334,9 @@ input[type="file"]{
 /* Discord: ícone no mobile; ícone e texto em telas maiores */
 .discord-btn .discord-label { display:inline; }
 @media (max-width:700px) { .discord-btn .discord-label { display:none; } .discord-btn { min-width:42px; padding:10px 12px; } }
+
+/* BMC NEWS — layout responsivo corrigido */
+.bmc-page-list > *{min-width:0;max-width:100%}
+.bmc-page-item-body{min-width:0}
+.bmc-page-item-body h2,.bmc-page-item-body p,.bmc-page-content{overflow-wrap:anywhere;word-break:normal}
+.bmc-page-item-image{max-width:100%;height:auto}
