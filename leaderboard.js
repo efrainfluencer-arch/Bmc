@@ -3608,6 +3608,16 @@ function abrirPlayerModal(
     const resumoTiersHTML = Object.entries(tiersContagem)
         .map(([tier, quantidade]) => `<span class="profile-tier-summary">${tier} <strong>×${quantidade}</strong></span>`)
         .join("");
+    const perfil = bmcRankedProfiles.find(item => String(item.id) === String(player.discordId || ""))?.data || {};
+    const compsVencidas = Number(perfil.compsVencidas || 0);
+    const compsPerdidas = Number(perfil.compsPerdidas || 0);
+    const testesPassados = Number(perfil.testesPassados || 0);
+    const testesReprovados = Number(perfil.testesReprovados || 0);
+    const torneiosVencidos = bmcTournamentRecords.filter(item => {
+        const t = item.data || {};
+        return String(t.status || "").toLowerCase() === "completed" &&
+            normalizarNick(t.championNick) === normalizarNick(player.nome);
+    }).length;
     const posicaoGeralHTML = filtroModo === "overall" && player.posicaoOverall
         ? `<div class="modal-tier-position"><span>Posição no Overall</span><strong>#${player.posicaoOverall}</strong></div>`
         : "";
@@ -3706,12 +3716,23 @@ function abrirPlayerModal(
 
         <section class="profile-overview">
             <div class="profile-overview-heading">
-                <h3>Resumo do jogador</h3>
+                <h3>Resumo dos Tiers</h3>
                 <span>${totalModos} ${totalModos === 1 ? "modo" : "modos"}</span>
             </div>
             <div class="profile-tier-summary-list">
                 ${resumoTiersHTML || '<span class="profile-tier-summary">Sem tiers cadastradas</span>'}
             </div>
+        </section>
+
+        <section class="bmc-profile-stats">
+            <h3>Histórico competitivo</h3>
+            <div class="bmc-profile-stats-grid">
+                <article class="bmc-profile-stat tournament-stat"><span class="bmc-profile-stat-icon">🏆</span><span class="bmc-profile-stat-label">Torneios vencidos</span><strong>${torneiosVencidos}</strong></article>
+                <article class="bmc-profile-stat comp-stat"><span class="bmc-profile-stat-icon">⚔</span><span class="bmc-profile-stat-label">Comps W/L</span><strong>${compsVencidas}<small> / ${compsPerdidas}</small></strong></article>
+                <article class="bmc-profile-stat test-stat"><span class="bmc-profile-stat-icon">✓</span><span class="bmc-profile-stat-label">Tests passados</span><strong>${testesPassados}</strong></article>
+                <article class="bmc-profile-stat test-fail-stat"><span class="bmc-profile-stat-icon">▤</span><span class="bmc-profile-stat-label">Tests P/R</span><strong>${testesPassados}<small> / ${testesReprovados}</small></strong></article>
+            </div>
+            <p class="bmc-profile-legend">W = Win · L = Lose · P = Passou · R = Reprovado</p>
         </section>
 
         <div
@@ -3893,6 +3914,7 @@ const BMC_DIVISIONS = [
     { name: "Elite", min: 2700 }
 ];
 let bmcRankedProfiles = [];
+let bmcTournamentRecords = [];
 let bmcRankedSeasons = [];
 let bmcSelectedSeasonDoc = "current";
 let bmcCurrentSeason = null;
@@ -4188,6 +4210,14 @@ onSnapshot(collection(db, "profiles"), snapshot => {
     bmcRankedProfilesReady = true;
     if (bmcRankingType === "elo") aplicarFiltros();
 }, error => console.error("Erro ao carregar perfis Ranked:", error));
+
+// Histórico de torneios: a coleção e os campos seguem o bot BMC V2.
+onSnapshot(collection(db, "bmcTournaments"), snapshot => {
+    bmcTournamentRecords = snapshot.docs.map(item => ({ id: item.id, data: item.data() || {} }));
+    if (document.getElementById("player-modal")?.classList.contains("active")) {
+        // O próximo clique no jogador sempre abrirá o perfil com os dados atualizados.
+    }
+}, error => console.error("Erro ao carregar histórico de torneios:", error));
 
 onSnapshot(collection(db, "rankedSeasons"), snapshot => {
     bmcRankedSeasons = snapshot.docs.map(item => ({ docId: item.id, data: item.data() || {} }));

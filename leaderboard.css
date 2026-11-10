@@ -3814,3 +3814,81 @@ button, .filter-btn, .filter-button, .device-filter, .mode-filter {
 @media (min-width: 1000px) {
     #player-modal .player-modal-content { width: min(620px, calc(100vw - 48px)) !important; }
 }
+
+/* =========================================================
+   BMC PLAYER PROFILE — HISTÓRICO COMPETITIVO
+   Complemento visual inspirado na referência enviada.
+========================================================= */
+#player-modal .player-modal-content {
+  background: linear-gradient(145deg, #0b2a50 0%, #092342 52%, #071b34 100%) !important;
+  border: 1px solid rgba(91, 159, 226, .34) !important;
+  color: #edf5ff;
+  box-shadow: 0 24px 80px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.04);
+}
+#player-modal .modal-player-header { align-items:center; gap:18px; }
+#player-modal .modal-player-avatar {
+  border: 5px solid #12d889;
+  border-radius: 22px;
+  object-fit: cover;
+  background:#071626;
+}
+#player-modal .modal-player-info h2 { color:#f4f8ff; }
+#player-modal .modal-player-device { color:#91b9ed; }
+#player-modal .modal-player-score {
+  border:1px solid rgba(18,216,137,.55);
+  border-radius:16px;
+  background:linear-gradient(100deg,rgba(18,216,137,.12),rgba(18,216,137,.035));
+}
+#player-modal .modal-player-score strong { color:#16df91; }
+#player-modal .profile-overview,
+#player-modal .bmc-profile-stats,
+#player-modal .modal-modes {
+  background:rgba(15,52,91,.58);
+  border:1px solid rgba(111,169,229,.18);
+  border-radius:16px;
+  padding:16px;
+  margin-top:18px;
+}
+#player-modal .profile-overview-heading,
+#player-modal .bmc-profile-stats h3,
+#player-modal .modal-modes h3 { color:#f1f6ff; }
+#player-modal .profile-tier-summary {
+  background:rgba(52,112,176,.22);
+  border:1px solid rgba(125,180,235,.15);
+  color:#dcecff;
+}
+#player-modal .player-mode-row {
+  background:rgba(34,82,132,.42);
+  border:1px solid rgba(116,171,228,.16);
+  border-radius:13px;
+  margin:8px 0;
+  padding:12px 14px;
+}
+.bmc-profile-stats h3 { margin:0 0 14px; font-size:1.15rem; }
+.bmc-profile-stats-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.bmc-profile-stat {
+  min-width:0; display:grid; grid-template-columns:34px 1fr; grid-template-rows:auto auto;
+  align-items:center; column-gap:10px; padding:13px; border-radius:13px;
+  background:rgba(22,67,112,.55); border:1px solid rgba(117,174,231,.16);
+}
+.bmc-profile-stat-icon { grid-row:1 / 3; width:34px; height:34px; display:grid; place-items:center; border-radius:10px; background:rgba(255,255,255,.07); font-size:19px; }
+.bmc-profile-stat-label { color:#a9c7ec; font-size:.82rem; line-height:1.25; }
+.bmc-profile-stat strong { color:#f4f8ff; font-size:1.55rem; line-height:1.25; font-weight:800; font-variant-numeric:tabular-nums; }
+.bmc-profile-stat strong small { color:#9ebce0; font-size:.95rem; font-weight:600; }
+.tournament-stat .bmc-profile-stat-icon { color:#ffd36b; }
+.comp-stat .bmc-profile-stat-icon { color:#ffad76; }
+.test-stat .bmc-profile-stat-icon { color:#27e6a0; }
+.test-fail-stat .bmc-profile-stat-icon { color:#82baff; }
+.bmc-profile-legend { margin:12px 2px 0; color:#91afd3; font-size:.76rem; }
+@media(max-width:520px) {
+  #player-modal { padding:10px !important; }
+  #player-modal .player-modal-content { width:100% !important; max-width:100% !important; max-height:calc(100dvh - 20px) !important; padding:17px 13px !important; border-radius:17px !important; }
+  #player-modal .modal-player-header { gap:12px; }
+  #player-modal .modal-player-avatar { width:82px; height:82px; border-width:4px; border-radius:17px; }
+  #player-modal .modal-player-info h2 { font-size:1.25rem; overflow-wrap:anywhere; }
+  .bmc-profile-stats-grid { gap:8px; }
+  .bmc-profile-stat { padding:10px 9px; grid-template-columns:28px 1fr; column-gap:7px; }
+  .bmc-profile-stat-icon { width:28px; height:28px; font-size:16px; }
+  .bmc-profile-stat-label { font-size:.72rem; }
+  .bmc-profile-stat strong { font-size:1.3rem; }
+}
