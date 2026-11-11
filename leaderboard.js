@@ -97,7 +97,7 @@ const BONUS_POSICAO_TIER = {
 const MODOS = [
 
     "BedFight",
-    "Boxing",
+    "Block Fight",
     "Build UHC",
     "Mid Fight",
     "NodeBuff",
@@ -531,7 +531,7 @@ function getPosicaoSalva(
 
        posicoes: {
            BedFight: 1,
-           Boxing: 2
+           Boxing: 2 // chave histórica mantida para Block Fight
        }
     */
 
@@ -540,8 +540,10 @@ function getPosicaoSalva(
         typeof player.posicoes === "object"
     ) {
 
+        // Block Fight continua lendo a chave histórica "Boxing".
         const valor =
-            player.posicoes[modo];
+            player.posicoes[modo] ??
+            (modo === "Block Fight" ? player.posicoes.Boxing : undefined);
 
 
         if (
@@ -3899,7 +3901,7 @@ const BMC_RANKED_MODES = {
     builduhc: "Build UHC",
     nodebuff: "NodeBuff"
 };
-const BMC_TIER_MODE_OPTIONS = ["BedFight", "Boxing", "Build UHC", "Mid Fight", "NodeBuff", "SkyWars", "Sumo", "Survival Games"];
+const BMC_TIER_MODE_OPTIONS = ["BedFight", "Block Fight", "Build UHC", "Mid Fight", "NodeBuff", "SkyWars", "Sumo", "Survival Games"];
 const BMC_DIVISIONS = [
     { name: "Bronze IV", min: 0 }, { name: "Bronze III", min: 800 },
     { name: "Bronze II", min: 900 }, { name: "Bronze I", min: 1000 },
