@@ -97,7 +97,7 @@ const BONUS_POSICAO_TIER = {
 const MODOS = [
 
     "BedFight",
-    "Block Fight",
+    "Boxing",
     "Build UHC",
     "Mid Fight",
     "NodeBuff",
@@ -531,7 +531,7 @@ function getPosicaoSalva(
 
        posicoes: {
            BedFight: 1,
-           Boxing: 2 // chave histórica mantida para Block Fight
+           Boxing: 2
        }
     */
 
@@ -540,10 +540,8 @@ function getPosicaoSalva(
         typeof player.posicoes === "object"
     ) {
 
-        // Block Fight continua lendo a chave histórica "Boxing".
         const valor =
-            player.posicoes[modo] ??
-            (modo === "Block Fight" ? player.posicoes.Boxing : undefined);
+            player.posicoes[modo];
 
 
         if (
@@ -3901,7 +3899,7 @@ const BMC_RANKED_MODES = {
     builduhc: "Build UHC",
     nodebuff: "NodeBuff"
 };
-const BMC_TIER_MODE_OPTIONS = ["BedFight", "Block Fight", "Build UHC", "Mid Fight", "NodeBuff", "SkyWars", "Sumo", "Survival Games"];
+const BMC_TIER_MODE_OPTIONS = ["BedFight", "Boxing", "Build UHC", "Mid Fight", "NodeBuff", "SkyWars", "Sumo", "Survival Games"];
 const BMC_DIVISIONS = [
     { name: "Bronze IV", min: 0 }, { name: "Bronze III", min: 800 },
     { name: "Bronze II", min: 900 }, { name: "Bronze I", min: 1000 },
@@ -3916,6 +3914,9 @@ const BMC_DIVISIONS = [
     { name: "Elite", min: 2700 }
 ];
 let bmcRankedProfiles = [];
+let bmcClanRecords = [];
+let bmcClanRecordsReady = false;
+let bmcEloScope = "players";
 let bmcTournamentRecords = [];
 let bmcRankedSeasons = [];
 let bmcSelectedSeasonDoc = "current";
@@ -3928,6 +3929,8 @@ const rankingTypeFilter = document.getElementById("ranking-type-filter");
 const seasonFilter = document.getElementById("season-filter");
 const seasonFilterWrap = document.getElementById("season-filter-wrap");
 const seasonStatus = document.getElementById("ranked-season-status");
+const eloScopeFilter = document.getElementById("elo-scope-filter");
+const eloScopeWrap = document.getElementById("elo-scope-wrap");
 
 function bmcToDate(value) {
     if (!value) return null;
@@ -4054,6 +4057,66 @@ function bmcBuildEloRanking() {
     return result.sort((a, b) => b.elo - a.elo || a.nome.localeCompare(b.nome, "pt-BR"));
 }
 
+
+function bmcBuildClanEloRanking() {
+    const season = bmcSelectedSeasonDoc === "current"
+        ? bmcCurrentSeason
+        : bmcRankedSeasons.find(item => item.docId === bmcSelectedSeasonDoc)?.data;
+    if (!season) return [];
+    const selectedMode = document.getElementById("mode-filter")?.value || "overall";
+    const rows = [];
+    bmcClanRecords.forEach(record => {
+        const clan = record.data || {};
+        if (clan.status === "deleted" || clan.status === "inactive") return;
+        const name = String(clan.name || clan.tag || "").trim();
+        if (!name || (filtroBusca && !name.toLowerCase().includes(filtroBusca.toLowerCase()))) return;
+        const modes = selectedMode === "overall" ? Object.keys(BMC_RANKED_MODES) : [selectedMode];
+        const values = [], modeScores = {};
+        modes.forEach(mode => {
+            if (!BMC_RANKED_MODES[mode]) return;
+            const modeValues = [1,2,3].map(format => clan[`clanElo_${season.id}_${mode}_${format}`])
+                .filter(value => value !== undefined && value !== null && Number.isFinite(Number(value)))
+                .map(Number);
+            if (modeValues.length) {
+                modeScores[mode] = Math.round(modeValues.reduce((a,b)=>a+b,0)/modeValues.length);
+                values.push(...modeValues);
+            }
+        });
+        if (!values.length) return;
+        const elo = Math.round(values.reduce((a,b)=>a+b,0)/values.length);
+        rows.push({ id: record.id, nome: name, tag: String(clan.tag || ""), elo,
+            division: bmcDivision(elo), modeScores, memberCount: Array.isArray(clan.members) ? clan.members.length : 0,
+            imageUrl: typeof clan.imageUrl === "string" ? clan.imageUrl : "" });
+    });
+    return rows.sort((a,b)=>b.elo-a.elo || a.nome.localeCompare(b.nome,"pt-BR"));
+}
+
+function bmcRenderClanEloRanking(ranking) {
+    const top = document.getElementById("top-three-container");
+    const list = document.getElementById("leaderboard-list");
+    if (!top || !list) return;
+    top.innerHTML = ""; list.innerHTML = "";
+    ranking.slice(0,3).forEach((clan,index) => {
+        const card = document.createElement("div");
+        card.className = `top-card place-${index+1}`;
+        const image = clan.imageUrl ? `<img src="${clan.imageUrl}" class="top-avatar" alt="">` : `<div class="top-avatar clan-placeholder">${clan.nome.slice(0,1).toUpperCase()}</div>`;
+        card.innerHTML = `<div class="top-medal">#${index+1}</div>${image}<h2>${clan.nome}</h2><p>${clan.memberCount} membros</p><span>${clan.elo} Elo · ${clan.division}</span>`;
+        top.appendChild(card);
+    });
+    if (!ranking.length) {
+        list.innerHTML = '<p class="no-players">Nenhum Clã possui Elo registrado nesta temporada para os filtros selecionados.</p>';
+        return;
+    }
+    ranking.forEach((clan,index) => {
+        const card = document.createElement("div");
+        card.className = `ranking-card division-${bmcDivisionClass(clan.division)}`;
+        const details = Object.entries(clan.modeScores).map(([mode,elo])=>`<span class="ranked-mode-chip">${BMC_RANKED_MODES[mode]}: ${elo}</span>`).join("");
+        const image = clan.imageUrl ? `<img src="${clan.imageUrl}" class="ranking-avatar" alt="">` : `<div class="ranking-avatar clan-placeholder">${clan.nome.slice(0,1).toUpperCase()}</div>`;
+        card.innerHTML = `<div class="ranking-position">#${index+1}</div>${image}<div class="ranking-info"><div class="ranking-name">${clan.nome}${clan.tag ? ` [${clan.tag}]` : ""}</div><div class="ranking-device">${clan.memberCount} membros</div><div class="ranking-modes">${clan.division}</div><div class="ranked-mode-scores">${details}</div></div><div class="ranking-tier ranked-division">${clan.division}</div><div class="ranking-points">${clan.elo}<br><small>Elo</small></div>`;
+        list.appendChild(card);
+    });
+}
+
 function bmcRenderEloRanking(ranking) {
     const topContainer = document.getElementById("top-three-container");
     const listContainer = document.getElementById("leaderboard-list");
@@ -4173,16 +4236,29 @@ aplicarFiltros = function() {
             if (list) list.innerHTML = '<p class="no-players">Carregando dados da BMC Ranked...</p>';
             return;
         }
-        const ranking = bmcBuildEloRanking();
-        bmcRenderEloStats(ranking);
-        bmcRenderEloRanking(ranking);
+        if (eloScopeWrap) eloScopeWrap.hidden = false;
+        if (bmcEloScope === "clans") {
+            if (!bmcClanRecordsReady) {
+                const list = document.getElementById("leaderboard-list");
+                if (list) list.innerHTML = '<p class="no-players">Carregando ranking dos Clãs...</p>';
+                return;
+            }
+            const clanRanking = bmcBuildClanEloRanking();
+            bmcRenderEloStats(clanRanking);
+            bmcRenderClanEloRanking(clanRanking);
+        } else {
+            const ranking = bmcBuildEloRanking();
+            bmcRenderEloStats(ranking);
+            bmcRenderEloRanking(ranking);
+        }
         const title = document.querySelector(".top-three .section-title");
-        if (title) title.textContent = "Top 3 Ranked Elo";
+        if (title) title.textContent = bmcEloScope === "clans" ? "Top 3 Clãs • Ranked Elo" : "Top 3 Ranked Elo";
         const listTitle = document.querySelector(".players-list .section-title");
-        if (listTitle) listTitle.textContent = "Ranking Ranked Elo";
+        if (listTitle) listTitle.textContent = bmcEloScope === "clans" ? "Ranking de Clãs" : "Ranking Ranked Elo";
         return;
     }
     bmcRankingType = "tiers";
+    if (eloScopeWrap) eloScopeWrap.hidden = true;
     if (seasonFilterWrap) seasonFilterWrap.hidden = true;
     if (seasonStatus) seasonStatus.hidden = true;
     const title = document.querySelector(".top-three .section-title");
@@ -4196,6 +4272,12 @@ if (rankingTypeFilter) {
     rankingTypeFilter.addEventListener("change", () => {
         bmcRankingType = rankingTypeFilter.value;
         bmcUpdateModeOptions();
+        aplicarFiltros();
+    });
+}
+if (eloScopeFilter) {
+    eloScopeFilter.addEventListener("change", () => {
+        bmcEloScope = eloScopeFilter.value === "clans" ? "clans" : "players";
         aplicarFiltros();
     });
 }
@@ -4220,6 +4302,15 @@ onSnapshot(collection(db, "bmcTournaments"), snapshot => {
         // O próximo clique no jogador sempre abrirá o perfil com os dados atualizados.
     }
 }, error => console.error("Erro ao carregar histórico de torneios:", error));
+
+onSnapshot(collection(db, "clans"), snapshot => {
+    bmcClanRecords = snapshot.docs.map(item => ({ id: item.id, data: item.data() || {} }));
+    bmcClanRecordsReady = true;
+    if (bmcRankingType === "elo" && bmcEloScope === "clans") aplicarFiltros();
+}, error => {
+    console.error("Erro ao carregar Clãs:", error);
+    bmcClanRecordsReady = true;
+});
 
 onSnapshot(collection(db, "rankedSeasons"), snapshot => {
     bmcRankedSeasons = snapshot.docs.map(item => ({ docId: item.id, data: item.data() || {} }));
